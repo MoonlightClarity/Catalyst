@@ -1,0 +1,8 @@
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json());
+const page=pages.find(p=>p.type==='page'&&p.url.includes('run=shell-experiment')); if(!page) throw new Error('Catalyst shell page not found');
+const ws=new WebSocket(page.webSocketDebuggerUrl);let id=1;const p=new Map();
+ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&p.has(m.id)){p.get(m.id)(m);p.delete(m.id)}};await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const c=(method,params={})=>new Promise(r=>{const n=id++;p.set(n,r);ws.send(JSON.stringify({id:n,method,params}))});const v=async e=>(await c('Runtime.evaluate',{expression:e,returnByValue:true,awaitPromise:true})).result.result.value;
+await c('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false}); await c('Page.reload'); await new Promise(r=>setTimeout(r,2500));
+const out=await v(`(()=>{const hits=[],frames=[];const seen=new Set();const walk=root=>{if(!root||seen.has(root))return;seen.add(root);for(const e of root.querySelectorAll('*')){const text=(e.textContent||'').trim().replace(/\\s+/g,' ');const r=e.getBoundingClientRect();if(text&&(/Tradecraft Primer|Structured Analytic|Improving Intelligence|Prepared by the US Government/i.test(text)||/text-layer|textLayer/i.test(String(e.className))))hits.push({tag:e.tagName,cls:String(e.className).slice(0,120),text:text.slice(0,180),r:{x:r.x,y:r.y,w:r.width,h:r.height}});if(e.shadowRoot)walk(e.shadowRoot);if(e.tagName==='IFRAME'){frames.push({src:e.src,r:{x:r.x,y:r.y,w:r.width,h:r.height},accessible:!!e.contentDocument});try{walk(e.contentDocument)}catch{}}}};walk(document);return {viewport:{w:innerWidth,h:innerHeight},frames,hits:hits.slice(0,200)}})()`);
+console.log(JSON.stringify(out,null,2));ws.close();

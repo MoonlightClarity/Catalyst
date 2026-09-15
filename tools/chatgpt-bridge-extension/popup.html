@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Catalyst Watchdog</title>
+  <style>
+    body { font: 13px system-ui; min-width: 320px; padding: 12px; }
+    button { width: 100%; margin: 5px 0; padding: 8px; }
+    #status { white-space: pre-wrap; margin: 8px 0; }
+    .muted { opacity: .7; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <strong>Catalyst continuity watchdog</strong>
+  <div id="status">Loading…</div>
+  <button id="arm">Arm this chat until 6:30 AM ET</button>
+  <button id="disable">Disable watchdog</button>
+  <div class="muted">Disable is authoritative. The watchdog never guesses a target chat.</div>
+  <script src="popup.js"></script>
+</body>
+</html>

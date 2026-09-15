@@ -1,0 +1,15 @@
+import fs from 'node:fs';
+const raw = fs.readFileSync('C:/Users/iris/Downloads/Catalyst/tools/research-probes/2026-09-13/headless-workspace-after-source.json', 'utf8');
+const pages = await fetch('http://127.0.0.1:9229/json').then(r => r.json());
+const page = pages.find(x => x.type === 'page' && x.url.includes('127.0.0.1:5173'));
+if (!page) throw new Error('No Catalyst CDP page');
+const ws = new WebSocket(page.webSocketDebuggerUrl);
+let id = 1; const pending = new Map();
+ws.onmessage = e => { const m = JSON.parse(e.data); if (m.id && pending.has(m.id)) { pending.get(m.id)(m); pending.delete(m.id); } };
+await new Promise((resolve, reject) => { ws.onopen = resolve; ws.onerror = reject; });
+const call = (method, params = {}) => new Promise(resolve => { const n = id++; pending.set(n, resolve); ws.send(JSON.stringify({ id: n, method, params })); });
+await call('Runtime.evaluate', { expression: `localStorage.setItem('catalyst.browser.workspace.v1', ${JSON.stringify(raw)}); localStorage.removeItem('catalyst.recovery.v1'); true`, returnByValue: true });
+await call('Page.navigate', { url: 'http://127.0.0.1:5173/?research=unified-workflow&shell=spatial&run=attention-seed' });
+await new Promise(r => setTimeout(r, 1800));
+console.log('HEADLESS_WORKSPACE_LOADED');
+ws.close();

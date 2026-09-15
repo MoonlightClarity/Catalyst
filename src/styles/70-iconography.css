@@ -1,0 +1,60 @@
+/* Final iconography legibility layer. Geometry first; color remains supplementary. */
+.instrument-glyph {
+  shape-rendering: geometricPrecision;
+  stroke-width: var(--icon-stroke);
+}
+
+.icon-button > .instrument-glyph {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+.picture-outline-master-rename > .instrument-glyph {
+  width: 17px;
+  height: 17px;
+}
+
+.picture-outline-fold > .instrument-glyph {
+  width: var(--icon-sm);
+  height: var(--icon-sm);
+}
+
+.picture-node-metadata {
+  bottom: -18px;
+  gap: 3px;
+}
+
+.picture-node-meta {
+  min-width: 21px;
+  height: 21px;
+  padding: 0 4px;
+  font-size: 9px;
+}
+
+.picture-node-meta .instrument-glyph {
+  width: 13px;
+  height: 13px;
+  stroke-width: 1.9;
+}
+
+.picture-node-meta.is-role { border-radius: 50%; }
+.picture-node-meta.is-confidence { border-radius: 999px; }
+
+.picture-object-actions .instrument-glyph {
+  width: var(--icon-md);
+  height: var(--icon-md);
+}
+
+
+.thorium-pdf-toolbar .instrument-glyph,
+.thorium-pdf-search .instrument-glyph {
+  width: 17px;
+  height: 17px;
+}
+
+/* Freeze working-size floor for metadata carried by icons. */
+.picture-node-meta {
+  min-width: 23px;
+  height: 23px;
+  font-size: 11px;
+}

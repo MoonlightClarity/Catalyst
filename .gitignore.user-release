@@ -1,0 +1,101 @@
+# Catalyst user release
+#
+# This template is for the user-facing binary/distribution folder.
+# It is intentionally much stricter than the developer .gitignore.
+# Only distributable binaries, required runtime assets, license material,
+# and concise user-facing documentation should remain in the release.
+
+# Development source and project context
+src/
+docs/
+specs/
+archive/
+overlay/
+legacy/
+scripts/
+tools/
+test-files/
+.gitignore
+.gitignore.user-release
+license-audit-baseline.json
+
+# Developer notes and handoff material
+CURRENT_STATE.md
+DECISION_LOG.md
+NEXT_STEPS.md
+SOURCE_INDEX.md
+ENGINEERING_FINDINGS.md
+PASS_LOG.md
+PATCH-NOTES.md
+PORTRAYAL_EXECUTION.md
+RESEARCH_SYNTHESIS.md
+workspace-maintenance.md
+
+# Development dependencies and configuration
+node_modules/
+package.json
+package-lock.json
+tsconfig*.json
+vite.config.*
+*.tsbuildinfo
+
+# Development and maintenance scripts
+*.ps1
+*.py
+__pycache__/
+*.py[cod]
+
+# Backups, rollback data, and temporary work
+.catalyst-backups/
+.chatgpt-backups/
+.rollback/
+tmp/
+temp/
+.cache/
+.vite/
+
+# Tests, coverage, and diagnostics
+coverage/
+test-results/
+playwright-report/
+.nyc_output/
+*.log
+*.tmp
+*.bak
+
+# Machine-local environment and secrets
+.env
+.env.*
+github-recovery-codes.txt
+
+# Editor / operating-system metadata
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+Desktop.ini
+*~
+*.swp
+
+# User-created/runtime state should live outside the install directory.
+# Ignore it if a packaging/runtime bug places it inside the release tree.
+user-data/
+sessions/
+autosave/
+recovery/
+logs/
+*.db
+*.db-shm
+*.db-wal
+*.db-journal
+*.sqlite
+*.sqlite3
+*.catalyst.xml
+
+# Optional debug artifacts not intended for normal users
+*.map
+*.pdb
+
+# Intentionally keep user-facing release material such as:
+# LICENSE.txt, LICENSES.md, README.md,
+# required application binaries, and required runtime assets.

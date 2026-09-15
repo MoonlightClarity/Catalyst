@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Catalyst Chat Bridge",
+  "version": "0.7.0",
+  "description": "Local development bridge plus continuity watchdog for controlled ChatGPT drafting and sending.",
+  "permissions": ["storage", "alarms", "tabs"],
+  "host_permissions": ["https://chatgpt.com/*"],
+  "background": { "service_worker": "background.js" },
+  "action": { "default_popup": "popup.html", "default_title": "Catalyst Watchdog" },
+  "content_scripts": [
+    {
+      "matches": ["https://chatgpt.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

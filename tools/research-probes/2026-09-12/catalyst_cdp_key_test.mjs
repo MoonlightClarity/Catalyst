@@ -1,0 +1,15 @@
+const pages = await fetch('http://127.0.0.1:9229/json').then(r => r.json());
+const page = pages.find(p => p.url.includes('fixture=tradecraft'));
+const ws = new WebSocket(page.webSocketDebuggerUrl); const pending = new Map(); let nextId=1;
+ws.onmessage=e=>{const m=JSON.parse(e.data); if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id);}};
+await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j;});
+const cmd=(method,params={})=>new Promise(r=>{const id=nextId++;pending.set(id,r);ws.send(JSON.stringify({id,method,params}));});
+const ev=async expression=>(await cmd('Runtime.evaluate',{expression,returnByValue:true})).result.result.value;
+await cmd('Runtime.enable'); await cmd('Input.enable').catch(()=>{});
+await ev(`document.body.tabIndex=-1; document.body.focus(); true`);
+console.log('BEFORE',await ev(`document.querySelector('.unified-layer-toggle')?.textContent.trim()`));
+await cmd('Input.dispatchKeyEvent',{type:'keyDown',key:'F6',code:'F6',windowsVirtualKeyCode:117,nativeVirtualKeyCode:117});
+await cmd('Input.dispatchKeyEvent',{type:'keyUp',key:'F6',code:'F6',windowsVirtualKeyCode:117,nativeVirtualKeyCode:117});
+await new Promise(r=>setTimeout(r,250));
+console.log('AFTER',await ev(`document.querySelector('.unified-layer-toggle')?.textContent.trim()`));
+ws.close();

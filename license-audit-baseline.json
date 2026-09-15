@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "ecosystems": {
+    "npm": {
+      "fingerprint": "f2424c383d6aae9c4b9958b402dca43769fc5cb574a82192732ad740049b4ff0",
+      "validatedAt": "2026-09-15T12:03:56.429Z"
+    },
+    "cargo": {
+      "fingerprint": "81e5df073406a2bac272e025a8398d01a51a511bca967f98e65627413f7c2afa",
+      "validatedAt": "2026-09-13T20:23:36.685Z"
+    }
+  }
+}

@@ -1,0 +1,18 @@
+import fs from 'fs';
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json());
+const page=pages.find(p=>p.type==='page'); if(!page) throw new Error('No CDP page');
+const ws=new WebSocket(page.webSocketDebuggerUrl); let id=1; const pending=new Map();
+ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
+await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const c=(method,params={})=>new Promise(r=>{const n=id++;pending.set(n,r);ws.send(JSON.stringify({id:n,method,params}))});
+const v=async expr=>(await c('Runtime.evaluate',{expression:expr,returnByValue:true,awaitPromise:true})).result.result.value;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+await c('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+await c('Page.navigate',{url:'http://127.0.0.1:5173/?research=unified-workflow&fixture=tradecraft&shell=reader&run=evidence-design'});await sleep(3500);
+await v(`([...document.querySelectorAll('[role=tab]')].find(e=>e.textContent.trim().startsWith('Evidence')))?.click();true`);await sleep(700);
+let shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+fs.writeFileSync('C:/Users/iris/Downloads/Catalyst/tools/research-probes/2026-09-12/artifacts/evidence-dark-context-focus-v1.png',Buffer.from(shot.result.data,'base64'));
+await v(`document.querySelector('.pdf-pane')?.click();true`);await sleep(500);
+shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+fs.writeFileSync('C:/Users/iris/Downloads/Catalyst/tools/research-probes/2026-09-12/artifacts/evidence-dark-source-focus-v1.png',Buffer.from(shot.result.data,'base64'));
+console.log(JSON.stringify(await v(`(()=>({workspace:document.querySelector('.workspace')?.className,mode:document.querySelector('.context-pane')?.dataset.contextMode,tabs:[...document.querySelectorAll('[role=tab]')].map(e=>e.textContent.trim())}))()`),null,2));ws.close();

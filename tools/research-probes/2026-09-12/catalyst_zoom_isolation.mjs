@@ -1,0 +1,27 @@
+const shell=process.argv[2];
+if(!['reader','split'].includes(shell)) throw new Error('reader|split required');
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json());
+const page=pages.find(p=>p.type==='page'); if(!page) throw new Error('No CDP page');
+const ws=new WebSocket(page.webSocketDebuggerUrl);let id=1;const pending=new Map();
+ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
+await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const c=(method,params={})=>new Promise(r=>{const n=id++;pending.set(n,r);ws.send(JSON.stringify({id:n,method,params}))});
+const v=async expr=>(await c('Runtime.evaluate',{expression:expr,returnByValue:true,awaitPromise:true})).result.result.value;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+await c('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+await v(`localStorage.removeItem('catalyst.browser.workspace.v1');localStorage.removeItem('catalyst.recovery.v1');true`);
+await c('Page.navigate',{url:`http://127.0.0.1:5173/?research=unified-workflow&fixture=tradecraft&shell=${shell}&run=zoom-isolation`});
+await sleep(5000);const snapshot=()=>v(`(()=>{const q=s=>document.querySelector(s),rr=e=>{if(!e)return null;const r=e.getBoundingClientRect();return{x:r.x,y:r.y,w:r.width,h:r.height}};const root=q('embedpdf-container')?.shadowRoot;const imgs=[...(root?.querySelectorAll('img')||[])].map(e=>({e,r:e.getBoundingClientRect()})).filter(x=>x.r.width>100&&x.r.height>100&&x.r.y<900).sort((a,b)=>b.r.width-a.r.width);const p=imgs[0];return{workspace:q('.workspace')?.className,pdf:rr(q('.pdf-pane')),context:rr(q('.context-pane')),page:p?rr(p.e):null,occ:[...document.querySelectorAll('.picture-occurrence')].map(rr)}})()`);
+const out={shell,initial:await snapshot()};
+const r=out.initial.page;if(!r)throw new Error('no page');
+const sx=r.x+(150/612)*r.w,sy=r.y+((792-515)/792)*r.h,ex=r.x+(410/612)*r.w,ey=r.y+((792-465)/792)*r.h;
+await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:sx,y:sy});await c('Input.dispatchMouseEvent',{type:'mousePressed',x:sx,y:sy,button:'left',clickCount:1});
+for(let i=1;i<=18;i++){await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:sx+(ex-sx)*i/18,y:sy+(ey-sy)*i/18,button:'left',buttons:1});await sleep(25)}
+await c('Input.dispatchMouseEvent',{type:'mouseReleased',x:ex,y:ey,button:'left',clickCount:1});await sleep(1000);
+await v(`document.querySelector('[aria-label="Create linked thought"]')?.click();true`);await sleep(1800);
+out.afterCreate=await snapshot();
+await v(`document.querySelector('.source-jump')?.click();true`);await sleep(1800);
+out.afterReturn=await snapshot();await v(`document.querySelector('.context-tab')?.click();true`);await sleep(250);
+out.resume250=await snapshot();await sleep(750);out.resume1000=await snapshot();await sleep(2000);out.resume3000=await snapshot();
+await v(`document.querySelector('[aria-label="Fit picture"]')?.click();true`);await sleep(250);out.fit250=await snapshot();await sleep(750);out.fit1000=await snapshot();
+console.log(JSON.stringify(out,null,2));ws.close();

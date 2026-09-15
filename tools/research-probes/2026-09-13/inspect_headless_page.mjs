@@ -1,0 +1,4 @@
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json()); const page=pages.find(x=>x.type==='page');
+const ws=new WebSocket(page.webSocketDebuggerUrl); let id=1; const p=new Map(); ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&p.has(m.id)){p.get(m.id)(m);p.delete(m.id)}}; await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const c=(method,params={})=>new Promise(r=>{const n=id++;p.set(n,r);ws.send(JSON.stringify({id:n,method,params}))}); const v=async expression=>(await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true})).result.result;
+const result=await v(`({url:location.href,title:document.title,body:document.body?.innerText?.slice(0,1000),html:document.body?.innerHTML?.slice(0,500),root:document.getElementById('root')?.innerHTML?.slice(0,500)})`); console.log(JSON.stringify(result.value,null,2)); ws.close();

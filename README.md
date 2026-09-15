@@ -1,0 +1,130 @@
+# Catalyst
+
+Catalyst is a local-first analytical workspace for reading source material, building structured outlines, and applying analytic methods without requiring a cloud service, proprietary backend, or AI system.
+
+It is designed for rigorous research and intelligence-style analysis, but it is not limited to intelligence work. Catalyst is useful anywhere a researcher needs to move from source material to a clear, inspectable analytical structure.
+
+## Core workflow
+
+1. **Open a PDF** â€” work directly with local source documents in the integrated reader.
+2. **Build the Outline** â€” create and edit a numbered hierarchical structure alongside the source.
+3. **Develop the analysis** â€” write notes directly in Outline items and reorganize them as the analysis changes.
+4. **Apply Methods when useful** â€” build an ordered sequence of analytic methods from the catalog or create custom methods.
+5. **Save locally** â€” preserve the workspace as portable Catalyst XML while keeping source PDFs separate.
+6. **Return later** â€” load the saved Catalyst session and reconnect its source documents.
+
+Catalyst treats the **Outline as the primary analytical structure**. There is no separate thought, graph, evidence, assessment, or map workspace between the analyst and the outline.
+
+## Design principles
+
+- **Local first.** Core work does not depend on an account or hosted application backend.
+- **Source centered.** The reader and analytical workspace stay together without modifying the original PDF.
+- **Outline first.** Analytical structure should be explicit, compact, and easy to reorganize.
+- **Methods are optional.** Structured analytic techniques support judgment; they do not replace it.
+- **Low cognitive load.** Catalyst favors a small number of durable surfaces over feature-heavy workspaces.
+- **Inspectable work.** Analytical structure and method responses remain visible and editable rather than hidden behind automation.
+- **Open implementation.** Catalyst is built from standard web technologies and licensed for reuse and modification.
+
+## What Catalyst includes
+
+### PDF reader
+
+Catalyst opens local PDF documents in an integrated PDF.js-based reader. The reader provides the source-viewing controls needed for normal document work while keeping the surrounding Catalyst interface minimal.
+
+Catalyst does not alter the original PDF. Source documents remain separate from Catalyst session files.
+
+### Outline
+
+The Outline is the main authoring surface. It supports hierarchical, numbered analytical notes with inline editing and direct structural controls for adding, deleting, indenting, outdenting, and reordering items.
+
+The Outline is intended to remain useful from an initial rough structure through a developed analytical argument without requiring a separate workspace or ontology.
+
+### Methods
+
+Methods provide an independent ordered workspace for structured analytic techniques. A method can come from Catalyst's catalog or be created as a custom method.
+
+Methods can contain ordered subtasks and response fields, allowing the analyst to adapt a technique to the problem rather than treating the catalog as a fixed form library. Catalog clusters are used for filtering and discovery rather than becoming part of the analytical output.
+
+Methods are optional: a Catalyst session can be built entirely around the source and Outline when formal techniques are unnecessary.
+
+### Local sessions
+
+Catalyst persists workspace state through XML. Explicit saves produce portable `.catalyst.xml` session files. Source PDFs remain separate and are reconnected when a saved session is reopened.
+
+## Technology
+
+Catalyst's active application is intentionally small:
+
+- React
+- TypeScript
+- Vite
+- `pdfjs-dist`
+- XML-backed Catalyst session persistence
+
+The active application is browser-based and local. Legacy experiments and retired implementation material are not part of the runtime.
+
+## Getting started
+
+### Requirements
+
+- Windows with PowerShell
+- Node.js and npm
+
+From the repository root:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\install.ps1
+powershell -ExecutionPolicy Bypass -File .\run.ps1
+```
+
+Catalyst runs locally at `http://127.0.0.1:5173`.
+
+`run.ps1` verifies the dependency state and can install missing dependencies automatically unless `-SkipInstall` is used.
+
+For direct npm development:
+
+```powershell
+npm ci
+npm run dev
+```
+
+## Validation
+
+Run the standard repository gate with:
+
+```powershell
+npm run check
+```
+
+or use the PowerShell wrapper:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\test.ps1
+```
+
+For the fullest local validation path:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\test.ps1 -Full
+```
+
+## Repository layout
+
+- `src/app/` â€” application controllers and orchestration
+- `src/domain/` â€” analytical and workspace domain model
+- `src/features/analysis/` â€” Outline workspace
+- `src/features/techniques/` â€” Methods workspace and catalog interaction
+- `src/persistence/` â€” XML session persistence
+- `src/viewer/` â€” PDF reader integration
+- `src/styles/` â€” application styling
+- `scripts/` â€” validation, licensing, and maintenance checks
+- `docs/` â€” engineering documentation and project decisions
+- `legacy/` and `archive/` â€” retired implementation material retained for reference
+
+For deeper engineering context, start with [`docs/README.md`](docs/README.md). Source handoffs for continued development can be produced with `gather_source.ps1`.
+
+## License
+
+Catalyst is licensed under the [Apache License 2.0](LICENSE.txt).
+
+Third-party dependency licensing is documented in [`LICENSES.md`](LICENSES.md).

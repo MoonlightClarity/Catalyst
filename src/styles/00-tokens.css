@@ -1,0 +1,23 @@
+/* Readability-first design tokens. Loaded after legacy styles.css. */
+:root {
+  --type-2xs: 12px;
+  --type-xs: 13px;
+  --type-sm: 14px;
+  --type-body: 15px;
+  --type-md: 17px;
+  --type-lg: 20px;
+  --icon-xs: 14px;
+  --icon-sm: 16px;
+  --icon-md: 18px;
+  --icon-lg: 20px;
+  --icon-xl: 24px;
+  --icon-stroke: 1.8;
+  --icon-stroke-strong: 2;
+  --leading-tight: 1.35;
+  --leading-ui: 1.5;
+  --leading-reading: 1.65;
+  --c-muted: #5f6965;
+  --c-faint: #737d79;
+  --c-shell-muted: #bac6d0;
+  --c-shell-faint: #96a9b8;
+}

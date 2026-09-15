@@ -1,0 +1,104 @@
+﻿<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light" />
+    <link rel="icon" type="image/svg+xml" href="/catalyst-mark.svg" />
+    <title>Catalyst</title>
+    <style>
+      #catalyst-boot {
+        min-height: 100vh;
+        box-sizing: border-box;
+        display: grid;
+        place-items: center;
+        padding: 32px;
+        background: #111417;
+        color: #f4f6f8;
+        font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+      #catalyst-boot-panel {
+        width: min(680px, 100%);
+        border: 1px solid #3e474e;
+        background: #0b0e10;
+        padding: 24px;
+      }
+      #catalyst-boot-kicker {
+        margin: 0 0 10px;
+        color: #aeb8c0;
+        font-size: 12px;
+        letter-spacing: 0.12em;
+      }
+      #catalyst-boot-title {
+        margin: 0 0 8px;
+        font: inherit;
+        font-size: 18px;
+        font-weight: 700;
+      }
+      #catalyst-boot-detail {
+        margin: 0;
+        color: #d2d8dd;
+        line-height: 1.5;
+      }
+      #catalyst-boot-error {
+        margin: 16px 0 0;
+        padding: 14px;
+        overflow: auto;
+        white-space: pre-wrap;
+        border: 1px solid #69747d;
+        background: #050607;
+        color: #f4f6f8;
+        line-height: 1.45;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root">
+      <div id="catalyst-boot" role="status" aria-live="polite">
+        <div id="catalyst-boot-panel">
+          <p id="catalyst-boot-kicker">CATALYST STARTUP</p>
+          <p id="catalyst-boot-title">Starting workspace…</p>
+          <p id="catalyst-boot-detail">Loading application modules.</p>
+          <pre id="catalyst-boot-error" hidden></pre>
+        </div>
+      </div>
+    </div>
+    <script>
+      (() => {
+        const getBoot = () => document.getElementById("catalyst-boot");
+        const detail = document.getElementById("catalyst-boot-detail");
+        const errorBox = document.getElementById("catalyst-boot-error");
+        const title = document.getElementById("catalyst-boot-title");
+
+        const slowTimer = window.setTimeout(() => {
+          if (getBoot() && detail) {
+            detail.textContent = "Catalyst is still loading application modules. The workspace has not crashed.";
+          }
+        }, 2500);
+
+        const showBootstrapError = (message) => {
+          if (!getBoot()) return;
+          window.clearTimeout(slowTimer);
+          if (title) title.textContent = "Catalyst failed before the workspace mounted.";
+          if (detail) detail.textContent = "The startup error is shown below so the failure does not appear as a blank screen.";
+          if (errorBox) {
+            errorBox.hidden = false;
+            errorBox.textContent = message || "Unknown startup error";
+          }
+        };
+
+        window.addEventListener("error", (event) => {
+          if (!(event instanceof ErrorEvent)) return;
+          const message = event.error?.stack || `${event.message}\n${event.filename}:${event.lineno}:${event.colno}`;
+          showBootstrapError(message);
+        });
+
+        window.addEventListener("unhandledrejection", (event) => {
+          const reason = event.reason;
+          showBootstrapError(reason?.stack || reason?.message || String(reason));
+        });
+      })();
+    </script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+{
+  "annotationId": "3c152a76-67ad-4202-868f-21ff25b90a38",
+  "sourceRange": {
+    "start": {
+      "page": 0,
+      "index": 60
+    },
+    "end": {
+      "page": 0,
+      "index": 148
+    }
+  },
+  "selectionAfterClear": null,
+  "restoredSelection": {
+    "start": {
+      "page": 0,
+      "index": 60
+    },
+    "end": {
+      "page": 0,
+      "index": 148
+    }
+  },
+  "exactMatch": true,
+  "status": true,
+  "screenshotPath": "C:/Users/iris/Downloads/Catalyst/tools/research-probes/2026-09-13/exact-source-return-live.png"
+}

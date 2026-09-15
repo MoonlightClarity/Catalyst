@@ -1,0 +1,13 @@
+﻿CATALYST_PLUGIN_SEARCH_2026_09_13
+
+STRICT RESEARCH ONLY. Stay in ordinary Chat; do not use Work mode. Do not edit Catalyst code or drive the live Catalyst UI.
+
+Search the ChatGPT plugin directory for plugins that materially add long-running orchestration beyond our installed Remote Desktop Commander + Opera workflow, without requiring API keys or separate API billing.
+
+Evaluate persistent local filesystem/terminal control, browser control, multi-step orchestration, durable project state/checkpointing, chat-to-chat coordination, and long-running task continuity.
+
+For each credible candidate, report plugin name, exact capability added, account/API/credit requirements, what data leaves the local machine, overlap with current stack, risks/limitations, and recommendation INSTALL / MAYBE / SKIP.
+
+Exclude plugins that merely duplicate current capabilities unless they add a clear missing capability. Do not install anything yourself. If nothing materially improves the stack, say so.
+
+When complete, report concise findings back to the main Catalyst UI chat through the validated Catalyst Chat Bridge, then stop.

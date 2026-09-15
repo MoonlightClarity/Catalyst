@@ -1,0 +1,18 @@
+import fs from 'node:fs';
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json());
+const page=pages.find(x=>x.type==='page'&&x.url.startsWith('http://127.0.0.1:5173'));
+if(!page) throw new Error('No Catalyst Opera/CDP page');
+const ws=new WebSocket(page.webSocketDebuggerUrl); let id=1; const pending=new Map();
+ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
+await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const c=(method,params={})=>new Promise(r=>{const n=id++;pending.set(n,r);ws.send(JSON.stringify({id:n,method,params}))});
+const v=async expression=>(await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true})).result.result.value;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const dbl=async title=>{await v(`(()=>{const el=[...document.querySelectorAll('.picture-occurrence')].find(x=>x.textContent?.includes(${JSON.stringify(title)}));el?.querySelector('.picture-object')?.dispatchEvent(new MouseEvent('dblclick',{bubbles:true}));return !!el})()`);await sleep(600)};
+await c('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+await dbl('Focus branch'); await dbl('Focus detail');
+const state=await v(`(()=>({focus:JSON.parse(localStorage.getItem('catalyst.browser.workspace.v1')).mapView.maps['analysis-overview'].focusNoteId,nodes:[...document.querySelectorAll('.picture-occurrence')].map(el=>{const r=el.getBoundingClientRect();return{title:el.textContent?.trim().replace(/\\s+/g,' ').slice(0,80),classes:el.className,opacity:getComputedStyle(el).opacity,x:Math.round(r.x),y:Math.round(r.y),w:Math.round(r.width),h:Math.round(r.height)}}),inspector:!!document.querySelector('.note-inspector')}))()`);
+const shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+const screenshotPath='C:/Users/iris/Downloads/Catalyst/tools/research-probes/2026-09-13/focus-hoist-nested.png';
+fs.writeFileSync(screenshotPath,Buffer.from(shot.result.data,'base64'));
+console.log(JSON.stringify({state,screenshotPath},null,2)); ws.close();

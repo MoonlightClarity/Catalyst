@@ -1,0 +1,32 @@
+{
+  "name": "catalyst",
+  "private": true,
+  "version": "1.0.0",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "licenses": "node scripts/check-licenses.mjs",
+    "test": "node scripts/test-compiler.mjs && node scripts/test-domain.mjs && node scripts/test-technique-catalog.mjs && node scripts/test-analysis-model.mjs && node scripts/test-graph.mjs && node scripts/test-outline.mjs && node scripts/test-xml-persistence.mjs && node scripts/test-xml-repository.mjs && node scripts/test-xml-runtime-cutover.mjs && node scripts/test-workspace-files.mjs && node scripts/test-sync-queue.mjs && node scripts/test-recovery-journal.mjs && node scripts/test-reset-saved-state.mjs && node scripts/test-viewer-markups.mjs && node scripts/test-viewer-selection-restore.mjs && node scripts/test-navigation-history.mjs && node scripts/test-visual-language.mjs && node scripts/test-iconography.mjs && node scripts/test-css-architecture.mjs && node scripts/test-dev-watch.mjs && node scripts/test-research-handoff.mjs",
+    "check": "npm run lockfile:check && npm run test && npm run build && npm run licenses",
+    "icons:audit": "node scripts/generate-iconography-map.mjs",
+    "test:css": "node scripts/test-css-architecture.mjs",
+    "check:full": "npm run lockfile:check && npm run test && npm run build && npm run licenses -- --full",
+    "lockfile:check": "node scripts/check-package-lock.mjs"
+  },
+  "dependencies": {
+    "pdfjs-dist": "^6.3.289",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.2",
+    "@types/react-dom": "^19.2.2",
+    "@typescript/typescript6": "6.0.2",
+    "@vitejs/plugin-react": "6.1.1",
+    "typescript": "7.0.2",
+    "vite": "8.2.2"
+  }
+}

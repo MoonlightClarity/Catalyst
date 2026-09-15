@@ -1,0 +1,1 @@
+{"main-capability":{"identifier":"main-capability","description":"Capabilities required by the Catalyst desktop workspace","local":true,"windows":["main"],"permissions":["core:default","dialog:default","fs:default","fs:allow-read-file","sql:default","sql:allow-execute"]}}

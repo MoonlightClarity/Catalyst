@@ -1,0 +1,15 @@
+const pages=await fetch('http://127.0.0.1:9231/json').then(r=>r.json());
+const page=pages.find(p=>p.type==='page'&&p.url.includes('run=file-e2e'));
+if(!page) throw new Error('Catalyst page not found');
+const ws=new WebSocket(page.webSocketDebuggerUrl); let seq=1; const pending=new Map();
+ws.onmessage=e=>{const m=JSON.parse(e.data); if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id);}};
+await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j;});
+const cmd=(method,params={})=>new Promise(r=>{const id=seq++;pending.set(id,r);ws.send(JSON.stringify({id,method,params}));});
+const val=async expr=>(await cmd('Runtime.evaluate',{expression:expr,returnByValue:true,awaitPromise:true})).result.result.value;
+await cmd('DOM.enable'); const doc=await cmd('DOM.getDocument',{depth:2});
+const q=await cmd('DOM.querySelector',{nodeId:doc.result.root.nodeId,selector:'input[type=file]'});
+if(!q.result.nodeId) throw new Error('file input not found');
+await cmd('DOM.setFileInputFiles',{nodeId:q.result.nodeId,files:['C:\\Users\\iris\\Downloads\\Tradecraft-Primer-apr09.pdf']});
+await new Promise(r=>setTimeout(r,2500));
+const state=await val(`(()=>({file:document.querySelector('.reader-header strong')?.textContent?.trim()||'',working:[...document.querySelectorAll('[role=tab]')].map(x=>x.textContent.trim()),source:!!document.querySelector('.pdf-pane'),picture:!!document.querySelector('.working-picture-viewport'),status:document.querySelector('[role=status]')?.textContent?.trim()||''}))()`);
+console.log(JSON.stringify(state,null,2)); ws.close();

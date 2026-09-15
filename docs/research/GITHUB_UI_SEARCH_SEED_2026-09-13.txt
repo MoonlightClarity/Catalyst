@@ -1,0 +1,15 @@
+CATALYST_GITHUB_UI_SEARCH_2026_09_13
+
+STRICT RESEARCH ONLY. Stay in ordinary Chat; do not use Work mode. Do not edit Catalyst code or drive the live Catalyst UI.
+
+Read the current Catalyst research checkpoints first, especially the Working Picture layout grammar, dark-shell handoff, and completed Freeplane source pass.
+
+Research mature FOSS GitHub projects whose actual source can inform Catalyst UI: spatial/analytical canvases, mind/knowledge maps, dark expert-workspace shells, original SVG/icon systems, provenance/source linking, progressive disclosure, structural-vs-semantic edge portrayal, focus/hoist, fold/reflow, and cognitive-load control.
+
+Prioritize source-backed implementation patterns over screenshots or generic design inspiration. Avoid duplicating Freeplane unless another project adds materially different ideas.
+
+For each strong comparator record repository URL, exact files/components worth reading, the implemented interaction/portrayal pattern, what Catalyst should BORROW, what it should REJECT, and why.
+
+Write durable findings to C:\Users\iris\Downloads\Catalyst\docs\research\GITHUB_UI_PRECEDENTS_2026-09-13.md.
+
+When complete, report only the highest-value findings back to the main Catalyst UI chat through the validated Catalyst Chat Bridge, then stop.

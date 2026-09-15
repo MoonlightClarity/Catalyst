@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json());
+const page=pages.find(x=>x.type==='page'&&x.url.includes('127.0.0.1:5173')); if(!page) throw new Error('No Catalyst page');
+const ws=new WebSocket(page.webSocketDebuggerUrl); let id=1; const pending=new Map();
+ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}}; await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const call=(method,params={})=>new Promise(r=>{const n=id++;pending.set(n,r);ws.send(JSON.stringify({id:n,method,params}))});
+const val=async expression=>(await call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true})).result.result.value; const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const center=await val(`(()=>{const n=[...document.querySelectorAll('.picture-occurrence')].find(x=>x.querySelector('.picture-object-label')?.textContent==='Key assumption');if(!n)return null;const r=n.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2}})()`); if(!center) throw new Error('Assumption node not found');
+const snap=async name=>{const shot=await call('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});const p=`C:/Users/iris/Downloads/Catalyst/tools/research-probes/2026-09-13/${name}.png`;fs.writeFileSync(p,Buffer.from(shot.result.data,'base64'));return p;};
+const before=await snap('attention-filter-before');
+await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:center.x,y:center.y}); await sleep(500);
+const measure=await val(`(()=>({hovered:[...document.querySelectorAll('.picture-occurrence')].filter(n=>!n.classList.contains('is-dimmed')).map(n=>n.querySelector('.picture-object-label')?.textContent||''),dimmed:[...document.querySelectorAll('.picture-occurrence.is-dimmed')].map(n=>n.querySelector('.picture-object-label')?.textContent||''),branches:[...document.querySelectorAll('.picture-branch')].map(n=>({dim:n.classList.contains('is-dimmed'),opacity:getComputedStyle(n).opacity})),semantic:document.querySelectorAll('.picture-semantic-relation').length}))()`);
+const after=await snap('attention-filter-assumption-hover');
+await call('Input.dispatchMouseEvent',{type:'mouseMoved',x:20,y:150}); await sleep(350);
+const cleared=await val(`document.querySelectorAll('.picture-occurrence.is-dimmed').length`);
+console.log(JSON.stringify({center,...measure,cleared,before,after,pass:measure.dimmed.length===6&&measure.semantic===1&&cleared===0},null,2)); ws.close();

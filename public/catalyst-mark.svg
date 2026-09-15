@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" fill="none">
+  <defs>
+    <linearGradient id="tile" x1="180" y1="110" x2="850" y2="930" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#183136"/>
+      <stop offset="0.52" stop-color="#0D1D21"/>
+      <stop offset="1" stop-color="#071014"/>
+    </linearGradient>
+    <linearGradient id="signal" x1="210" y1="512" x2="842" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A7E9DB"/>
+      <stop offset="0.55" stop-color="#61C9B5"/>
+      <stop offset="1" stop-color="#4FA6C0"/>
+    </linearGradient>
+  </defs>
+  <rect x="52" y="52" width="920" height="920" rx="236" fill="url(#tile)"/>
+  <rect x="70" y="70" width="884" height="884" rx="218" stroke="#79B9B2" stroke-opacity="0.2" stroke-width="8"/>
+  <g stroke="url(#signal)" stroke-width="72" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M214 286h114c54 0 92 27 122 75l62 103"/>
+    <path d="M214 512h246"/>
+    <path d="M214 738h114c54 0 92-27 122-75l62-103"/>
+    <path d="M564 512h112c42 0 70-20 101-55l61-69"/>
+    <path d="M564 512h112c42 0 70 20 101 55l61 69"/>
+  </g>
+  <path d="M512 416 608 512 512 608 416 512 512 416Z" fill="#E8FFF8" stroke="#67CDB8" stroke-width="24" stroke-linejoin="round"/>
+</svg>

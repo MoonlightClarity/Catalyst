@@ -1,0 +1,12 @@
+﻿const pages = await fetch('http://127.0.0.1:9229/json').then(r=>r.json());
+const page = pages.find(p => p.type==='page' && p.url.includes('dark-shell-review')) || pages.find(p=>p.type==='page' && p.url.includes('127.0.0.1:5173'));
+if(!page) throw new Error('No Catalyst CDP page');
+const ws=new WebSocket(page.webSocketDebuggerUrl); let id=1; const pending=new Map();
+ws.onmessage=e=>{const m=JSON.parse(e.data); if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
+await new Promise((res,rej)=>{ws.onopen=res;ws.onerror=rej});
+const call=(method,params={})=>new Promise(res=>{const n=id++;pending.set(n,res);ws.send(JSON.stringify({id:n,method,params}))});
+const evalv=async expression=>(await call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true})).result.result.value;
+await evalv(`(()=>{const tabs=[...document.querySelectorAll('[role=tab]')];const e=tabs.find(t=>t.textContent.trim().startsWith('EVIDENCE')); if(!e) return false; e.click(); return true;})()`);
+await new Promise(r=>setTimeout(r,700));
+console.log(await evalv(`(()=>({mode:document.querySelector('.context-pane')?.dataset.contextMode,tabs:[...document.querySelectorAll('[role=tab]')].map(t=>({text:t.textContent.trim(),selected:t.getAttribute('aria-selected')}))}))()`));
+ws.close();

@@ -1,0 +1,735 @@
+/* Thorium PDF reader — Catalyst instrument chrome */
+.thorium-pdf-reader {
+  color: #dce5e2;
+  background: #11191a;
+  color-scheme: dark;
+}
+
+.thorium-pdf-toolbar,
+.thorium-pdf-search {
+  min-height: 36px;
+  gap: 6px;
+  padding: 4px 8px;
+  border-bottom: 0;
+  background: var(--c-shell-panel);
+  color: #dce5e2;
+  font-size: 12px;
+  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.02);
+}
+
+.thorium-pdf-search {
+  background: #10191a;
+}
+
+.thorium-search-options {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+  min-height: 30px;
+  padding: 3px 8px;
+  border-bottom: 0;
+  background: var(--c-shell-panel);
+}
+
+.thorium-search-options button {
+  min-height: 24px;
+  padding: 2px 8px;
+  border: 1px solid #465858;
+  border-radius: 3px;
+  background: #202b2c;
+  color: #dbe4e1;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.thorium-search-options button:hover {
+  border-color: #000;
+  background: #222;
+  color: #fff;
+}
+
+.thorium-search-options button[aria-pressed="true"] {
+  border-color: #6f8581;
+  background: #263334;
+  color: #fff;
+}
+
+.thorium-pdf-toolbar button,
+.thorium-pdf-search button {
+  min-width: 28px;
+  min-height: 28px;
+  padding: 3px 8px;
+  border: 1px solid #465858;
+  border-radius: 3px;
+  background: #202b2c;
+  color: #dbe4e1;
+  cursor: pointer;
+}
+
+.thorium-pdf-toolbar button:hover:not(:disabled),
+.thorium-pdf-search button:hover:not(:disabled) {
+  border-color: #000;
+  background: #222;
+  color: #fff;
+}
+
+.thorium-pdf-toolbar button:disabled,
+.thorium-pdf-search button:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.thorium-pdf-toolbar input,
+.thorium-pdf-search input {
+  min-height: 28px;
+  border: 1px solid #425655;
+  border-radius: 3px;
+  background: #0f1819;
+  color: #e4ebe8;
+  padding: 3px 7px;
+}
+
+.thorium-pdf-toolbar input:focus,
+.thorium-pdf-search input:focus {
+  border-color: #4d817c;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(66, 232, 117, 0.12);
+}
+
+.thorium-page-input {
+  width: 52px;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.thorium-page-total,
+.thorium-zoom-label {
+  color: #9baba7;
+  font-variant-numeric: tabular-nums;
+}
+
+.thorium-zoom-label {
+  min-width: 44px;
+  text-align: center;
+}
+
+.thorium-pdf-container {
+  background: #202729;
+  scrollbar-color: #53615f #11191a;
+}
+
+.thorium-pdf-container .pdfViewer {
+  background: transparent;
+}
+
+.thorium-pdf-toolbar .thorium-theme-toggle {
+  min-width: 28px;
+  width: 28px;
+  padding: 3px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.thorium-theme-toggle .instrument-glyph { width: 16px; height: 16px; }
+.thorium-pdf-toolbar .thorium-find-button {
+  min-width: 28px;
+  padding-inline: 5px;
+}
+.thorium-find-label {
+  font-size: 9px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.thorium-theme-toggle[aria-pressed="true"] {
+  border-color: #6f8581;
+  background: #263334;
+  color: #f2f5f3;
+}
+
+/* Keep compact reader chrome legible when the PDF itself is in night mode. */
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-toolbar,
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-search {
+  background: #0f1718;
+  border-bottom-color: #2b3b3c;
+  color: #edf3f1;
+}
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-toolbar button,
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-search button {
+  color: #e5ece9;
+}
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-toolbar button:hover:not(:disabled),
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-search button:hover:not(:disabled) {
+  background: #263334;
+  border-color: #506463;
+  color: #fff;
+}
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-toolbar input,
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-search input {
+  background: #0b1213;
+  border-color: #394d4d;
+  color: #f0f5f3;
+}
+
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-container {
+  background: #0d1112;
+}
+
+.thorium-pdf-reader.is-dark-mode .thorium-pdf-container .pdfViewer .page {
+  background: #0b0e0f;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.42);
+}
+
+.thorium-pdf-reader {
+  --pdf-theme-filter: brightness(1);
+  --pdf-reader-tint: #ffffff;
+  --pdf-reader-tint-strength: 0;
+  --pdf-reader-tint-blend: multiply;
+}
+.thorium-pdf-reader.is-dark-mode {
+  --pdf-theme-filter: invert(1) hue-rotate(180deg) brightness(0.82) contrast(0.94);
+  --pdf-reader-tint-blend: screen;
+}
+.thorium-pdf-reader .thorium-pdf-container .pdfViewer .page .canvasWrapper > canvas {
+  filter: var(--pdf-theme-filter);
+}
+.thorium-pdf-reader .thorium-pdf-container .pdfViewer .page::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: var(--pdf-reader-tint);
+  opacity: var(--pdf-reader-tint-strength);
+  mix-blend-mode: var(--pdf-reader-tint-blend);
+}
+
+.thorium-pdf-toolbar .thorium-reader-mode-toggle {
+  min-width: 78px; display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase;
+}
+.thorium-reader-color-control {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 7px;
+  border: 1px solid #465858;
+  border-radius: 3px;
+  background: #202b2c;
+  color: #dbe4e1;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .045em;
+  text-transform: uppercase;
+}
+.thorium-reader-color-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.thorium-reader-color-control input[type="color"] {
+  width: 24px;
+  height: 20px;
+  padding: 1px;
+  border: 1px solid #60706f;
+  border-radius: 2px;
+  background: #0f1819;
+  cursor: pointer;
+}
+.thorium-pdf-toolbar .thorium-reader-tint-reset {
+  min-width: 20px;
+  min-height: 20px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #aebbb7;
+  font-size: 16px;
+  line-height: 1;
+}
+.thorium-pdf-toolbar .thorium-reader-tint-reset:hover:not(:disabled) {
+  background: #111718;
+  color: #fff;
+}
+
+.catalyst-pdf-highlight-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+}
+
+.catalyst-pdf-highlight {
+  position: absolute;
+  border-bottom: 1px solid rgba(174, 132, 34, 0.55);
+  background: rgba(246, 195, 68, 0.22);
+  mix-blend-mode: multiply;
+}
+
+.catalyst-analytic-mark,
+.catalyst-analytic-frame {
+  position: absolute;
+  pointer-events: none;
+}
+
+.catalyst-key-evidence-rail {
+  width: 8px;
+  border-left: 3px solid #d5a82e;
+  color: #d5a82e;
+}
+.catalyst-key-evidence-rail::before,
+.catalyst-key-evidence-rail::after {
+  content: "";
+  position: absolute;
+  left: -3px;
+  width: 8px;
+  border-top: 2px solid currentColor;
+}
+.catalyst-key-evidence-rail::before { top: 0; }
+.catalyst-key-evidence-rail::after { bottom: 0; }
+
+.catalyst-conflict-mark {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  color: #e56b6f;
+  background: rgba(17, 25, 26, 0.9);
+  border: 1px solid #c65a5e;
+  transform: rotate(45deg);
+}
+.catalyst-conflict-mark .instrument-glyph {
+  width: 15px;
+  height: 15px;
+  transform: rotate(-45deg);
+}
+
+.catalyst-confidence-frame {
+  border: 2px dashed #9d82b4;
+  color: #b991d6;
+}
+.catalyst-confidence-badge {
+  position: absolute;
+  top: -11px;
+  right: -11px;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  background: #171f20;
+  border: 1px solid currentColor;
+}
+.catalyst-confidence-badge .instrument-glyph {
+  width: 13px;
+  height: 13px;
+}
+
+.catalyst-information-gap-flag {
+  width: 20px;
+  min-height: 24px;
+  border-left: 2px solid #58a9b3;
+  color: #6ebbc5;
+}
+.catalyst-information-gap-flag .instrument-glyph {
+  position: absolute;
+  top: 0;
+  left: -2px;
+  width: 18px;
+  height: 18px;
+  background: #171f20;
+}
+
+.catalyst-analytic-frame {
+  border: 2px solid #e7e9e8;
+  outline: 1px solid rgba(17, 25, 26, 0.78);
+}
+
+.thorium-pdf-reader {
+  --outline-color: #42e875;
+  --outline-around-color: #172122;
+  --hover-outline-color: #4d817c;
+  --resizer-bg-color: #42e875;
+}
+
+.thorium-pdf-reader .editToolbar {
+  --editor-toolbar-bg-color: #172122;
+  --editor-toolbar-fg-color: #dbe4e1;
+  --editor-toolbar-border-color: #425655;
+  --editor-toolbar-hover-border-color: #607774;
+  --editor-toolbar-hover-bg-color: #293637;
+  --editor-toolbar-hover-fg-color: #f0f5f2;
+  --editor-toolbar-focus-outline-color: #42e875;
+  --editor-toolbar-shadow: 0 4px 14px rgba(4, 8, 9, 0.32);
+  --alt-text-done-color: #42e875;
+}
+
+/* Reader shell: document header plus the PDF toolbar. */
+.reader-header {
+  flex-wrap: nowrap;
+  min-height: 50px;
+  padding: 7px 10px;
+}
+
+.reader-body {
+  min-width: 0;
+  min-height: 0;
+  flex: 1 1 auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  overflow: hidden;
+  background: #11191a;
+}
+
+.reader-body > .reader-surface {
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+}
+
+/* Compact reader controls. */
+.thorium-pdf-toolbar .instrument-glyph,
+.thorium-pdf-search .instrument-glyph {
+  width: 15px;
+  height: 15px;
+}
+.reader-header .reader-document-name {
+  flex: 1 1 100px;
+}
+
+/* PDF reader readability. */
+
+.reader-document-name { font-size: 13.5px; }
+
+/* Freeze readability floor for compact reader chrome. */
+.thorium-theme-label,
+.thorium-pdf-toolbar .thorium-reader-mode-toggle {
+  font-size: 11.5px;
+  line-height: 1.35;
+}
+
+/* Minimal reader toolbar: page, zoom, display, find, fullscreen. */
+.thorium-pdf-toolbar {
+  min-height: 32px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 3px 8px;
+  overflow: hidden;
+  background: var(--c-shell-panel);
+  border-bottom-color: transparent;
+  color: #e7f2ef;
+}
+.thorium-pdf-toolbar button {
+  width: clamp(22px, 2.3vw, 26px);
+  min-width: 22px;
+  min-height: 26px;
+  flex: 0 1 26px;
+  padding: 2px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #4f6665;
+  border-radius: 3px;
+  background: #263334;
+  color: #dff7ef;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.025);
+}
+.thorium-pdf-toolbar button:hover:not(:disabled) {
+  border-color: #7b9894;
+  background: #314142;
+  color: #ffffff;
+}
+.thorium-pdf-toolbar .instrument-glyph {
+  width: 15px;
+  height: 15px;
+  color: inherit;
+  stroke: currentColor;
+}
+.thorium-toolbar-cluster {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 1 auto;
+  min-width: 0;
+  gap: 1px;
+}
+.thorium-toolbar-cluster + .thorium-toolbar-cluster {
+  padding-left: 0;
+  border-left: 0;
+}
+.thorium-view-controls { justify-self: start; }
+.thorium-page-controls { justify-self: center; }
+.thorium-reading-controls { justify-self: end; }
+.thorium-page-input {
+  width: clamp(38px, 4vw, 44px);
+  min-width: 38px;
+  min-height: 26px !important;
+  padding: 2px 4px !important;
+  border-color: #526968 !important;
+  background: #0f191a !important;
+  color: #f3f8f6 !important;
+  font-size: 13px !important;
+  font-weight: 600;
+  line-height: 1;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+.thorium-page-input::-webkit-outer-spin-button,
+.thorium-page-input::-webkit-inner-spin-button {
+  margin: 0;
+  -webkit-appearance: none;
+}
+.thorium-page-separator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 26px;
+  margin: 0 4px;
+  color: var(--c-shell-muted);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+}
+.thorium-page-total {
+  width: clamp(38px, 4vw, 44px);
+  min-width: 38px;
+  min-height: 26px;
+  padding: 0 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #526968;
+  border-radius: 3px;
+  background: #0f191a;
+  color: #dff7ef;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.thorium-pdf-toolbar .thorium-zoom-reset {
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Reader controls are instrument chrome: PDF rendering must never reduce their contrast. */
+.thorium-pdf-reader .thorium-pdf-toolbar,
+.thorium-pdf-reader .thorium-pdf-search {
+  --reader-chrome-bg: var(--c-shell-panel);
+  --reader-control-bg: var(--c-shell-control);
+  --reader-control-hover: var(--c-shell-hover);
+  --reader-control-border: var(--c-shell-line-strong);
+  --reader-control-fg: var(--c-shell-text);
+  --reader-muted-fg: var(--c-shell-muted);
+  position: relative;
+  z-index: 40;
+  isolation: isolate;
+  contain: style paint;
+  flex: 0 0 auto;
+  opacity: 1 !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  mix-blend-mode: normal !important;
+  background: var(--reader-chrome-bg) !important;
+  color: var(--reader-control-fg) !important;
+  border-bottom-color: transparent !important;
+}
+.thorium-pdf-reader .thorium-pdf-toolbar button,
+.thorium-pdf-reader .thorium-pdf-search button {
+  opacity: 1;
+  border-color: var(--reader-control-border) !important;
+  background: var(--reader-control-bg) !important;
+  color: var(--reader-control-fg) !important;
+  -webkit-text-fill-color: var(--reader-control-fg);
+  filter: none !important;
+  mix-blend-mode: normal !important;
+}
+.thorium-pdf-reader .thorium-pdf-toolbar button:hover:not(:disabled),
+.thorium-pdf-reader .thorium-pdf-search button:hover:not(:disabled) {
+  background: var(--reader-control-hover) !important;
+  color: #ffffff !important;
+}
+.thorium-pdf-reader .thorium-pdf-toolbar button:focus-visible,
+.thorium-pdf-reader .thorium-pdf-search button:focus-visible {
+  outline: 2px solid #c8fff0;
+  outline-offset: 1px;
+}
+.thorium-pdf-reader .thorium-pdf-toolbar button:disabled,
+.thorium-pdf-reader .thorium-pdf-search button:disabled {
+  opacity: 1;
+  color: #aebfba !important;
+  -webkit-text-fill-color: #aebfba;
+  border-color: #536765 !important;
+  background: #30403f !important;
+}
+.thorium-pdf-reader .thorium-pdf-toolbar button[aria-pressed="true"] {
+  border-color: #c6ffef !important;
+  background: #435a58 !important;
+  box-shadow: inset 0 0 0 1px rgba(198,255,239,.28);
+}
+.thorium-pdf-reader .thorium-pdf-toolbar .instrument-glyph,
+.thorium-pdf-reader .thorium-pdf-search .instrument-glyph {
+  color: var(--reader-control-fg) !important;
+  stroke: var(--reader-control-fg) !important;
+  stroke-width: 1.85 !important;
+  opacity: 1 !important;
+  filter: none !important;
+}
+.thorium-pdf-reader .thorium-pdf-toolbar .instrument-glyph path,
+.thorium-pdf-reader .thorium-pdf-toolbar .instrument-glyph circle,
+.thorium-pdf-reader .thorium-pdf-toolbar .instrument-glyph rect,
+.thorium-pdf-reader .thorium-pdf-search .instrument-glyph path,
+.thorium-pdf-reader .thorium-pdf-search .instrument-glyph circle,
+.thorium-pdf-reader .thorium-pdf-search .instrument-glyph rect {
+  stroke: var(--reader-control-fg) !important;
+}
+.thorium-pdf-reader .thorium-pdf-toolbar .instrument-glyph [fill="currentColor"],
+.thorium-pdf-reader .thorium-pdf-search .instrument-glyph [fill="currentColor"] {
+  fill: var(--reader-control-fg) !important;
+}
+.thorium-pdf-reader .thorium-pdf-toolbar button:disabled .instrument-glyph,
+.thorium-pdf-reader .thorium-pdf-search button:disabled .instrument-glyph,
+.thorium-pdf-reader .thorium-pdf-toolbar button:disabled .instrument-glyph path,
+.thorium-pdf-reader .thorium-pdf-toolbar button:disabled .instrument-glyph circle,
+.thorium-pdf-reader .thorium-pdf-toolbar button:disabled .instrument-glyph rect {
+  color: #aebfba !important;
+  stroke: #aebfba !important;
+}
+.thorium-pdf-reader .thorium-page-input,
+.thorium-pdf-reader .thorium-page-total,
+.thorium-pdf-reader .thorium-pdf-search input,
+.thorium-pdf-reader .thorium-search-status {
+  opacity: 1 !important;
+  filter: none !important;
+  mix-blend-mode: normal !important;
+  color: var(--reader-control-fg) !important;
+  -webkit-text-fill-color: var(--reader-control-fg);
+}
+.thorium-pdf-reader .thorium-page-input,
+.thorium-pdf-reader .thorium-page-total,
+.thorium-pdf-reader .thorium-pdf-search input {
+  border-color: var(--reader-control-border) !important;
+  background: var(--reader-control-bg) !important;
+}
+.thorium-pdf-reader .thorium-page-total {
+  color: var(--reader-muted-fg) !important;
+  -webkit-text-fill-color: var(--reader-muted-fg);
+}
+
+/* Compact document/session toolbar. Title stays left; actions use a single-letter vocabulary. */
+.reader-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-height: 46px;
+  padding: 5px 8px;
+}
+.reader-header .catalyst-brand {
+  position: absolute;
+  right: 8px;
+  min-width: 0;
+  margin: 0;
+}
+
+.reader-header .reader-document-name {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  color: #edf3f0;
+  text-align: left;
+}
+.reader-file-controls {
+  position: static;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+}
+.reader-session-controls,
+.reader-session-controls.reader-session-controls-first {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.reader-session-button {
+  width: 34px;
+  min-width: 34px;
+  min-height: 34px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--c-shell-line-strong);
+  border-radius: 4px;
+  background: var(--c-shell-control);
+  color: #edf4f1;
+  cursor: pointer;
+}
+
+.reader-session-controls.reader-session-controls-first {
+  margin-left: 0;
+  margin-right: 2px;
+  padding-left: 0;
+  padding-right: 6px;
+  border-left: 0;
+  border-right: 1px solid #405252;
+}
+/* Final toolbar normalization: no dividers or word labels. */
+.reader-session-controls.reader-session-controls-first {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.reader-session-key {
+  display: block;
+  width: auto;
+  height: auto;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: 800 13px/1 ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+.reader-session-button:hover:not(:disabled) {
+  border-color: var(--c-shell-line-strong);
+  background: var(--c-shell-hover);
+  color: #fff;
+}
+.reader-session-button:disabled {
+  opacity: .36;
+  cursor: default;
+}
+
+/* Session/document actions use recognizable SVG instruments instead of letter keys. */
+.reader-session-button .instrument-glyph {
+  width: 19px;
+  height: 19px;
+  color: inherit;
+  stroke: currentColor;
+  stroke-width: 1.8;
+}
+
+.reader-session-button {
+  width: 44px; min-width: 44px; min-height: 40px;
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; padding: 3px 2px 2px;
+}
+.reader-session-button .instrument-glyph { width: 17px; height: 17px; flex: 0 0 17px; }
+.reader-session-label {
+  display: block; font-size: 8.5px; font-weight: 650; line-height: 1;
+  letter-spacing: .01em; white-space: nowrap;
+}

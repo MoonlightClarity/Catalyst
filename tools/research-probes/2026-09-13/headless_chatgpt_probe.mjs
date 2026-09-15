@@ -1,0 +1,10 @@
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json());
+const page=pages.find(x=>x.type==='page'&&x.url.startsWith('https://chatgpt.com/')); if(!page) throw new Error('No ChatGPT page');
+const ws=new WebSocket(page.webSocketDebuggerUrl); let id=1; const pending=new Map();
+ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
+await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const call=(method,params={})=>new Promise(r=>{const n=id++;pending.set(n,r);ws.send(JSON.stringify({id:n,method,params}))});
+const val=async expression=>(await call('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true})).result.result.value;
+await new Promise(r=>setTimeout(r,4000));
+console.log(JSON.stringify(await val(`({url:location.href,title:document.title,body:(document.body?.innerText||'').slice(0,3000),composer:!!document.querySelector('#prompt-textarea,[contenteditable="true"][role="textbox"],textarea')})`),null,2));
+ws.close();

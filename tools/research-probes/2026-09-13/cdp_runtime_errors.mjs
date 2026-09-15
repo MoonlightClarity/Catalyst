@@ -1,0 +1,13 @@
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json());
+const page=pages.find(x=>x.type==='page'&&x.url.startsWith('http://127.0.0.1:5173'));
+if(!page) throw new Error('No Catalyst page');
+const ws=new WebSocket(page.webSocketDebuggerUrl); let id=1; const pending=new Map(); const events=[];
+ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}else if(m.method?.includes('exception')||m.method?.includes('console')||m.method==='Log.entryAdded')events.push(m)};
+await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const c=(method,params={})=>new Promise(r=>{const n=id++;pending.set(n,r);ws.send(JSON.stringify({id:n,method,params}))});
+await c('Runtime.enable');await c('Log.enable');await c('Page.enable');
+await c('Page.reload',{ignoreCache:true});
+await new Promise(r=>setTimeout(r,2500));
+const body=await c('Runtime.evaluate',{expression:`document.body?.innerText||''`,returnByValue:true});
+console.log(JSON.stringify({body:body.result.result.value,events},null,2));
+ws.close();

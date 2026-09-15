@@ -1,0 +1,165 @@
+.reader-header,
+.context-header {
+  border-bottom: 0;
+  background: var(--c-shell-panel);
+  color: var(--c-shell-text);
+}
+
+.workspace-unified-research button:focus-visible,
+.workspace-unified-research summary:focus-visible,
+.workspace-unified-research select:focus-visible,
+.workspace-unified-research input:focus-visible,
+.workspace-unified-research textarea:focus-visible {
+  outline: 2px solid rgba(112,170,162,.62); outline-offset: 2px;
+}
+.workspace-unified-research input,
+.workspace-unified-research textarea,
+.workspace-unified-research select,
+.workspace-unified-research button { font-family: var(--font-ui); }
+.workspace-unified-research button {
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+@media (prefers-reduced-motion: reduce) {
+  .workspace-unified-research button { transition: none; }
+}
+
+/* Reduced fixed split: no draggable shell gutter. */
+.workspace {
+  grid-template-columns: minmax(0, 46%) minmax(420px, 1fr);
+}
+
+/* Map is a temporary full-window portrayal opened from Outline. */
+.working-picture-workspace.view-map {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  width: 100vw;
+  height: 100vh;
+  background: var(--c-shell, #08131f);
+}
+
+/* Catalyst shell continuity: reader and workspace share the same two-row chrome. */
+.workspace-unified-research {
+  --c-shell-header-height: var(--ui-header, 54px);
+  --c-shell-subnav-height: var(--ui-tab, 44px);
+}
+.workspace-unified-research .reader-header,
+.workspace-unified-research .context-header {
+  box-sizing: border-box;
+  min-height: var(--c-shell-header-height);
+  height: var(--c-shell-header-height);
+  padding-block: 0;
+  border-bottom: 0;
+  background: var(--c-shell-panel);
+  box-shadow: none !important;
+}
+.workspace-unified-research .pdf-pane,
+.workspace-unified-research .context-pane {
+  background: var(--c-shell-field);
+}
+.workspace-unified-research .pdf-pane {
+  border-right: 1px solid var(--c-shell-line);
+}
+
+.workspace-unified-research .thorium-pdf-reader .thorium-pdf-toolbar,
+.workspace-unified-research .context-tabs {
+  box-sizing: border-box;
+  min-height: var(--c-shell-subnav-height);
+  height: var(--c-shell-subnav-height);
+  padding-block: 0;
+  border-bottom: 0;
+  background: var(--c-shell-panel) !important;
+  box-shadow: none;
+}
+.workspace-unified-research .context-tabs {
+  align-items: center;
+}
+.workspace-unified-research .context-tab {
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+/* Workspace projection tabs belong to the Catalyst shell in every mode. */
+.context-tabs {
+  box-sizing: border-box;
+  min-height: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 10px;
+  border-bottom: 0;
+  background: var(--c-shell-panel);
+}
+.context-tab {
+  position: relative;
+  min-width: 0;
+  min-height: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--c-shell-muted);
+  cursor: pointer;
+  font: 610 13px/1 var(--font-ui);
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+.context-tab:hover { color: var(--c-shell-text); }
+.context-tab.active { color: var(--c-shell-text); }
+.context-tab.active::after {
+  content: "";
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 0;
+  height: 1px;
+  background: #70aaa2;
+}
+.context-tab span,
+.context-tab.active span {
+  min-width: 0;
+  height: auto;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--c-shell-faint);
+  font: 500 10px/1 var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}
+.workspace-unified-research .reader-document-name {
+  color: var(--c-shell-text);
+}
+
+/* Keep the reader control row level with the workspace tab row. */
+.workspace-unified-research { --c-shell-subnav-height: 54px; }
+
+/* Full-window Map View owns the viewport completely.
+   Keep the PDF mounted so reader state survives, but suppress its editor layer;
+   PDF.js free-text editors can otherwise composite above a fixed map overlay. */
+.workspace:has(.working-picture-workspace.view-map) > .pdf-pane {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+/* Keep the two workspace tabs identical in normal Catalyst mode. */
+.workspace:not(.workspace-unified-research) .context-pane[data-context-mode="graph"] .context-tabs,
+.workspace:not(.workspace-unified-research) .context-pane[data-context-mode="techniques"] .context-tabs {
+  min-height: 38px;
+  height: 38px;
+}
+.workspace:not(.workspace-unified-research) .context-pane[data-context-mode="graph"] .context-tab,
+.workspace:not(.workspace-unified-research) .context-pane[data-context-mode="techniques"] .context-tab {
+  min-height: 100%;
+  height: 100%;
+  font: 610 13px/1 var(--font-ui);
+}

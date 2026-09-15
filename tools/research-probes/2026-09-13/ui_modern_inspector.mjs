@@ -1,0 +1,17 @@
+import fs from 'node:fs';
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json());
+const page=pages.find(p=>p.type==='page'); if(!page) throw new Error('No CDP page');
+const ws=new WebSocket(page.webSocketDebuggerUrl); let id=1; const pending=new Map();
+ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&pending.has(m.id)){pending.get(m.id)(m);pending.delete(m.id)}};
+await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const c=(method,params={})=>new Promise(r=>{const n=id++;pending.set(n,r);ws.send(JSON.stringify({id:n,method,params}))});
+const v=async e=>(await c('Runtime.evaluate',{expression:e,returnByValue:true,awaitPromise:true})).result.result.value;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+await c('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+await v(`localStorage.removeItem('catalyst.browser.workspace.v1');localStorage.removeItem('catalyst.recovery.v1');true`);
+await c('Page.navigate',{url:'http://127.0.0.1:5173/?research=unified-workflow&fixture=tradecraft&shell=reader&run=ui-modern-inspector'}); await sleep(3500);
+await v(`(()=>{const b=[...document.querySelectorAll('button')].find(x=>x.textContent.includes('New thought'));b?.click();return !!b})()`); await sleep(800);
+const state=await v(`(()=>({notes:document.querySelectorAll('.picture-occurrence').length,inspector:!!document.querySelector('.note-inspector'),text:document.querySelector('.context-pane')?.innerText.slice(0,500)}))()`);
+const shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+const path='C:/Users/iris/Downloads/Catalyst/tools/research-probes/2026-09-13/ui-modern-inspector.png';fs.writeFileSync(path,Buffer.from(shot.result.data,'base64'));
+console.log(JSON.stringify({...state,path},null,2));ws.close();

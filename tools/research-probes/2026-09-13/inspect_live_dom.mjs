@@ -1,0 +1,6 @@
+const pages=await fetch('http://127.0.0.1:9229/json').then(r=>r.json()); const page=pages.find(x=>x.type==='page'&&x.url.startsWith('http://127.0.0.1:5173')); if(!page)throw new Error('no page');
+const ws=new WebSocket(page.webSocketDebuggerUrl);let id=1;const p=new Map();ws.onmessage=e=>{const m=JSON.parse(e.data);if(m.id&&p.has(m.id)){p.get(m.id)(m);p.delete(m.id)}};await new Promise((r,j)=>{ws.onopen=r;ws.onerror=j});
+const c=(method,params={})=>new Promise(r=>{const n=id++;p.set(n,r);ws.send(JSON.stringify({id:n,method,params}))});
+const v=async expression=>(await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true})).result.result.value;
+const result=await v(`(()=>({url:location.href,title:document.title,ready:document.readyState,body:document.body?.innerText?.slice(0,1800),workspace:!!document.querySelector('.workspace'),contextMode:document.querySelector('.context-pane')?.getAttribute('data-context-mode'),occurrences:document.querySelectorAll('.picture-occurrence').length,errors:[...document.querySelectorAll('pre, [role="alert"]')].map(x=>x.textContent).filter(Boolean).slice(0,5)}))()`);
+console.log(JSON.stringify(result,null,2));ws.close();
