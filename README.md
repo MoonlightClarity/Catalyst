@@ -121,7 +121,7 @@ powershell -ExecutionPolicy Bypass -File .\test.ps1 -Full
 - `src/styles/` — application styling
 - `scripts/` — validation, licensing, and maintenance checks
 - `docs/` — engineering documentation and project decisions
-- `legacy/` and `archive/` — retired implementation material retained for reference
+- `legacy/` — retired implementation material retained for reference
 
 For deeper engineering context, start with [`docs/README.md`](docs/README.md). Source handoffs for continued development can be produced with `gather_source.ps1`.
 
