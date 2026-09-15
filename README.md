@@ -4,6 +4,10 @@ Catalyst is a local-first analytical workspace for reading source material, buil
 
 It is designed for rigorous research and intelligence-style analysis, but it is not limited to intelligence work. Catalyst is useful anywhere a researcher needs to move from source material to a clear, inspectable analytical structure.
 
+## Statement of mission
+
+Structured analytic techniques do not, by themselves, materially improve intelligence analysis; they operationalize and standardize analytical practice. Catalyst begins with a different question: why can rigorous analytical methods still fail to improve the work? Its hypothesis is cognitive load. Catalyst is an attempt to reduce that load so analysts can apply structure and tradecraft without the tools themselves becoming part of the problem.
+
 ## Core workflow
 
 1. **Open a PDF** — work directly with local source documents in the integrated reader.
