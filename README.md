@@ -6,12 +6,12 @@ It is designed for rigorous research and intelligence-style analysis, but it is 
 
 ## Core workflow
 
-1. **Open a PDF** â€” work directly with local source documents in the integrated reader.
-2. **Build the Outline** â€” create and edit a numbered hierarchical structure alongside the source.
-3. **Develop the analysis** â€” write notes directly in Outline items and reorganize them as the analysis changes.
-4. **Apply Methods when useful** â€” build an ordered sequence of analytic methods from the catalog or create custom methods.
-5. **Save locally** â€” preserve the workspace as portable Catalyst XML while keeping source PDFs separate.
-6. **Return later** â€” load the saved Catalyst session and reconnect its source documents.
+1. **Open a PDF** — work directly with local source documents in the integrated reader.
+2. **Build the Outline** — create and edit a numbered hierarchical structure alongside the source.
+3. **Develop the analysis** — write notes directly in Outline items and reorganize them as the analysis changes.
+4. **Apply Methods when useful** — build an ordered sequence of analytic methods from the catalog or create custom methods.
+5. **Save locally** — preserve the workspace as portable Catalyst XML while keeping source PDFs separate.
+6. **Return later** — load the saved Catalyst session and reconnect its source documents.
 
 Catalyst treats the **Outline as the primary analytical structure**. There is no separate thought, graph, evidence, assessment, or map workspace between the analyst and the outline.
 
@@ -63,6 +63,8 @@ Catalyst's active application is intentionally small:
 
 The active application is browser-based and local. Legacy experiments and retired implementation material are not part of the runtime.
 
+The binary release does not contain test files.
+
 ## Getting started
 
 ### Requirements
@@ -110,16 +112,16 @@ powershell -ExecutionPolicy Bypass -File .\test.ps1 -Full
 
 ## Repository layout
 
-- `src/app/` â€” application controllers and orchestration
-- `src/domain/` â€” analytical and workspace domain model
-- `src/features/analysis/` â€” Outline workspace
-- `src/features/techniques/` â€” Methods workspace and catalog interaction
-- `src/persistence/` â€” XML session persistence
-- `src/viewer/` â€” PDF reader integration
-- `src/styles/` â€” application styling
-- `scripts/` â€” validation, licensing, and maintenance checks
-- `docs/` â€” engineering documentation and project decisions
-- `legacy/` and `archive/` â€” retired implementation material retained for reference
+- `src/app/` — application controllers and orchestration
+- `src/domain/` — analytical and workspace domain model
+- `src/features/analysis/` — Outline workspace
+- `src/features/techniques/` — Methods workspace and catalog interaction
+- `src/persistence/` — XML session persistence
+- `src/viewer/` — PDF reader integration
+- `src/styles/` — application styling
+- `scripts/` — validation, licensing, and maintenance checks
+- `docs/` — engineering documentation and project decisions
+- `legacy/` and `archive/` — retired implementation material retained for reference
 
 For deeper engineering context, start with [`docs/README.md`](docs/README.md). Source handoffs for continued development can be produced with `gather_source.ps1`.
 
