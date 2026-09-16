@@ -4,6 +4,14 @@ Catalyst is a local-first analytical workspace for reading source material, buil
 
 It is designed for rigorous research and intelligence-style analysis, but it is not limited to intelligence work. Catalyst is useful anywhere a researcher needs to move from source material to a clear, inspectable analytical structure.
 
+## LLM navigation demo
+
+Catalyst 1.0.1 can be operated by an LLM through the same workspace a human uses. This 90-second recording shows deterministic navigation across the PDF reader, Outline, inline notes, the authored Methods workspace, and the complete 581-method catalog.
+
+[![Watch the Catalyst 1.0.1 LLM navigation demo](docs/media/llm-navigation-demo.png)](https://github.com/MoonlightClarity/Catalyst/releases/download/v1.0.1/Catalyst-1.0.1-LLM-Demo.mp4)
+
+**[Watch the 90-second Catalyst 1.0.1 LLM navigation demo (MP4)](https://github.com/MoonlightClarity/Catalyst/releases/download/v1.0.1/Catalyst-1.0.1-LLM-Demo.mp4)**
+
 ## Statement of mission
 
 Structured analytic techniques do not, by themselves, materially improve intelligence analysis; they operationalize and standardize analytical practice. Catalyst begins with a different question: why can rigorous analytical methods still fail to improve the work? Its hypothesis is cognitive load. Catalyst is an attempt to reduce that load so analysts can apply structure and tradecraft without the tools themselves becoming part of the problem.
