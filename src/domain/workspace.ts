@@ -82,6 +82,7 @@ export function canReconnectDocumentSource(
 
 export type WorkspaceAction =
   | { type: "document/opened"; document: DocumentRecord }
+  | { type: "document/closed"; id: string }
   | { type: "document/reconnected"; previousId: string; document: DocumentRecord }
   | { type: "selection/captured"; selection: PendingSelection }
   | { type: "selection/cleared" }
@@ -216,6 +217,13 @@ export function workspaceReducer(
         },
         activeDocumentId: action.document.id,
       };
+    }
+
+    case "document/closed": {
+      if (!state.documents[action.id]) return state;
+      const documents = { ...state.documents };
+      delete documents[action.id];
+      return { ...state, documents, activeDocumentId: state.activeDocumentId === action.id ? null : state.activeDocumentId };
     }
 
     case "document/reconnected": {

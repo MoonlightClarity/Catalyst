@@ -8,7 +8,7 @@ Use this order for implementation and release decisions:
 
 1. newer accepted ADRs, especially ADR 0026, ADR 0027, and ADR 0028;
 2. `CURRENT_ARCHITECTURE.md` — mounted product/runtime source of truth;
-3. `release-readiness.md` — current late-alpha → beta gate;
+3. `release-readiness.md` — current post-1.0 hardening gate;
 4. root `CURRENT_STATE.md`, `DECISION_LOG.md`, and `NEXT_STEPS.md`;
 5. frozen Outline/Map/annotation ontology documents;
 6. current implementation contracts such as `outline-authoring-system.md` and `techniques-workspace.md`;
@@ -21,7 +21,13 @@ Historical documents remain evidence of why decisions were made. They do not res
 | Area | Document | Status |
 | --- | --- | --- |
 | Product/runtime | `CURRENT_ARCHITECTURE.md` | **Current source of truth** |
-| Release readiness | `release-readiness.md` | **Current beta-convergence gate** |
+| Release readiness | `release-readiness.md` | **Current post-1.0 hardening gate** |
+| User guide | `USER_GUIDE.md` | **Supported end-user workflow and persistence guide** |
+| Troubleshooting | `TROUBLESHOOTING.md` | **User recovery and maintainer diagnostics** |
+| Release provenance | `release-provenance-1.0.0.md` | **Published 1.0.0 identity and asset record** |
+| Public-release hygiene | `public-release-hygiene-audit-1.0.0.md` | **Privacy/portability audit for the published source state** |
+| Security model | `security-model.md` | **Current local-desktop trust boundary, safeguards, and explicit non-claims** |
+| Persistence schema | `persistence-schema-1.0.md` | **Current version-1 XML, browser-storage, hydration, and recovery-journal format reference** |
 | Roadmap | `roadmap.md` | **Current stabilization roadmap** |
 | Surface freeze | `adr/0027-late-alpha-surface-reduction.md` | **Accepted beta product boundary** |
 | Export removal | `adr/0028-remove-derived-output-exports.md` | **Accepted current output boundary** |
@@ -56,8 +62,8 @@ Older ADRs are not deleted merely because they were superseded. Read them as dec
 - Keep session-file operations distinct from source-PDF operations. Save/Load are persistence, not derived-output export.
 - Update the relevant current contract when behavior changes rather than adding another competing design document.
 
-## Documentation still required before 1.0
+## Remaining release-hardening documentation
 
-Release-quality documentation still needs complete persisted-field/schema/version history, recovery/corruption procedures, source-anchor/version semantics, methodology/version references for built-in techniques, accessibility guidance, active-runtime security/threat modeling, release/build provenance, file persistence/recovery contracts, and a user-facing guide for the supported workflow.
+Release-quality documentation still needs deeper corruption-recovery procedures, source-anchor/version semantics, methodology/version references for built-in techniques, accessibility guidance, and stronger end-to-end persistence/recovery assurance. The version-1 persisted-field/schema reference, user workflow, basic troubleshooting, published 1.0.0 provenance, security model, and public-release hygiene now have dedicated documents and should be maintained rather than relisted as missing.
 
 Those gaps are production-hardening work. They are not reasons to restore retired alpha product concepts.

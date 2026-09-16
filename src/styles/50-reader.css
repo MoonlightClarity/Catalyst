@@ -658,6 +658,23 @@
   gap: 4px;
   margin: 0;
 }
+.reader-document-switcher {
+  width: clamp(360px, 28vw, 520px);
+  min-width: 360px;
+  height: 40px;
+  padding: 0 24px 0 8px;
+  border: 1px solid var(--c-shell-line-strong);
+  border-radius: 4px;
+  background: var(--c-shell-control);
+  color: var(--c-shell-text);
+  font: 600 10px/1.15 var(--font-ui);
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.reader-document-switcher:focus-visible {
+  outline: 2px solid rgba(112,170,162,.62);
+  outline-offset: 2px;
+}
 .reader-session-controls,
 .reader-session-controls.reader-session-controls-first {
   display: inline-flex;

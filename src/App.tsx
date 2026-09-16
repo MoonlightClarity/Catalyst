@@ -104,6 +104,8 @@ export function App({
   const pdfSelectionRef = useRef<PendingSelection | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const workspaceFileInputRef = useRef<HTMLInputElement>(null);
+  const readerPaneRef = useRef<HTMLElement>(null);
+  const contextPaneRef = useRef<HTMLElement>(null);
   const pendingDocumentRecordsRef = useRef(new Map<string, DocumentRecord>());
   const pendingReconnectsRef = useRef(new Map<string, string>());
   const browserReconnectTargetRef = useRef<string | null>(null);
@@ -113,6 +115,7 @@ export function App({
     mostRecentDocument(initialWorkspace),
   );
   const currentPageByDocumentRef = useRef<Record<string, number>>({});
+  const totalPagesByDocumentRef = useRef<Record<string, number>>({});
   const initialReaderHistoryRef = useRef<ReaderHistory>(
     createReaderHistory(initialReaderLocation(initialWorkspace)),
   );
@@ -168,6 +171,9 @@ export function App({
   const [readerHistory, setReaderHistory] = useState<ReaderHistory>(
     initialReaderHistoryRef.current,
   );
+  const [goToOpen, setGoToOpen] = useState(false);
+  const [goToValue, setGoToValue] = useState("");
+  const [goToError, setGoToError] = useState("");
   const [status, setStatus] = useState("Local XML workspace ready");
   const handleStartFresh = useCallback(async () => {
     const confirmed = window.confirm(
@@ -191,9 +197,18 @@ export function App({
   const activeDocument = state.activeDocumentId
     ? state.documents[state.activeDocumentId]
     : undefined;
+  const documentNavigationRecords = useMemo(
+    () => Object.values(state.documents).sort((a, b) =>
+      a.openedAt.localeCompare(b.openedAt) ||
+      a.name.localeCompare(b.name) ||
+      a.id.localeCompare(b.id),
+    ),
+    [state.documents],
+  );
 
   useEffect(() => {
-    document.title = activeDocument?.name?.trim() || "Catalyst";
+    const displayName = activeDocument?.name?.trim().replace(/\.pdf$/i, "");
+    document.title = displayName || "Catalyst";
   }, [activeDocument?.name]);
   const enabledCapabilities = useMemo(
     () => effectiveCapabilities(state.capabilities),
@@ -480,7 +495,10 @@ export function App({
   const reconnectDocument = useCallback(
     async (document: DocumentRecord) => {
       browserReconnectTargetRef.current = document.id;
-      fileInputRef.current?.click();
+      const input = fileInputRef.current;
+      if (!input) return;
+      input.multiple = false;
+      input.click();
     },
     [],
   );
@@ -524,11 +542,59 @@ export function App({
     [attachSelectionListener, dispatch, openSource],
   );
 
+  const switchDocument = useCallback(async (documentId: string): Promise<boolean> => {
+    if (!documentId) return false;
+    const document = stateRef.current.documents[documentId];
+    if (!document) return false;
+    if (documentId === stateRef.current.activeDocumentId) {
+      const registry = registryRef.current;
+      if (registry && activateDocument(registry, documentId)) {
+        setViewerHasDocument(true);
+        setActivePane("reader");
+        setStatus(`Reader · ${document.name}`);
+        return true;
+      }
+    }
+    const from = captureReaderLocation();
+    const openedId = await openDocumentRecord(document);
+    if (!openedId) return false;
+    const pageIndex = currentPageByDocumentRef.current[openedId] ?? 0;
+    commitReaderTransition(from, { documentId: openedId, pageIndex });
+    setActivePane("reader");
+    setStatus(`Reader · ${document.name}`);
+    return true;
+  }, [captureReaderLocation, commitReaderTransition, openDocumentRecord, stateRef]);
+
   const pickDocument = useCallback(async () => {
     const from = captureReaderLocation();
     browserOpenFromLocationRef.current = from;
-    fileInputRef.current?.click();
+    const input = fileInputRef.current;
+    if (!input) return;
+    input.multiple = true;
+    input.click();
   }, [captureReaderLocation]);
+
+  const closeCurrentDocument = useCallback(async () => {
+    const documentId = stateRef.current.activeDocumentId;
+    if (!documentId || !viewerHasDocument) return;
+    const document = stateRef.current.documents[documentId];
+    const registry = registryRef.current;
+    const documentManager = registry?.getPlugin("document-manager")?.provides();
+    if (!documentManager?.closeDocument?.(documentId)) return;
+    selectionCleanupRef.current?.();
+    selectionCleanupRef.current = null;
+    lastSelectionSignatureRef.current = "";
+    dispatch({ type: "document/closed", id: documentId });
+    const remaining = documentNavigationRecords.filter((item) => item.id !== documentId);
+    const next = remaining[0];
+    if (next) {
+      await openDocumentRecord(next);
+      setStatus(`Reader · ${next.name}`);
+    } else {
+      setViewerHasDocument(false);
+      setStatus("Open a PDF to begin");
+    }
+  }, [dispatch, documentNavigationRecords, openDocumentRecord, stateRef, viewerHasDocument]);
 
   const handleViewerReady = useCallback(
     (registry: RegistryLike) => {
@@ -590,8 +656,9 @@ export function App({
         );
         const pageUnsubscribe = subscribeToPageChanges(
           registry,
-          ({ documentId, pageIndex }) => {
+          ({ documentId, pageIndex, totalPages }) => {
             currentPageByDocumentRef.current[documentId] = pageIndex;
+            if (totalPages > 0) totalPagesByDocumentRef.current[documentId] = totalPages;
           },
         );
         const openedUnsubscribe = documentManager.onDocumentOpened?.(registerDocument);
@@ -668,6 +735,218 @@ export function App({
     [dispatch],
   );
 
+  const navigateToSurface = useCallback(
+    (surface: "reader" | "outline" | "methods") => {
+      if (surface === "reader") {
+        setActivePane("reader");
+        window.requestAnimationFrame(() => readerPaneRef.current?.focus({ preventScroll: true }));
+        return;
+      }
+
+      navigateToContextMode(surface === "outline" ? "graph" : "techniques");
+      window.requestAnimationFrame(() => {
+        const root = contextPaneRef.current?.querySelector<HTMLElement>(
+          `[data-catalyst-surface="${surface}"]`,
+        );
+        const target = root?.querySelector<HTMLElement>(
+          "[tabindex='0'], button:not([disabled]), input:not([disabled]), textarea:not([disabled])",
+        );
+        (target ?? root)?.focus({ preventScroll: true });
+      });
+    },
+    [navigateToContextMode],
+  );
+
+  const submitGoToAddress = useCallback(() => {
+    const raw = goToValue.trim();
+    if (/^(?:all\s+methods|methods?\s+catalog|catalog)$/i.test(raw)) {
+      if (!enabledCapabilities.methods) {
+        setGoToError("Methods are not enabled in this workspace");
+        return;
+      }
+      setGoToError("");
+      navigateToSurface("methods");
+      window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+        window.dispatchEvent(new CustomEvent("catalyst:open-method-catalog"));
+      }));
+      return;
+    }
+
+    const documentMatch = raw.match(/^(?:document|d)\s*[:#-]?\s*(.+?)(?:\s+(?:page|p)\s*[:#-]?\s*(\d+))?$/i);
+    const activePageMatch = raw.match(/^(?:page|p)\s*[:#-]?\s*(\d+)$/i);
+    if (documentMatch || activePageMatch) {
+      const documents = documentNavigationRecords;
+      if (documents.length === 0) {
+        setGoToError("No documents are open in this session");
+        return;
+      }
+
+      const selector = documentMatch?.[1]?.trim() ?? "";
+      const pageNumber = Number(documentMatch?.[2] ?? activePageMatch?.[1] ?? 0) || null;
+      let target = activePageMatch
+        ? documents.find((document) => document.id === stateRef.current.activeDocumentId)
+        : undefined;
+      let targetIndex = target ? documents.findIndex((document) => document.id === target!.id) : -1;
+
+      if (documentMatch) {
+        if (/^\d+$/.test(selector)) {
+          targetIndex = Number(selector) - 1;
+          target = documents[targetIndex];
+        } else {
+          const needle = selector.toLocaleLowerCase();
+          const exact = documents
+            .map((document, index) => ({ document, index }))
+            .filter(({ document }) => document.name.toLocaleLowerCase() === needle);
+          const matches = exact.length > 0
+            ? exact
+            : documents
+                .map((document, index) => ({ document, index }))
+                .filter(({ document }) => document.name.toLocaleLowerCase().includes(needle));
+          if (matches.length === 1) {
+            target = matches[0].document;
+            targetIndex = matches[0].index;
+          } else if (matches.length > 1) {
+            setGoToError("Document name is ambiguous; use its D number");
+            return;
+          }
+        }
+      }
+
+      if (!target || targetIndex < 0) {
+        setGoToError(documentMatch ? `No document matches ${selector}` : "No active document");
+        return;
+      }
+      if (!pageNumber) {
+        setGoToError("");
+        void switchDocument(target.id).then((success) => {
+          if (!success) {
+            setGoToError(`Could not open D ${targetIndex + 1}`);
+            return;
+          }
+          setGoToOpen(false);
+          setGoToValue("");
+          setGoToError("");
+          setStatus(`Go to · D ${targetIndex + 1} · ${target.name}`);
+        });
+        return;
+      }
+
+      const knownTotalPages = totalPagesByDocumentRef.current[target.id];
+      if (pageNumber < 1 || (knownTotalPages && pageNumber > knownTotalPages)) {
+        setGoToError(knownTotalPages
+          ? `Page must be between 1 and ${knownTotalPages}`
+          : "Page number must be at least 1");
+        return;
+      }
+
+      setGoToError("");
+      const from = captureReaderLocation();
+      void (async () => {
+        let documentId = target!.id;
+        if (stateRef.current.activeDocumentId !== target!.id) {
+          const openedId = await openDocumentRecord(target!);
+          if (!openedId) {
+            setGoToError(`Could not open D ${targetIndex + 1}`);
+            return;
+          }
+          documentId = openedId;
+        }
+        const registry = registryRef.current;
+        if (!registry) {
+          setGoToError("Reader is not ready");
+          return;
+        }
+        await jumpToPageWhenReady(registry, documentId, pageNumber - 1, { behavior: "instant" });
+        currentPageByDocumentRef.current[documentId] = pageNumber - 1;
+        commitReaderTransition(from, { documentId, pageIndex: pageNumber - 1 });
+        setActivePane("reader");
+        readerPaneRef.current?.focus({ preventScroll: true });
+        setGoToOpen(false);
+        setGoToValue("");
+        setGoToError("");
+        setStatus(`Go to · D ${targetIndex + 1} P ${pageNumber} · ${target!.name}`);
+      })();
+      return;
+    }
+
+    const prefixed = raw.match(/^(outline|o|methods?|m)\s*[:#-]?\s*(\d+(?:\.\d+)*)(?:\s+(note|form|step\s+\d+))?$/i);
+    const bare = raw.match(/^(\d+(?:\.\d+)*)(?:\s+(note|form|step\s+\d+))?$/i);
+    let surface: "outline" | "methods" | null = null;
+    let address = "";
+    let suffix = "";
+
+    if (prefixed) {
+      surface = /^(?:o|outline)$/i.test(prefixed[1]) ? "outline" : "methods";
+      address = prefixed[2];
+      suffix = prefixed[3]?.toLowerCase() ?? "";
+    } else if (bare && activePane === "context") {
+      surface = contextMode === "graph" ? "outline" : "methods";
+      address = bare[1];
+      suffix = bare[2]?.toLowerCase() ?? "";
+    }
+
+    if (!surface || !address) {
+      setGoToError("Use D 2 P 37, P 37, O 2.3 note, M 4.1 step 2, or All methods");
+      return;
+    }
+    if (surface === "methods" && !enabledCapabilities.methods) {
+      setGoToError("Methods are not enabled in this workspace");
+      return;
+    }
+    if (surface === "outline" && suffix && suffix !== "note") {
+      setGoToError("Outline addresses support an optional 'note' target");
+      return;
+    }
+    if (surface === "methods" && suffix === "note") {
+      setGoToError("Method addresses support 'form' or 'step N'");
+      return;
+    }
+
+    const stepMatch = suffix.match(/^step\s+(\d+)$/);
+    const target = surface === "outline"
+      ? (suffix === "note" ? "note" : "row")
+      : (suffix === "form" ? "form" : stepMatch ? "step" : "row");
+    const step = stepMatch ? Number(stepMatch[1]) : undefined;
+
+    setGoToError("");
+    navigateToSurface(surface);
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+      window.dispatchEvent(new CustomEvent(
+        surface === "outline" ? "catalyst:navigate-outline-address" : "catalyst:navigate-method-address",
+        { detail: { address, target, step } },
+      ));
+    }));
+  }, [
+    activePane,
+    captureReaderLocation,
+    commitReaderTransition,
+    contextMode,
+    documentNavigationRecords,
+    enabledCapabilities.methods,
+    goToValue,
+    navigateToSurface,
+    openDocumentRecord,
+    stateRef,
+    switchDocument,
+  ]);
+
+  useEffect(() => {
+    const onNavigationResult = (event: Event) => {
+      const detail = (event as CustomEvent<{ success?: boolean; address?: string }>).detail;
+      if (!detail?.address) return;
+      if (detail.success) {
+        setGoToOpen(false);
+        setGoToValue("");
+        setGoToError("");
+        setStatus(`Go to · ${detail.address}`);
+      } else {
+        setGoToError(`No item at ${detail.address}`);
+      }
+    };
+    window.addEventListener("catalyst:navigation-result", onNavigationResult);
+    return () => window.removeEventListener("catalyst:navigation-result", onNavigationResult);
+  }, []);
+
   const navigateToNote = useCallback(
     (noteId: string) => {
       const note = stateRef.current.notes[noteId];
@@ -703,6 +982,39 @@ export function App({
       const isEditing = Boolean(target?.closest(
         "input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox']",
       ));
+
+      if ((event.ctrlKey || event.metaKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === "g") {
+        event.preventDefault();
+        setGoToValue(
+          activePane === "reader"
+            ? ""
+            : contextMode === "graph"
+              ? "O "
+              : "M ",
+        );
+        setGoToError("");
+        setGoToOpen(true);
+        return;
+      }
+
+      if (event.altKey && !event.ctrlKey && !event.metaKey && !event.shiftKey && !isEditing) {
+        if (event.code === "Digit1") {
+          event.preventDefault();
+          navigateToSurface("reader");
+          return;
+        }
+        if (event.code === "Digit2") {
+          event.preventDefault();
+          navigateToSurface("outline");
+          return;
+        }
+        if (event.code === "Digit3" && enabledCapabilities.methods) {
+          event.preventDefault();
+          navigateToSurface("methods");
+          return;
+        }
+      }
+
       if (unifiedWorkflowResearch && event.key === "F6" && !isEditing) {
         event.preventDefault();
         setActivePane((current) => {
@@ -713,9 +1025,21 @@ export function App({
         return;
       }
 
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === "o") {
+      if ((event.ctrlKey || event.metaKey) && !event.shiftKey && event.key.toLowerCase() === "o") {
         event.preventDefault();
         void pickDocument();
+        return;
+      }
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        event.shiftKey &&
+        !event.altKey &&
+        !isEditing &&
+        event.key.toLowerCase() === "x"
+      ) {
+        event.preventDefault();
+        void closeCurrentDocument();
         return;
       }
 
@@ -740,7 +1064,11 @@ export function App({
   }, [
     activePane,
     clearPendingSelection,
+    closeCurrentDocument,
+    contextMode,
+    enabledCapabilities.methods,
     navigateToContextMode,
+    navigateToSurface,
     pickDocument,
     stateRef,
     unifiedWorkflowResearch,
@@ -903,6 +1231,28 @@ export function App({
     }
   }, [stateRef]);
 
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const command = event.ctrlKey || event.metaKey;
+      if (!command) return;
+      const target = event.target instanceof Element ? event.target : null;
+      const isEditing = Boolean(target?.closest(
+        "input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox']",
+      ));
+      if (isEditing) return;
+
+      if (event.shiftKey && event.key.toLowerCase() === "o") {
+        event.preventDefault();
+        void importWorkspace();
+      } else if (!event.shiftKey && event.key.toLowerCase() === "s") {
+        event.preventDefault();
+        void saveWorkspace();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [importWorkspace, saveWorkspace]);
+
 
   const displayStatus = persistenceError
     ? `Persistence error · ${persistenceError}`
@@ -918,7 +1268,46 @@ export function App({
     <main
       className={`workspace workspace-unified-${activePane} workspace-shell-${workspaceShell}${unifiedWorkflowResearch ? " workspace-unified-research" : ""}`}
       data-research-shell={unifiedWorkflowResearch ? researchShell : undefined}
+      data-catalyst-active-surface={activePane === "reader" ? "reader" : contextMode === "graph" ? "outline" : "methods"}
     >
+      {goToOpen && (
+        <div className="catalyst-go-to-backdrop" role="presentation" onMouseDown={() => setGoToOpen(false)}>
+          <form
+            className="catalyst-go-to-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Go to Catalyst address"
+            data-catalyst-dialog="go-to"
+            onMouseDown={(event) => event.stopPropagation()}
+            onSubmit={(event) => { event.preventDefault(); submitGoToAddress(); }}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.preventDefault();
+                setGoToOpen(false);
+                setGoToError("");
+              }
+            }}
+          >
+            <label htmlFor="catalyst-go-to-input">Go to</label>
+            <div className="catalyst-go-to-row">
+              <input
+                id="catalyst-go-to-input"
+                autoFocus
+                data-catalyst-action="go-to-address"
+                aria-keyshortcuts="Control+G Meta+G"
+                value={goToValue}
+                onChange={(event) => { setGoToValue(event.currentTarget.value); setGoToError(""); }}
+                placeholder="D 2 P 37, O 2.3 note, or M 4.1 step 2"
+                autoComplete="off"
+                spellCheck={false}
+              />
+              <button type="submit">Go</button>
+            </div>
+            <span className="catalyst-go-to-help">D 2 · P 37 · D 2 P 37 · O 2.3 note · M 4.1 step 2 · All methods</span>
+            {goToError && <span className="catalyst-go-to-error" role="alert">{goToError}</span>}
+          </form>
+        </div>
+      )}
       {unifiedWorkflowResearch && (
         <button
           className="unified-layer-toggle"
@@ -931,8 +1320,13 @@ export function App({
         </button>
       )}
       <section
+        ref={readerPaneRef}
         className="pdf-pane"
         aria-label="PDF reader"
+        aria-keyshortcuts="Alt+1"
+        id="catalyst-surface-reader"
+        data-catalyst-surface="reader"
+        tabIndex={-1}
         data-pane-active={activePane === "reader" ? "true" : "false"}
         onPointerDownCapture={() => setActivePane("reader")}
         onFocusCapture={() => setActivePane("reader")}
@@ -946,62 +1340,122 @@ export function App({
           </div>
           <div className="reader-file-controls" role="group" aria-label="Document and session controls">
             <div className="reader-session-controls reader-session-controls-first" role="group" aria-label="Session controls">
-              <button className="reader-session-button" type="button" onClick={() => void handleStartFresh()} aria-label="New session" title="Unload this session and start a new one">
+              <button className="reader-session-button" type="button" data-catalyst-action="new-session" onClick={() => void handleStartFresh()} aria-label="New session" title="Unload this session and start a new one">
                 <InstrumentGlyph name="exit" />
                 <span className="reader-session-label">New</span>
               </button>
-              <button className="reader-session-button" type="button" onClick={() => void importWorkspace()} aria-label="Load session" title="Load a Catalyst session">
+              <button className="reader-session-button" type="button" data-catalyst-action="load-session" aria-keyshortcuts="Control+Shift+O Meta+Shift+O" onClick={() => void importWorkspace()} aria-label="Load session" title="Load a Catalyst session">
                 <InstrumentGlyph name="import" />
                 <span className="reader-session-label">Load</span>
               </button>
-              <button className="reader-session-button" type="button" onClick={() => void saveWorkspace()} aria-label="Save session" title="Save this Catalyst session as XML">
+              <button className="reader-session-button" type="button" data-catalyst-action="save-session" aria-keyshortcuts="Control+S Meta+S" onClick={() => void saveWorkspace()} aria-label="Save session" title="Save this Catalyst session as XML">
                 <InstrumentGlyph name="save" />
                 <span className="reader-session-label">Save</span>
               </button>
-              <button className="reader-session-button" type="button" onClick={() => void pickDocument()} aria-label="Open PDF" title="Open PDF">
+              <button className="reader-session-button" type="button" data-catalyst-action="open-pdf" aria-keyshortcuts="Control+O Meta+O" onClick={() => void pickDocument()} aria-label="Open PDFs" title="Open one or more PDFs">
                 <InstrumentGlyph name="open-folder" />
                 <span className="reader-session-label">Open</span>
               </button>
+              <button
+                className="reader-session-button"
+                type="button"
+                data-catalyst-action="close-document"
+                aria-keyshortcuts="Control+Shift+X Meta+Shift+X"
+                onClick={closeCurrentDocument}
+                disabled={!viewerHasDocument}
+                aria-label="Close current PDF"
+                title="Close current PDF · Ctrl/Cmd+Shift+X"
+              >
+                <InstrumentGlyph name="close" />
+                <span className="reader-session-label">Close</span>
+              </button>
             </div>
+            {documentNavigationRecords.length > 0 && (
+              <select
+                className="reader-document-switcher"
+                data-catalyst-action="switch-document"
+                aria-label="Switch document"
+                value={state.activeDocumentId ?? ""}
+                onChange={(event) => void switchDocument(event.currentTarget.value)}
+              >
+                {documentNavigationRecords.map((document, index) => (
+                  <option
+                    key={document.id}
+                    value={document.id}
+                    data-catalyst-address={`D ${index + 1}`}
+                  >
+                    {`${document.name.replace(/\.pdf$/i, "")} (D${index + 1})`}
+                  </option>
+                ))}
+              </select>
+            )}
           </div>
 
           <input
             ref={fileInputRef}
+            data-catalyst-file-input="pdf"
             hidden
             tabIndex={-1}
             type="file"
             accept="application/pdf,.pdf"
             onChange={(event) => {
-              const file = event.currentTarget.files?.[0];
+              const input = event.currentTarget;
+              const files = Array.from(input.files ?? []);
               const reconnectFromId = browserReconnectTargetRef.current;
               const navigationFrom =
                 browserOpenFromLocationRef.current ?? captureReaderLocation();
               browserReconnectTargetRef.current = null;
               browserOpenFromLocationRef.current = null;
+              input.value = "";
 
-              if (file) {
+              if (files.length === 0) return;
+
+              if (reconnectFromId) {
+                const file = files[0];
                 void browserPdfSource(file)
-                  .then(async (source) => {
-                    const openedId = await openSource(source, reconnectFromId);
-                    if (!reconnectFromId && openedId) {
-                      const pageIndex = currentPageByDocumentRef.current[openedId] ?? 0;
-                      commitReaderTransition(navigationFrom, {
-                        documentId: openedId,
-                        pageIndex,
-                      });
-                      setActivePane("reader");
-                    }
-                  })
+                  .then((source) => openSource(source, reconnectFromId))
                   .catch((error) => {
-                    console.error("Browser PDF open failed", error);
+                    console.error("Browser PDF reconnect failed", error);
                     setStatus(`Could not open ${file.name}`);
                   });
+                return;
               }
-              event.currentTarget.value = "";
+
+              void (async () => {
+                const openedIds: string[] = [];
+                for (const file of files) {
+                  try {
+                    const source = await browserPdfSource(file);
+                    const openedId = await openSource(source);
+                    if (openedId) openedIds.push(openedId);
+                  } catch (error) {
+                    console.error("Browser PDF open failed", error);
+                    setStatus(`Could not open ${file.name}`);
+                  }
+                }
+
+                const openedId = openedIds.at(-1);
+                if (!openedId) return;
+                setViewerHasDocument(true);
+                const pageIndex = currentPageByDocumentRef.current[openedId] ?? 0;
+                commitReaderTransition(navigationFrom, {
+                  documentId: openedId,
+                  pageIndex,
+                });
+                setActivePane("reader");
+                if (files.length > 1) {
+                  setStatus(
+                    openedIds.length === files.length
+                      ? `Opened ${openedIds.length} PDFs`
+                      : `Opened ${openedIds.length} of ${files.length} PDFs`,
+                  );
+                }
+              })();
             }}
           />
           <input
             ref={workspaceFileInputRef}
+            data-catalyst-file-input="session"
             hidden
             tabIndex={-1}
             type="file"
@@ -1048,8 +1502,10 @@ export function App({
 
 
       <aside
+        ref={contextPaneRef}
         className="context-pane"
         aria-label="Research context"
+        data-catalyst-surface={contextMode === "graph" ? "outline" : "methods"}
         data-context-mode={contextMode}
         data-pane-active={activePane === "context" ? "true" : "false"}
         onPointerDownCapture={(event) => {
@@ -1065,18 +1521,26 @@ export function App({
 
         <div className="context-tabs" role="tablist" aria-label="Workspace views">
           <button
+            id="catalyst-tab-outline"
             className={contextMode === "graph" ? "context-tab active" : "context-tab"}
+            data-catalyst-action="open-outline"
             onClick={() => navigateToContextMode("graph")}
             role="tab"
+            aria-controls="catalyst-surface-outline"
+            aria-keyshortcuts="Alt+2"
             aria-selected={contextMode === "graph"}
           >
             Outline <span>{Object.values(state.notes).length}</span>
           </button>
           {enabledCapabilities.methods && (
             <button
+              id="catalyst-tab-methods"
               className={contextMode === "techniques" ? "context-tab active" : "context-tab"}
+              data-catalyst-action="open-methods"
               onClick={() => navigateToContextMode("techniques")}
               role="tab"
+              aria-controls="catalyst-surface-methods"
+              aria-keyshortcuts="Alt+3"
               aria-selected={contextMode === "techniques"}
             >
               Methods <span>{techniqueRunCount}</span>

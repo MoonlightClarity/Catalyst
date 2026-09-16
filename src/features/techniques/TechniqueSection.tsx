@@ -169,12 +169,63 @@ function TechniquePicker({
   );
 }
 
+function MethodCatalog({
+  definitions,
+  onClose,
+}: {
+  definitions: TechniqueDefinition[];
+  onClose: () => void;
+}) {
+  const methods = useMemo(
+    () => [...definitions].sort((left, right) => left.name.localeCompare(right.name) || left.id.localeCompare(right.id)),
+    [definitions],
+  );
+  return (
+    <div className="technique-catalog-backdrop" role="presentation" onMouseDown={onClose}>
+      <section
+        className="technique-catalog"
+        role="dialog"
+        aria-modal="true"
+        aria-label={`All methods (${methods.length})`}
+        data-catalyst-dialog="method-catalog"
+        onMouseDown={(event) => event.stopPropagation()}
+      >
+        <header className="technique-catalog-header">
+          <h2>All methods</h2>
+          <span>{methods.length}</span>
+          <button className="icon-button" type="button" onClick={onClose} aria-label="Close all methods" title="Close">
+            <InstrumentGlyph name="close" />
+          </button>
+        </header>
+        <ol className="technique-catalog-list" data-catalyst-method-catalog="true">
+          {methods.map((definition, index) => (
+            <li
+              key={definition.id}
+              className="technique-catalog-item"
+              data-catalyst-method-definition-id={definition.id}
+              data-catalyst-method-name={definition.name}
+            >
+              <span className="technique-catalog-index">{index + 1}.</span>
+              <span className="technique-catalog-copy">
+                <strong>{definition.name || "Untitled method"}</strong>
+                {definition.summary && <span>{definition.summary}</span>}
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
+    </div>
+  );
+}
+
 function TechniqueRunEditor({
   run,
+  address,
   onUpdateRunDefinition,
   onUpdateResponse,
 }: {
   run: TechniqueRun;
+  address: string;
   onUpdateRunDefinition: (
     runId: string,
     patch: Partial<Pick<TechniqueDefinition, "name" | "summary" | "category" | "steps">>,
@@ -188,7 +239,11 @@ function TechniqueRunEditor({
     onUpdateRunDefinition(run.id, { steps });
   };
   return (
-    <div className="technique-run-body">
+    <div
+      className="technique-run-body"
+      data-catalyst-method-run-id={run.id}
+      data-catalyst-address={`${address} form`}
+    >
       <div className="technique-run-definition-editor">
         <input
           className="technique-name-field"
@@ -215,6 +270,8 @@ function TechniqueRunEditor({
             />
             <textarea
               className="technique-analysis"
+              data-catalyst-method-response-index={index + 1}
+              data-catalyst-address={`${address} step ${index + 1}`}
               value={run.responses[step.id] ?? ""}
               onChange={(event) => onUpdateResponse(run.id, step.id, event.target.value)}
               aria-label={`Analysis for subtask ${index + 1}`}
@@ -282,6 +339,7 @@ export function TechniqueSection({
   onDeleteRun: (runId: string) => void;
 }) {
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [catalogOpen, setCatalogOpen] = useState(false);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
   const [collapsedRunIds, setCollapsedRunIds] = useState<Set<string>>(() => new Set());
   const [addContext, setAddContext] = useState<{
@@ -289,6 +347,7 @@ export function TechniqueSection({
     afterRunId: string | null;
   } | null>(null);
   const listRef = useRef<HTMLOListElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
 
   const selectedRun = selectedRunId
     ? runs.find((run) => run.id === selectedRunId) ?? null
@@ -340,6 +399,10 @@ export function TechniqueSection({
     return rows;
   }, [collapsedRunIds, runs]);
 
+  const selectedRunAddress = selectedRun
+    ? treeRows.find((row) => row.run.id === selectedRun.id)?.outlineNumber ?? ""
+    : "";
+
   const focusRun = (runId: string, deferred = false) => {
     const apply = () => listRef.current
       ?.querySelector<HTMLButtonElement>(`button.technique-list-title[data-technique-run-id="${runId}"]`)
@@ -363,9 +426,13 @@ export function TechniqueSection({
   }, []);
 
   useEffect(() => {
-    if (!pickerOpen && !selectedRun) return;
+    if (!pickerOpen && !catalogOpen && !selectedRun) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key !== "Escape") return;
+      if (catalogOpen) {
+        setCatalogOpen(false);
+        return;
+      }
       if (pickerOpen) {
         const returnRunId = addContext?.afterRunId ?? null;
         setPickerOpen(false);
@@ -380,7 +447,7 @@ export function TechniqueSection({
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [addContext, pickerOpen, runs.length, selectedRun]);
+  }, [addContext, catalogOpen, pickerOpen, runs.length, selectedRun]);
 
   const openSiblingPicker = (run: TechniqueRun) => {
     if (addDisabled) return;
@@ -388,8 +455,95 @@ export function TechniqueSection({
     setPickerOpen(true);
   };
 
+
+  useEffect(() => {
+    const onOpenCatalog = () => {
+      setPickerOpen(false);
+      setAddContext(null);
+      setSelectedRunId(null);
+      setCatalogOpen(true);
+      window.dispatchEvent(new CustomEvent("catalyst:navigation-result", {
+        detail: { success: true, address: "All methods" },
+      }));
+    };
+    window.addEventListener("catalyst:open-method-catalog", onOpenCatalog);
+    return () => window.removeEventListener("catalyst:open-method-catalog", onOpenCatalog);
+  }, []);
+
+  useEffect(() => {
+    const onAddressNavigation = (event: Event) => {
+      const detail = (event as CustomEvent<{ address?: string; target?: "row" | "form" | "step"; step?: number }>).detail;
+      const address = String(detail?.address ?? "").trim();
+      const target = detail?.target ?? "row";
+      const step = detail?.step ?? null;
+      if (!/^\d+(?:\.\d+)*$/.test(address)) return;
+      const indexes = address.split(".").map((part) => Number(part) - 1);
+      const runIds = new Set(runs.map((run) => run.id));
+      const children = new Map<string | null, TechniqueRun[]>();
+      for (const run of runs) {
+        const requestedParent = run.parentRunId ?? null;
+        const parentRunId = requestedParent && runIds.has(requestedParent) ? requestedParent : null;
+        const siblings = children.get(parentRunId) ?? [];
+        siblings.push(run);
+        children.set(parentRunId, siblings);
+      }
+      for (const siblings of children.values()) {
+        siblings.sort((left, right) =>
+          (left.sequenceIndex ?? Number.MAX_SAFE_INTEGER) - (right.sequenceIndex ?? Number.MAX_SAFE_INTEGER) ||
+          left.createdAt.localeCompare(right.createdAt) || left.id.localeCompare(right.id),
+        );
+      }
+
+      let parentRunId: string | null = null;
+      let targetRun: TechniqueRun | null = null;
+      const ancestors: string[] = [];
+      for (const index of indexes) {
+        const target: TechniqueRun | undefined = (children.get(parentRunId) ?? [])[index];
+        if (!target) {
+          window.dispatchEvent(new CustomEvent("catalyst:navigation-result", { detail: { success: false, address: `M ${address}` } }));
+          return;
+        }
+        if (targetRun) ancestors.push(targetRun.id);
+        targetRun = target;
+        parentRunId = target.id;
+      }
+      if (!targetRun) return;
+      if (target === "step" && (!step || step < 1 || step > targetRun.definitionSnapshot.steps.length)) {
+        window.dispatchEvent(new CustomEvent("catalyst:navigation-result", { detail: { success: false, address: `M ${address} step ${step ?? "?"}` } }));
+        return;
+      }
+      setPickerOpen(false);
+      setAddContext(null);
+      setCollapsedRunIds((current) => {
+        const next = new Set(current);
+        for (const ancestorId of ancestors) next.delete(ancestorId);
+        return next;
+      });
+      const targetRunId = targetRun.id;
+      if (target === "row") {
+        setSelectedRunId(null);
+        window.requestAnimationFrame(() => window.requestAnimationFrame(() => focusRun(targetRunId)));
+      } else {
+        setSelectedRunId(targetRunId);
+        window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+          const editor = sectionRef.current?.querySelector<HTMLElement>(`[data-catalyst-method-run-id="${targetRunId}"]`);
+          if (target === "step" && step) {
+            editor?.querySelector<HTMLTextAreaElement>(`[data-catalyst-method-response-index="${step}"]`)?.focus({ preventScroll: true });
+          } else {
+            const firstResponse = editor?.querySelector<HTMLTextAreaElement>("[data-catalyst-method-response-index]");
+            (firstResponse ?? editor?.querySelector<HTMLInputElement>(".technique-name-field"))?.focus({ preventScroll: true });
+          }
+        }));
+      }
+      const suffix = target === "form" ? " form" : target === "step" ? ` step ${step}` : "";
+      window.dispatchEvent(new CustomEvent("catalyst:navigation-result", { detail: { success: true, address: `M ${address}${suffix}` } }));
+    };
+    window.addEventListener("catalyst:navigate-method-address", onAddressNavigation);
+    return () => window.removeEventListener("catalyst:navigate-method-address", onAddressNavigation);
+  }, [runs]);
+
   return (
-    <section className={`techniques-section technique-workspace-surface ${selectedRun ? "is-editing" : "is-list"}`}>
+    <section ref={sectionRef} className={`techniques-section technique-workspace-surface ${selectedRun ? "is-editing" : "is-list"}`}>
       {selectedRun ? (
         <div className="technique-focus-shell">
           <header className="technique-focus-header">
@@ -408,11 +562,26 @@ export function TechniqueSection({
             <strong className="technique-focus-title">{selectedRun.definitionSnapshot.name || "Untitled method"}</strong>
           </header>
           <div className="technique-focus-scroll">
-            <TechniqueRunEditor run={selectedRun} onUpdateRunDefinition={onUpdateRunDefinition} onUpdateResponse={onUpdateResponse} />
+            <TechniqueRunEditor
+              run={selectedRun}
+              address={selectedRunAddress ? `M ${selectedRunAddress}` : "M"}
+              onUpdateRunDefinition={onUpdateRunDefinition}
+              onUpdateResponse={onUpdateResponse}
+            />
           </div>
         </div>
       ) : (
         <div className="technique-list-shell">
+          <div className="technique-list-tools">
+            <button
+              className="technique-catalog-open"
+              type="button"
+              data-catalyst-action="view-all-methods"
+              onClick={() => setCatalogOpen(true)}
+            >
+              All methods
+            </button>
+          </div>
           <ol
             ref={listRef}
             className="technique-ordered-list"
@@ -438,6 +607,7 @@ export function TechniqueSection({
                   role="treeitem"
                   aria-level={depth + 1}
                   aria-expanded={hasChildren ? !collapsed : undefined}
+                  data-catalyst-address={`M ${outlineNumber}`}
                   style={{ "--technique-indent": `${depth * 20}px` } as CSSProperties}
                 >
                   {hasChildren ? (
@@ -527,6 +697,10 @@ export function TechniqueSection({
             {runs.length === 0 && <li className="technique-list-empty">No methods yet.</li>}
           </ol>
         </div>
+      )}
+
+      {catalogOpen && (
+        <MethodCatalog definitions={definitions} onClose={() => setCatalogOpen(false)} />
       )}
 
       {pickerOpen && (

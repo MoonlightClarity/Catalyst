@@ -163,3 +163,57 @@
   height: 100%;
   font: 610 13px/1 var(--font-ui);
 }
+
+/* Constant-size structural Go To dialog for large Outline/Methods trees. */
+.catalyst-go-to-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: grid;
+  place-items: start center;
+  padding-top: min(18vh, 160px);
+  background: rgba(3, 9, 14, .48);
+}
+.catalyst-go-to-dialog {
+  width: min(420px, calc(100vw - 32px));
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border: 1px solid var(--c-shell-line-strong);
+  border-radius: 6px;
+  background: var(--c-shell-panel);
+  color: var(--c-shell-text);
+  box-shadow: 0 14px 44px rgba(0, 0, 0, .36);
+}
+.catalyst-go-to-dialog > label {
+  font: 650 12px/1 var(--font-ui);
+}
+.catalyst-go-to-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px;
+}
+.catalyst-go-to-row input {
+  min-width: 0;
+  height: 34px;
+  padding: 0 9px;
+  border: 1px solid var(--c-shell-line-strong);
+  border-radius: 4px;
+  background: var(--c-shell-field);
+  color: var(--c-shell-text);
+  font: 600 13px/1 var(--font-ui);
+}
+.catalyst-go-to-row button {
+  min-width: 52px;
+  border: 1px solid var(--c-shell-line-strong);
+  border-radius: 4px;
+  background: var(--c-shell-control);
+  color: var(--c-shell-text);
+  cursor: pointer;
+}
+.catalyst-go-to-help,
+.catalyst-go-to-error {
+  font: 500 10px/1.25 var(--font-ui);
+}
+.catalyst-go-to-help { color: var(--c-shell-faint); }
+.catalyst-go-to-error { color: #efb0a8; }

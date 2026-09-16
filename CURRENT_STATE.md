@@ -1,12 +1,12 @@
 # Catalyst current state
 
-Status: **current workspace summary — 2026-09-15**
+Status: **current workspace summary — 2026-09-16**
 
 For implementation authority, read `docs/CURRENT_ARCHITECTURE.md` first. Older alpha/Working Picture/Tauri material is historical unless reaffirmed by a newer ADR or current contract.
 
 ## Product state
 
-Catalyst is a local-first analytical workspace in late alpha. The beta target is deliberately narrower than the 0.6.x experiments:
+Catalyst is a local-first analytical workspace with a public 1.0.1 release. The supported product boundary is deliberately narrower than the 0.6.x experiments:
 
 - **Reader** — local PDF reading, navigation, source selection, and annotation/markup.
 - **Outline** — authoritative structural authoring for thoughts/notes.
@@ -14,7 +14,7 @@ Catalyst is a local-first analytical workspace in late alpha. The beta target is
 - **Methods / Techniques** — independent ordered structured-analysis work.
 - **Sessions/files** — canonical Catalyst XML workspace state with source PDFs kept separate.
 
-Formal Assessment, the standalone Evidence workspace, Catalyst-wide undo/redo, thought-link authoring, graph-first/free-spatial structural editing, and the legacy Techniques UI are outside the beta product surface under ADR 0027.
+Formal Assessment, the standalone Evidence workspace, Catalyst-wide undo/redo, thought-link authoring, graph-first/free-spatial structural editing, and the legacy Techniques UI are outside the current product surface under ADR 0027.
 
 ## Runtime and persistence
 
@@ -41,12 +41,10 @@ Historical implementation names/state remain, including the internal `graph` con
 
 The previously documented `isLegacyAssessmentRun` compatibility shim is no longer present. Current source contains “assessment” only as legitimate analytical/technique vocabulary, not as a formal Assessment product surface.
 
-The command palette still exposes Portrayal Lab as a development/prototype action and should be reviewed before beta exposure. The package version remains `0.6.3-alpha.3`, which is now a build/compatibility identifier rather than an exact description of the simplified product surface.
+The command palette still exposes Portrayal Lab as a development/prototype action and should be reviewed in a future cleanup pass. The package version is `1.0.1`.
 
 ## Validation state
 
-An earlier `test.ps1 -Full` baseline passed on 2026-09-15. During this cleanup, stale regression expectations around the removed custom-definition helper and retired Working Picture affordances were corrected, and the half-applied `customMethods` capability removal was reconciled with the current type model.
-
-The current aggregate `npm run check` is still red because an active `AnalysisOutlineView.tsx` refactor is incomplete: the component body still references `roots` and `setBranchCollapsed`, its destructuring still uses `onOpenOnMap`, `showAnalyticalRoles`, and `showConfidence` after their prop-type declarations were removed, and `WorkingPictureWorkspace.tsx` still supplies at least one now-mismatched prop. This is implementation-thread work, not a reason to change the documented Outline/Map ownership model.
+The current aggregate `npm run check:full` passed on 2026-09-16 against package version `1.0.1`. Package/lockfile consistency, the full npm test chain, production Vite build, and npm license audit all completed successfully. The production build still reports a non-failing large-chunk warning.
 
 The research/source-handoff contract, Markdown relative-link audit, visual-language test, viewer-markup persistence test, and npm license audit pass in the current tree. See `docs/release-readiness.md` for the exact revalidation record.

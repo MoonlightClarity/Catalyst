@@ -58,7 +58,7 @@ export function OutlineWorkspace({
   }, [onCreateOutlineItem]);
 
   return (
-    <div className="outline-workspace">
+    <div id="catalyst-surface-outline" className="outline-workspace" data-catalyst-surface="outline" role="region" aria-labelledby="catalyst-tab-outline">
       <AnalysisOutlineView
         state={state}
         editingNoteId={editingNoteId}

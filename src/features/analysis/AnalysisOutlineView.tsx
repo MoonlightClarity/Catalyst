@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
-import type { WorkspaceState } from "../../domain/types";
+import type { OutlineItem, WorkspaceState } from "../../domain/types";
 import { outlineItemsForParent, outlineReferenceItemsForItem } from "../../domain/outline";
 import { nearestVisiblePlacementForNote, outlineFallbackAfterRemoval, outlineRows, outlineShouldHandleRowShortcut } from "./outlineModel";
 import { noteDisplayTitle } from "../../shared/display";
@@ -349,6 +349,61 @@ export function AnalysisOutlineView({
     }
   };
 
+  useEffect(() => {
+    const onAddressNavigation = (event: Event) => {
+      const detail = (event as CustomEvent<{ address?: string; target?: "row" | "note" }>).detail;
+      const address = String(detail?.address ?? "").trim();
+      const target = detail?.target ?? "row";
+      if (!/^\d+(?:\.\d+)*$/.test(address)) return;
+      const indexes = address.split(".").map((part) => Number(part) - 1);
+      const childrenByParent = new Map<string, OutlineItem[]>();
+      for (const item of Object.values(state.outline.items)) {
+        if (item.kind !== "reference") continue;
+        const siblings = childrenByParent.get(item.parentItemId) ?? [];
+        siblings.push(item);
+        childrenByParent.set(item.parentItemId, siblings);
+      }
+      for (const siblings of childrenByParent.values()) {
+        siblings.sort((left, right) => left.siblingOrder - right.siblingOrder || left.id.localeCompare(right.id));
+      }
+
+      let parentItemId = state.outline.rootItemId;
+      let targetPlacementId: string | null = null;
+      const ancestors: string[] = [];
+      for (const index of indexes) {
+        const target = (childrenByParent.get(parentItemId) ?? [])[index];
+        if (!target) {
+          window.dispatchEvent(new CustomEvent("catalyst:navigation-result", { detail: { success: false, address: `O ${address}` } }));
+          return;
+        }
+        if (targetPlacementId) ancestors.push(targetPlacementId);
+        targetPlacementId = target.id;
+        parentItemId = target.id;
+      }
+
+      if (!targetPlacementId) return;
+      const noteId = noteIdForPlacement(state, targetPlacementId);
+      if (!noteId) return;
+      setMasterCollapsed(false);
+      for (const ancestorId of ancestors) onSetCollapsed(ancestorId, false);
+      onSelectNote(noteId);
+      window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+        if (target === "note") {
+          const escaped = typeof CSS !== "undefined" && typeof CSS.escape === "function"
+            ? CSS.escape(targetPlacementId!)
+            : targetPlacementId!.replace(/["\\]/g, "\\$&");
+          const row = viewRef.current?.querySelector<HTMLElement>(`[data-outline-placement-id="${escaped}"]`);
+          row?.querySelector<HTMLTextAreaElement>("[data-catalyst-note-body]")?.focus({ preventScroll: true });
+        } else {
+          focusRowElement(targetPlacementId!, true);
+        }
+      }));
+      window.dispatchEvent(new CustomEvent("catalyst:navigation-result", { detail: { success: true, address: `O ${address}${target === "note" ? " note" : ""}` } }));
+    };
+    window.addEventListener("catalyst:navigate-outline-address", onAddressNavigation);
+    return () => window.removeEventListener("catalyst:navigate-outline-address", onAddressNavigation);
+  }, [onSelectNote, onSetCollapsed, state]);
+
   const rovingFocusId = visiblePlacementForNote(state.activeNoteId);
 
   return (
@@ -425,6 +480,7 @@ export function AnalysisOutlineView({
                 aria-selected={active}
                 data-outline-note-id={row.noteId}
                 data-outline-placement-id={row.placementId}
+                data-catalyst-address={`O ${outlineNumber}`}
                 tabIndex={row.placementId === rovingFocusId ? 0 : -1}
               >
                 {hasStructuralChildren ? (
@@ -489,6 +545,8 @@ export function AnalysisOutlineView({
                 {active && !editing && (
                   <textarea
                     className="picture-outline-note-editor"
+                    data-catalyst-note-body="true"
+                    data-catalyst-address={`O ${outlineNumber} note`}
                     value={note.body}
                     onChange={(event) => onUpdateNoteBody(row.noteId, event.target.value)}
                     onBlur={onCommitNote}

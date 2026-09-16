@@ -37,7 +37,7 @@ export function TechniqueWorkspace({
   const runs = useMemo(() => Object.values(state.techniqueRuns), [state.techniqueRuns]);
 
   return (
-    <div className="technique-workspace">
+    <div id="catalyst-surface-methods" className="technique-workspace" data-catalyst-surface="methods" role="region" aria-labelledby="catalyst-tab-methods">
       <TechniqueSection
         definitions={definitions}
         runs={runs}

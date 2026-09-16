@@ -1,7 +1,7 @@
 # Catalyst dependency audit
 
-Audit date: 2026-09-15  
-Project version: `0.6.3-alpha.3`  
+Audit date: 2026-09-15
+Project version: `1.0.0`
 Scope: active npm manifest/lockfile, installed dependency tree, source/test/config usage, registry freshness, security advisories, package signatures, licenses, and removed-dependency regression checks.
 
 This audit is observational. No source code, configuration, manifest, lockfile, dependency version, or generated build artifact was changed. The only project change from this pass is this documentation file.
@@ -82,7 +82,7 @@ The repository's normal `npm run licenses` wrapper can update `license-audit-bas
 | No issue | TypeScript 6 compatibility package is actively used by tests | Do not remove as “duplicate” without redesigning the test compiler path |
 | Low | React/ReactDOM 19.3.0 and Vite 8.3.0 are newer than the pinned runtime/build versions | Treat as deliberate upgrade work, not urgent maintenance |
 | Low | React type packages installed at 19.3.0 while runtime React remains 19.2.8 | Re-evaluate together with the next React upgrade; no current defect established |
-| Medium release-hardening | `package.json` declares neither `engines` nor `packageManager` | Document/pin supported tooling before beta/release reproducibility is treated as complete |
+| Medium release-hardening | `package.json` declares neither `engines` nor `packageManager` | Document/pin supported tooling before reproducible releases are treated as complete |
 
 The effective Node compatibility floor is currently driven by direct dependencies: `pdfjs-dist@6.3.289` declares Node `>=22.13.0 || >=24`, while Vite/plugin-react require Node `^20.19.0 || >=22.12.0`. The current Node 24.13.0 environment satisfies all observed requirements. Catalyst's installer checks for npm and required local commands but does not currently enforce a Node version.
 
@@ -90,9 +90,9 @@ Version-range policy is mixed: React/ReactDOM, TypeScript, Vite, and the Vite Re
 
 ## Audit conclusion
 
-Dependency health is **good** for the current alpha. There is no security, license, missing-package, removed-framework-regression, or obvious unused-direct-dependency problem requiring immediate remediation. The dependency surface is substantially simpler than earlier Catalyst architectures.
+Dependency health is **good** for the current `1.0.0` tree. There is no security, license, missing-package, removed-framework-regression, or obvious unused-direct-dependency problem requiring immediate remediation. The dependency surface is substantially simpler than earlier Catalyst architectures.
 
-Before beta/release hardening, the one dependency-policy item worth formalizing is the supported Node/npm toolchain. Available React and Vite minor upgrades should be evaluated as controlled compatibility work rather than folded into unrelated cleanup.
+For continued release hardening, the one dependency-policy item worth formalizing is the supported Node/npm toolchain. Available React and Vite minor upgrades should be evaluated as controlled compatibility work rather than folded into unrelated cleanup.
 
 ## Commands/evidence used
 

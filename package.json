@@ -1,7 +1,7 @@
 {
   "name": "catalyst",
   "private": true,
-  "version": "1.0.0",
+  "version": "1.0.1",
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
@@ -14,7 +14,8 @@
     "icons:audit": "node scripts/generate-iconography-map.mjs",
     "test:css": "node scripts/test-css-architecture.mjs",
     "check:full": "npm run lockfile:check && npm run test && npm run build && npm run licenses -- --full",
-    "lockfile:check": "node scripts/check-package-lock.mjs"
+    "lockfile:check": "node scripts/check-package-lock.mjs",
+    "release:verify": "node scripts/verify-user-release.mjs"
   },
   "dependencies": {
     "pdfjs-dist": "^6.3.289",

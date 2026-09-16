@@ -1,0 +1,31 @@
+{
+    "name":  "catalyst-desktop-release",
+    "version":  "1.0.1",
+    "private":  true,
+    "main":  "main.cjs",
+    "description":  "Catalyst local analytical workspace",
+    "license":  "Apache-2.0",
+    "devDependencies":  {
+                            "electron":  "44.4.0",
+                            "electron-builder":  "26.15.3"
+                        },
+    "build":  {
+                  "appId":  "io.catalyst.workspace",
+                  "productName":  "Catalyst",
+                  "asar":  true,
+                  "files":  [
+                                "main.cjs",
+                                "dist/**/*",
+                                "app-icon.png",
+                                "package.json"
+                            ],
+                  "directories":  {
+                                      "output":  "../package-output"
+                                  },
+                  "win":  {
+                              "target":  "portable",
+                              "artifactName":  "Catalyst-1.0.1-Windows.exe",
+                              "icon":  "app-icon.png"
+                          }
+              }
+}
