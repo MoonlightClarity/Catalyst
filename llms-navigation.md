@@ -71,6 +71,20 @@ Session and source shortcuts:
 
 The **Go to** dialog accepts structural addresses rather than presenting a potentially enormous list. This matters for large workspaces: the dialog stays constant-size and resolves the requested location directly from the underlying structure.
 
+### Safe Go To entry procedure
+For deterministic automation, treat the **Go to** field as replace-only input rather than as a command line to append to. Catalyst may prefill a current-surface prefix such as `O ` or `M ` when the dialog opens.
+
+1. Open **Go to** with `Ctrl/Cmd+G` and confirm the address field has focus.
+2. Press `Ctrl/Cmd+A` in the field and replace its entire contents. Do **not** append a complete address to prefilled text; for example, avoid turning `O ` into `O O 2.3`.
+3. Enter the complete destination from scratch, such as `D 2`, `D 2 P 37`, `O 2.3`, `O 2.3 note`, `M 4.1 form`, `M 4.1 step 2`, or `All methods`.
+4. Submit once, then verify that the requested document, page, Outline item, note, Method form, step, or catalog is visibly active before issuing the next structural command.
+5. If the address is unknown, inspect current visible numbering or Catalyst navigation metadata rather than guessing a hierarchy number.
+
+This replace-first procedure is the preferred LLM behavior even when Catalyst would accept a shorter context-relative address. Structural numbers are current workspace locations, not durable entity IDs.
+
+### Go To syntax tolerance
+Use spaces between semantic address segments as the canonical syntax. Prefix-to-number spacing is forgiving: `D1`, `P5`, `O2.3`, and `M4.1` are accepted. Compound and suffix boundaries are not fully whitespace-insensitive, however. Use `D 1 P 5`, not `D1P5`; use `O 2.3 note`, not `O2.3note`; and use `M 4.1 step 2`, not `M4.1step2`. A partially compact form such as `D1 P5` can parse, but LLM operators should emit the fully spaced canonical form rather than depend on parser tolerance.
+
 Supported address forms:
 - `D 2` — switch to document 2 in stable first-open order.
 - `D filename` — switch by an exact or unambiguous document filename.
@@ -162,7 +176,7 @@ Use titles for concise claims, questions, hypotheses, or section labels. Use the
 ## Methods navigation contract
 Methods form a separate ordered tree. They do not own or automatically restructure the Outline.
 
-For catalog discovery, activate **All methods** or open **Go to** and enter `All methods` / `Catalog`. This opens a read-only, alphabetized view of the complete current method catalog with each method name and summary exposed in one semantic surface. It is intentionally unpaginated so an LLM can inspect the whole option space without repeatedly driving the Add-method picker. Viewing the catalog does not add anything to the Methods sequence. Close it with `Escape`, then use the normal Add-method picker to add the chosen method.
+For LLM catalog discovery, prefer **Go to** and enter `All methods` or `Catalog` using the replace-first procedure above. The visible **All methods** control is an equivalent human-facing route. This opens a read-only, alphabetized view of the complete current method catalog with each method name and summary exposed in one semantic surface. It is intentionally unpaginated so an LLM can inspect the whole option space without repeatedly driving the Add-method picker. Do not infer a Method address from its ordinal position in this catalog; catalog numbering is for discovery, while `M <address>` targets the current authored Methods tree. Viewing the catalog does not add anything to the Methods sequence. Close it with `Escape`, then use the normal Add-method picker to add the chosen method.
 
 When the Methods list is empty, focus the list and press `Enter` to open **Add method**. In the picker:
 - Search by method name with `Find catalog method`.
