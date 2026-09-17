@@ -750,3 +750,41 @@
   display: block; font-size: 8.5px; font-weight: 650; line-height: 1;
   letter-spacing: .01em; white-space: nowrap;
 }
+
+.reader-export-control {
+  position: relative;
+  display: inline-flex;
+}
+
+.reader-export-menu {
+  position: absolute;
+  top: calc(100% + 5px);
+  left: 0;
+  z-index: 80;
+  display: grid;
+  min-width: 104px;
+  padding: 4px;
+  border: 1px solid var(--c-shell-line-strong);
+  border-radius: 4px;
+  background: var(--c-shell-control);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, .34);
+}
+
+.reader-export-menu button {
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 2px;
+  background: transparent;
+  color: var(--c-shell-text);
+  font: 650 10px/1.2 var(--font-ui);
+  text-align: left;
+  cursor: pointer;
+}
+
+.reader-export-menu button:hover,
+.reader-export-menu button:focus-visible {
+  background: var(--c-shell-hover);
+  color: #fff;
+  outline: none;
+}

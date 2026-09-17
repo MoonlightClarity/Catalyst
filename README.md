@@ -22,8 +22,9 @@ Structured analytic techniques do not, by themselves, materially improve intelli
 2. **Build the Outline** — create and edit a numbered hierarchical structure alongside the source.
 3. **Develop the analysis** — write notes directly in Outline items and reorganize them as the analysis changes.
 4. **Apply Methods when useful** — build an ordered sequence of analytic methods from the catalog or create custom methods.
-5. **Save locally** — preserve the workspace as portable Catalyst XML while keeping source PDFs separate.
-6. **Return later** — load the saved Catalyst session and reconnect its source documents.
+5. **Export when needed** — use one Export control to download the complete Outline + Methods document as PDF, DOCX, or RTF.
+6. **Save locally** — preserve the workspace as portable Catalyst XML while keeping source PDFs separate.
+7. **Return later** — load the saved Catalyst session and reconnect its source documents.
 
 Catalyst treats the **Outline as the primary analytical structure**. There is no separate thought, graph, evidence, assessment, or map workspace between the analyst and the outline.
 
@@ -58,6 +59,12 @@ Methods provide an independent ordered workspace for structured analytic techniq
 Methods can contain ordered subtasks and response fields, allowing the analyst to adapt a technique to the problem rather than treating the catalog as a fixed form library. Catalog clusters are used for filtering and discovery rather than becoming part of the analytical output.
 
 Methods are optional: a Catalyst session can be built entirely around the source and Outline when formal techniques are unnecessary.
+
+### Export
+
+Catalyst provides one document-export path for the complete analytical output. **Export** places the full Outline first, followed by the authored Methods sequence, and lets you choose PDF, DOCX, or RTF. All three formats include Outline titles and note bodies plus Method names, step names, and analyst-entered responses; catalog summaries and instructional prompts are excluded. Collapsed items are still included.
+
+Export is a downstream handoff, not a workspace format. Use `.catalyst.xml` Save/Load when you need to preserve or reopen editable Catalyst state.
 
 ### Local sessions
 

@@ -36,7 +36,7 @@ The current code still contains historical internal names such as `graph` and so
 
 ## Release validation baseline
 
-The current `npm run check:full` gate is green for package version `1.0.1`. It covers package/lockfile consistency, the full npm test chain, the production Vite build, and the npm license audit.
+For package version `1.0.2`, package/lockfile consistency, the focused project-export test, production Vite build, npm license audit, and desktop release-staging verification pass. The aggregate historical test chain currently retains a known viewer-markup CSS assertion against retired annotation-toolbar selectors; it is unrelated to the unified export path.
 
 The XML repository tests intentionally exercise malformed canonical XML and log a rollback-path parse diagnostic before reporting the migration test as passed. That diagnostic is expected test coverage, not a release failure.
 
@@ -72,7 +72,7 @@ powershell -ExecutionPolicy Bypass -File .\test.ps1 -Full
 
 Documentation-only work should at minimum validate referenced paths and commands, run `node scripts/test-research-handoff.mjs`, and run `git diff --check` on edited files.
 
-A green gate is point-in-time evidence. Revalidate after implementation changes instead of treating version `1.0.1` or a previous successful run as proof of the current tree.
+A green gate is point-in-time evidence. Revalidate after implementation changes instead of treating version `1.0.2` or a previous successful run as proof of the current tree.
 
 ## Release provenance
 

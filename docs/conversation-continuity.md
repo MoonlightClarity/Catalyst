@@ -10,7 +10,7 @@ The workflow combines three optional development tools:
 
 - **Opera Browser Connector** reads and navigates ChatGPT conversations.
 - **Catalyst Chat Bridge** can draft or send a message in a ChatGPT conversation opened in Opera.
-- **Remote Desktop Commander** maintains the local Catalyst workspace and can generate bridge commands.
+- **LocalMCPCommander** provides authorized local filesystem and PowerShell access to the Catalyst workstation.
 
 ## Recovery model
 
@@ -25,7 +25,7 @@ older ChatGPT thread
       ^
       | Catalyst Chat Bridge: optional targeted query
       |
-Remote Desktop Commander / local bridge command
+LocalMCPCommander / local bridge command
 ```
 
 The old thread remains the source of record for its own discussion. The fresh thread becomes the active working conversation.

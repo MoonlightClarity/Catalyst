@@ -5,6 +5,7 @@ export type InstrumentGlyphName =
   | "theme"
   | "exit"
   | "save"
+  | "export"
   | "open-folder"
   | "rename"
   | "child"
@@ -107,6 +108,8 @@ export function InstrumentGlyph({ name, className }: { name: InstrumentGlyphName
       return <svg {...baseSvgProps} className={cls}><path d="M10 5H5v14h5" /><path d="M9 12h11M16 8l4 4-4 4" /></svg>;
     case "save":
       return <svg {...baseSvgProps} className={cls}><path d="M5 4h12l2 2v14H5z" /><path d="M8 4v6h8V4M8 16h8M8 19h8" /></svg>;
+    case "export":
+      return <svg {...baseSvgProps} className={cls}><path d="M5 4h9l5 5v11H5z" /><path d="M14 4v5h5" /><path d="M12 11v7M8.5 14.5L12 18l3.5-3.5" /></svg>;
     case "open-folder":
       return <svg {...baseSvgProps} className={cls}><path d="M3.5 7h6l2-2h4l2 3h3v10.5H3.5z" /><path d="M4 11h16l-2 7.5H4z" /></svg>;
     case "rename":

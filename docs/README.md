@@ -30,7 +30,7 @@ Historical documents remain evidence of why decisions were made. They do not res
 | Persistence schema | `persistence-schema-1.0.md` | **Current version-1 XML, browser-storage, hydration, and recovery-journal format reference** |
 | Roadmap | `roadmap.md` | **Current stabilization roadmap** |
 | Surface freeze | `adr/0027-late-alpha-surface-reduction.md` | **Accepted beta product boundary** |
-| Export removal | `adr/0028-remove-derived-output-exports.md` | **Accepted current output boundary** |
+| Unified analysis export | `adr/0029-restore-unified-analysis-export.md` | **Accepted current output boundary; supersedes ADR 0028 only for whole Outline + Methods document export** |
 | Assessment removal | `adr/0026-remove-assessment-product-scope.md` | **Accepted product-scope decision** |
 | Outline semantics | `outline-ontology-v0.1.md` | **Frozen conceptual structural contract** |
 | Map semantics | `map-ontology-v0.1.md` | **Frozen generated-projection contract** |
@@ -59,7 +59,7 @@ Older ADRs are not deleted merely because they were superseded. Read them as dec
 - Product-surface retirement does not ban legitimate analytical vocabulary. Techniques may contain terms such as “assessment” or “evidence.”
 - Do not infer Outline hierarchy from analytical relationships or Map geometry.
 - Do not describe Tauri/SQLite as an active prerequisite.
-- Keep session-file operations distinct from source-PDF operations. Save/Load are persistence, not derived-output export.
+- Keep session-file operations distinct from source-PDF operations. Save/Load are persistence; Export is a separate derived-output operation limited to the complete Outline + Methods document.
 - Update the relevant current contract when behavior changes rather than adding another competing design document.
 
 ## Remaining release-hardening documentation

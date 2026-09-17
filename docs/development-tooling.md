@@ -19,27 +19,42 @@ Current Windows setup:
 7. Run Catalyst locally, normally at `http://127.0.0.1:5173/`.
 
 Early Bird is currently required for the connector controls to appear and is easy to miss during setup.
-## Remote Desktop Commander
+## LocalMCPCommander + Tailscale
 
-Purpose: allow an explicitly authorized development session to inspect/edit Catalyst files, run PowerShell/npm commands, manage development processes, and execute the local validation loop without manual command relay.
+Purpose: provide explicitly authorized local filesystem and PowerShell access to the Catalyst workstation through a persistent MCP server, without relying on GUI automation or manual command relay for ordinary development work.
 
-Start the device agent from a terminal:
+Current Windows architecture:
 
-```powershell
-npx @wonderwhy-er/desktop-commander@latest remote
+```text
+ChatGPT MCP connection
+        |
+        | HTTPS + OAuth
+        v
+Tailscale Funnel
+        |
+        v
+LocalMCPCommander
+127.0.0.1:8787
+        |
+        v
+C:\Users\iris
 ```
+
+The canonical LocalMCPCommander runtime is isolated under `C:\Users\iris\Documents\LocalMCPCommander`. Windows Task Scheduler starts it automatically at logon after a short trigger delay; the launcher then waits for Tailscale readiness. On the current workstation, the complete public path may take roughly 30 seconds after login to become reachable.
 
 Operational rules:
 
-- the agent runs in the foreground; keep that terminal open for the session;
-- stopping the process or closing the terminal ends machine access;
-- do not configure automatic startup for Catalyst development;
-- prefer session-scoped use and stop the agent when work is complete;
-- the agent operates with the permissions of the logged-in Windows user;
-- restrict allowed directories to the Catalyst workspace when practical;
-- do not treat Desktop Commander restrictions as a security sandbox.
+- treat `C:\Users\iris\Documents\LocalMCPCommander` as the canonical MCP runtime location;
+- use Tailscale Funnel as the stable HTTPS transport to the local MCP service;
+- expect a short post-login warm-up while Tailscale and the server initialize;
+- the server operates with the permissions of the logged-in Windows user;
+- the configured allowed root is `C:\Users\iris`; access outside that root is blocked;
+- do not treat LocalMCPCommander path restrictions as a security sandbox;
+- keep the MCP passphrase, OAuth state, and runtime logs local and out of source control;
+- Catalyst must remain fully usable without LocalMCPCommander, Tailscale, ChatGPT, or any MCP connection.
 
-The ChatGPT integration uses Desktop Commander's remote MCP service/relay. Do not use this optional integration with sensitive operational datasets merely because Catalyst itself supports local/private work.
+The complete migration, OAuth persistence, startup, and recovery notes are documented in `../desktop_commander_migration.md`.
+
 ## Catalyst Chat Bridge and conversation recovery
 
 Purpose: allow a fresh development conversation to query an older ChatGPT thread when a long conversation becomes unstable or crashes. Opera Browser Connector supplies read/navigation access; the local unpacked bridge supplies the missing draft/send action.
@@ -51,17 +66,17 @@ Use direct read-only retrieval first. Send a targeted question into an old threa
 ## Recommended assistant development sequence
 
 1. Start Catalyst dependencies once with `install.ps1` when needed.
-2. Start the Remote Desktop Commander device agent only for sessions that need local command/file access.
+2. Confirm LocalMCPCommander is reachable when local command/file access is needed; it normally starts automatically with Windows.
 3. Start Catalyst with `run.ps1 -Web`.
 4. Connect Opera Browser Connector for rendered UI inspection.
 5. Use `npm test` and `npm run build` as the code gate before browser QA.
-6. Stop the Remote Desktop Commander agent when the session ends.
+6. Leave LocalMCPCommander running as persistent workstation infrastructure unless maintenance requires stopping it.
 
 `run.ps1` checks for both `node_modules` and the local Vite executable before assuming dependencies are usable. With `-SkipInstall`, an incomplete dependency tree is reported explicitly instead of failing later with a misleading `vite is not recognized` error.
 
 ## Trust boundary
 
-These tools may increase developer convenience, but they must not redefine Catalyst's product architecture. Catalyst must continue to run without ChatGPT, Opera Browser Connector, Remote Desktop Commander, hosted AI services, or any account-based development integration.
+These tools may increase developer convenience, but they must not redefine Catalyst's product architecture. Catalyst must continue to run without ChatGPT, Opera Browser Connector, LocalMCPCommander, Tailscale, hosted AI services, or any account-based development integration.
 
 ## Agent Workbench profile boundary
 

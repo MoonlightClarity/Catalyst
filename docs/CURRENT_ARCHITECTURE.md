@@ -63,11 +63,11 @@ Internal names and compatibility state still lag the simplified product. `src/Ap
 
 The previously documented `isLegacyAssessmentRun` shim is no longer present in `src/domain/workspace.ts`. No formal Assessment product compatibility logic was found in the current source; remaining Assessment-named techniques/prompts are legitimate catalog vocabulary.
 
-The command palette still exposes **Open Portrayal Lab** as a development/prototype action. Review that exposure before a future cleanup pass. Package version is `1.0.1`.
+The command palette still exposes **Open Portrayal Lab** as a development/prototype action. Review that exposure before a future cleanup pass. Package version is `1.0.2`.
 
 ## Release-readiness status
 
-The current `npm run check:full` gate passed on 2026-09-16 against package version `1.0.1`: package/lockfile consistency, the full npm test chain, production Vite build, and npm license audit all completed successfully. The build still emits a non-failing large-chunk warning. See `release-readiness.md` for the exact current revalidation record.
+For package version `1.0.2`, package/lockfile consistency, the focused project-export test, production Vite build, npm license audit, and desktop release-staging verification pass. The aggregate historical test chain currently retains a known viewer-markup CSS assertion against retired annotation-toolbar selectors; it is unrelated to the unified export path. The build still emits a non-failing large-chunk warning. See `release-readiness.md` for the exact current revalidation record.
 
 Current beta criteria and hardening priorities are maintained in `release-readiness.md` and `roadmap.md`. For meaningful implementation changes, run appropriate focused coverage plus `npm run check` / `test.ps1`; documentation-only changes should at minimum validate paths, commands, authority links, and the repository documentation/research handoff contract.
 

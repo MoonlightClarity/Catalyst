@@ -1,6 +1,6 @@
 # Catalyst decision log
 
-Status: **current decision summary — 2026-09-15**
+Status: **current decision summary — 2026-09-17**
 
 This file summarizes only decisions that still govern the mounted product. Detailed rationale remains in `docs/adr/`; older decision history is preserved in `docs/research/DECISION_LOG.md` and dated research artifacts.
 
@@ -26,7 +26,7 @@ This file summarizes only decisions that still govern the mounted product. Detai
 - Content-addressed PDF records reconnect only to matching SHA-256 source bytes.
 - Viewer-native/PDF-local markup is distinct from Catalyst-managed source annotation/analytical semantics.
 - Source annotation does not imply analyst endorsement.
-- Catalyst does not currently expose derived-output export features. Save/Load `.catalyst.xml` operations are persistence, not export.
+- Catalyst exposes one derived-output path: a single Export control for the complete Outline + Methods document in PDF, DOCX, or RTF. Save/Load `.catalyst.xml` operations remain persistence, not export.
 ## Methods / Techniques ownership
 
 - Techniques are independent workflow objects, not thought/Outline/Map metadata.
@@ -34,7 +34,7 @@ This file summarizes only decisions that still govern the mounted product. Detai
 - The active editor is intentionally minimal: Name, Subtask, Analysis.
 - Catalog cluster/category metadata belongs in discovery, not as repeated working-list chrome.
 - Genuinely blank/custom techniques remain supported.
-- Technique work remains inside persisted Catalyst workspace state; there is no current PDF/RTF/document export surface.
+- Technique work remains inside persisted Catalyst workspace state and participates in the unified whole-analysis export with the Outline; there is no separate Methods-only export surface.
 
 ## Persistence and runtime
 

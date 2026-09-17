@@ -46,6 +46,7 @@ import {
   supportsWorkspaceSavePicker,
 } from "./platform/workspaceFiles";
 import { startFreshCatalystWorkspace } from "./platform/resetSavedState";
+import { exportProject, type ProjectExportFormat } from "./platform/projectExport";
 import type { WorkspaceRepository } from "./persistence/repository";
 import {
   createReaderHistory,
@@ -175,6 +176,7 @@ export function App({
   const [goToValue, setGoToValue] = useState("");
   const [goToError, setGoToError] = useState("");
   const [status, setStatus] = useState("Local XML workspace ready");
+  const [exportMenuOpen, setExportMenuOpen] = useState(false);
   const handleStartFresh = useCallback(async () => {
     const confirmed = window.confirm(
       "Start a new Catalyst session?\n\nThis unloads the current session and opens a blank workspace. Saved .catalyst.xml files and original PDFs are not deleted. Unsaved work that has not been saved as XML will be discarded.",
@@ -759,6 +761,21 @@ export function App({
 
   const submitGoToAddress = useCallback(() => {
     const raw = goToValue.trim();
+    const exportMatch = raw.match(/^export\s+(pdf|docx|rtf)$/i);
+    if (exportMatch) {
+      const format = exportMatch[1].toLowerCase() as ProjectExportFormat;
+      setGoToOpen(false);
+      setGoToValue("");
+      setGoToError("");
+      setStatus(`Exporting ${format.toUpperCase()}...`);
+      void exportProject(stateRef.current, format)
+        .then((fileName) => setStatus(`Exported - ${fileName}`))
+        .catch((error) => {
+          console.error(`Catalyst ${format.toUpperCase()} export failed`, error);
+          setStatus(`Could not export ${format.toUpperCase()}`);
+        });
+      return;
+    }
     if (/^(?:all\s+methods|methods?\s+catalog|catalog)$/i.test(raw)) {
       if (!enabledCapabilities.methods) {
         setGoToError("Methods are not enabled in this workspace");
@@ -886,7 +903,7 @@ export function App({
     }
 
     if (!surface || !address) {
-      setGoToError("Use D 2 P 37, P 37, O 2.3 note, M 4.1 step 2, or All methods");
+      setGoToError("Use D 2 P 37, P 37, O 2.3 note, M 4.1 step 2, All methods, or Export PDF/DOCX/RTF");
       return;
     }
     if (surface === "methods" && !enabledCapabilities.methods) {
@@ -1231,6 +1248,35 @@ export function App({
     }
   }, [stateRef]);
 
+  const exportWorkspace = useCallback(async (format: ProjectExportFormat) => {
+    setExportMenuOpen(false);
+    setStatus(`Exporting ${format.toUpperCase()}…`);
+    try {
+      const fileName = await exportProject(stateRef.current, format);
+      setStatus(`Exported · ${fileName}`);
+    } catch (error) {
+      console.error(`Catalyst ${format.toUpperCase()} export failed`, error);
+      setStatus(`Could not export ${format.toUpperCase()}`);
+    }
+  }, [stateRef]);
+
+  useEffect(() => {
+    if (!exportMenuOpen) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+      if (!target?.closest("[data-catalyst-export-control]")) setExportMenuOpen(false);
+    };
+    const onEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setExportMenuOpen(false);
+    };
+    window.addEventListener("pointerdown", onPointerDown);
+    window.addEventListener("keydown", onEscape);
+    return () => {
+      window.removeEventListener("pointerdown", onPointerDown);
+      window.removeEventListener("keydown", onEscape);
+    };
+  }, [exportMenuOpen]);
+
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const command = event.ctrlKey || event.metaKey;
@@ -1297,13 +1343,13 @@ export function App({
                 aria-keyshortcuts="Control+G Meta+G"
                 value={goToValue}
                 onChange={(event) => { setGoToValue(event.currentTarget.value); setGoToError(""); }}
-                placeholder="D 2 P 37, O 2.3 note, or M 4.1 step 2"
+                placeholder="D 2 P 37, O 2.3 note, M 4.1 step 2, or Export PDF"
                 autoComplete="off"
                 spellCheck={false}
               />
               <button type="submit">Go</button>
             </div>
-            <span className="catalyst-go-to-help">D 2 · P 37 · D 2 P 37 · O 2.3 note · M 4.1 step 2 · All methods</span>
+            <span className="catalyst-go-to-help">D 2 · P 37 · D 2 P 37 · O 2.3 note · M 4.1 step 2 · All methods · Export PDF/DOCX/RTF</span>
             {goToError && <span className="catalyst-go-to-error" role="alert">{goToError}</span>}
           </form>
         </div>
@@ -1352,6 +1398,29 @@ export function App({
                 <InstrumentGlyph name="save" />
                 <span className="reader-session-label">Save</span>
               </button>
+              <div className="reader-export-control" data-catalyst-export-control="true">
+                <button
+                  className="reader-session-button"
+                  type="button"
+                  data-catalyst-action="export"
+                  aria-haspopup="menu"
+                  aria-expanded={exportMenuOpen}
+                  onClick={() => setExportMenuOpen((current) => !current)}
+                  aria-label="Export Methods and Outline"
+                  title="Export the entire Methods + Outline document"
+                >
+                  <InstrumentGlyph name="export" />
+                  <span className="reader-session-label">Export</span>
+                </button>
+                {exportMenuOpen && (
+                  <div className="reader-export-menu" role="menu" aria-label="Export format">
+                    <button type="button" role="menuitem" onClick={() => void exportWorkspace("pdf")}>PDF</button>
+                    <button type="button" role="menuitem" onClick={() => void exportWorkspace("docx")}>DOCX</button>
+                    <button type="button" role="menuitem" onClick={() => void exportWorkspace("rtf")}>RTF</button>
+                  </div>
+                )}
+              </div>
+
               <button className="reader-session-button" type="button" data-catalyst-action="open-pdf" aria-keyshortcuts="Control+O Meta+O" onClick={() => void pickDocument()} aria-label="Open PDFs" title="Open one or more PDFs">
                 <InstrumentGlyph name="open-folder" />
                 <span className="reader-session-label">Open</span>

@@ -59,7 +59,7 @@ Surface shortcuts:
 - `Alt+1` — focus the PDF reader.
 - `Alt+2` — focus the Outline.
 - `Alt+3` — focus Methods when Methods are enabled.
-- `Ctrl/Cmd+G` — open the compact **Go to** dialog for documents, pages, Outline locations, Methods locations, and the full Methods catalog.
+- `Ctrl/Cmd+G` — open the compact **Go to** dialog for documents, pages, Outline locations, Methods locations, the full Methods catalog, and export commands.
 
 Session and source shortcuts:
 - `Ctrl/Cmd+O` — open a PDF.
@@ -76,7 +76,7 @@ For deterministic automation, treat the **Go to** field as replace-only input ra
 
 1. Open **Go to** with `Ctrl/Cmd+G` and confirm the address field has focus.
 2. Press `Ctrl/Cmd+A` in the field and replace its entire contents. Do **not** append a complete address to prefilled text; for example, avoid turning `O ` into `O O 2.3`.
-3. Enter the complete destination from scratch, such as `D 2`, `D 2 P 37`, `O 2.3`, `O 2.3 note`, `M 4.1 form`, `M 4.1 step 2`, or `All methods`.
+3. Enter the complete destination or command from scratch, such as `D 2`, `D 2 P 37`, `O 2.3`, `O 2.3 note`, `M 4.1 form`, `M 4.1 step 2`, `All methods`, `Export PDF`, `Export DOCX`, or `Export RTF`.
 4. Submit once, then verify that the requested document, page, Outline item, note, Method form, step, or catalog is visibly active before issuing the next structural command.
 5. If the address is unknown, inspect current visible numbering or Catalyst navigation metadata rather than guessing a hierarchy number.
 
@@ -96,6 +96,9 @@ Supported address forms:
 - `M 4.1 form` — open Method 4.1 and focus its editable form.
 - `M 4.1 step 2` — open Method 4.1 and focus the second response field.
 - `All methods` or `Catalog` — open the complete read-only Methods catalog.
+- `Export PDF` — export the complete authored Outline + Methods analysis as PDF.
+- `Export DOCX` — export the complete authored Outline + Methods analysis as DOCX.
+- `Export RTF` — export the complete authored Outline + Methods analysis as RTF.
 
 Long forms such as `Document 2 Page 37`, `Outline 2.3`, and `Method 4.1` are also accepted. When the current analytical surface is already Outline or Methods, a bare structural number such as `2.3` resolves within that current surface.
 
@@ -109,7 +112,7 @@ For automation, visible Outline rows, Method rows, note bodies, and Method respo
 When DOM-level or accessibility-assisted automation is available, Catalyst provides stable semantic markers in addition to visible labels:
 - `data-catalyst-active-surface` on the workspace root reports `reader`, `outline`, or `methods`.
 - `data-catalyst-surface` identifies the Reader, Outline, and Methods regions.
-- `data-catalyst-action` identifies durable actions including `new-session`, `load-session`, `save-session`, `open-pdf`, `close-document`, `switch-document`, `open-outline`, `open-methods`, `view-all-methods`, and `go-to-address`.
+- `data-catalyst-action` identifies durable actions including `new-session`, `load-session`, `save-session`, `export`, `open-pdf`, `close-document`, `switch-document`, `open-outline`, `open-methods`, `view-all-methods`, and `go-to-address`.
 - `data-catalyst-address` identifies current navigation targets such as `D 2`, `O 2.3`, `O 2.3 note`, `M 4.1`, `M 4.1 form`, and `M 4.1 step 2`. Page locations are requested through Go To as `P 37` or `D 2 P 37`.
 - `data-catalyst-file-input` distinguishes the hidden `pdf` and `session` file inputs.
 
