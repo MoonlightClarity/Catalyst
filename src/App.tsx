@@ -6,7 +6,7 @@ import {
   useState,
   type CSSProperties,
 } from "react";
-import { ThoriumPdfReader } from "./viewer/ThoriumPdfReader";
+import { EmbedPdfReader } from "./viewer/EmbedPdfReader";
 import {
   annotationFromSelection,
   canReconnectDocumentSource,
@@ -29,10 +29,6 @@ import { useWorkspaceController } from "./app/useWorkspaceController";
 import { OutlineWorkspace } from "./features/analysis/OutlineWorkspace";
 import { TechniqueWorkspace } from "./features/techniques/TechniqueWorkspace";
 import { SelectionCard } from "./features/selection/SelectionCard";
-import {
-  analyticMarkPurposeForAnnotationJson,
-  withAnalyticMarkPurpose,
-} from "./features/annotations/analyticMarking";
 import {
   browserPdfSource,
   readBrowserPdf,
@@ -339,15 +335,7 @@ export function App({
           getDocumentMarkups: () =>
             viewerMarkupsForDocument(stateRef.current, documentId),
           onUpsert: (markup) => {
-            const previous = stateRef.current.viewerMarkups[markup.id];
-            const purpose = previous
-              ? analyticMarkPurposeForAnnotationJson(previous.annotationJson)
-              : null;
-            const durableMarkup = {
-              ...markup,
-              annotationJson: withAnalyticMarkPurpose(markup.annotationJson, purpose),
-            };
-            dispatch({ type: "viewer-markup/saved", markup: durableMarkup });
+            dispatch({ type: "viewer-markup/saved", markup });
           },
           onDelete: (id) => {
             dispatch({ type: "viewer-markup/deleted", id });
@@ -665,7 +653,12 @@ export function App({
         );
         const openedUnsubscribe = documentManager.onDocumentOpened?.(registerDocument);
         const activeUnsubscribe = documentManager.onActiveDocumentChanged?.(
-          ({ current }: any) => {
+          (event: any) => {
+            const current = event?.current
+              ?? (event?.currentDocumentId
+                ? documentManager.getDocumentState?.(event.currentDocumentId)
+                  ?? documentManager.getActiveDocument?.()
+                : null);
             if (current?.id) registerDocument(current);
             else setViewerHasDocument(false);
           },
@@ -1541,7 +1534,7 @@ export function App({
 
         <div className="reader-body">
           <div className="reader-surface">
-          <ThoriumPdfReader
+          <EmbedPdfReader
             ref={viewerRef}
             onReady={handleViewerReady}
             style={{ width: "100%", height: "100%" }}

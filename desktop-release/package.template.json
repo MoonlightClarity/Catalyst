@@ -1,6 +1,6 @@
 {
     "name":  "catalyst-desktop-release",
-    "version":  "1.0.2",
+    "version":  "1.0.3",
     "private":  true,
     "main":  "main.cjs",
     "description":  "Catalyst local analytical workspace",
@@ -24,7 +24,7 @@
                                   },
                   "win":  {
                               "target":  "portable",
-                              "artifactName":  "Catalyst-1.0.2-Windows.exe",
+                              "artifactName":  "Catalyst-1.0.3-Windows.exe",
                               "icon":  "app-icon.png"
                           }
               }

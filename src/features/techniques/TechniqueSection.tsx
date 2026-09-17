@@ -152,7 +152,7 @@ function TechniquePicker({
               Previous
             </button>
             <span>
-              {currentPage * pageSize + 1}–{Math.min((currentPage + 1) * pageSize, visible.length)} of {visible.length}
+              {currentPage * pageSize + 1}-{Math.min((currentPage + 1) * pageSize, visible.length)} of {visible.length}
             </span>
             <button
               className="button button-ghost compact-button"
@@ -186,12 +186,15 @@ function MethodCatalog({
         className="technique-catalog"
         role="dialog"
         aria-modal="true"
-        aria-label={`All methods (${methods.length})`}
+        aria-label={`All methods — read-only LLM reference (${methods.length})`}
         data-catalyst-dialog="method-catalog"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <header className="technique-catalog-header">
-          <h2>All methods</h2>
+          <div className="technique-catalog-heading">
+            <h2>All methods</h2>
+            <p>Read-only reference intended for LLM use.</p>
+          </div>
           <span>{methods.length}</span>
           <button className="icon-button" type="button" onClick={onClose} aria-label="Close all methods" title="Close">
             <InstrumentGlyph name="close" />
@@ -572,16 +575,7 @@ export function TechniqueSection({
         </div>
       ) : (
         <div className="technique-list-shell">
-          <div className="technique-list-tools">
-            <button
-              className="technique-catalog-open"
-              type="button"
-              data-catalyst-action="view-all-methods"
-              onClick={() => setCatalogOpen(true)}
-            >
-              All methods
-            </button>
-          </div>
+          {/* Full catalog is intentionally hidden from the normal UI; use keyboard/LLM navigation. */}
           <ol
             ref={listRef}
             className="technique-ordered-list"
@@ -694,7 +688,21 @@ export function TechniqueSection({
                 </li>
               );
             })}
-            {runs.length === 0 && <li className="technique-list-empty">No methods yet.</li>}
+            {runs.length === 0 && (
+              <li className="technique-list-empty">
+                <button
+                  className="technique-empty-add"
+                  type="button"
+                  onClick={() => { setAddContext(null); setPickerOpen(true); }}
+                  aria-label="Add first method"
+                  title="Add first method"
+                >
+                  <svg className="instrument-glyph" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                </button>
+              </li>
+            )}
           </ol>
         </div>
       )}

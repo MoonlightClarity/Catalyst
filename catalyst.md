@@ -17,10 +17,10 @@ When the task is to **operate Catalyst as an LLM user**, treat llms-navigation.m
 - Outline is the primary analytical authoring and structural surface.
 - Methods are an independent, ordered workspace; they are optional and do not own Outline structure.
 - Source PDFs remain separate from Catalyst workspace/session state.
-- Catalyst session persistence uses Catalyst XML; Save/Load are persistence operations, not derived-output export.
-- The active runtime is React + TypeScript + Vite with PDF.js (`pdfjs-dist`).
+- Catalyst session persistence uses Catalyst XML. Save/Load are persistence operations; Export is a separate downstream PDF/DOCX/RTF handoff.
+- The active runtime is React + TypeScript + Vite with EmbedPDF (`@embedpdf/react-pdf-viewer`) as the PDF reader/annotation surface.
 - Tauri/SQLite is legacy architecture and must not be reintroduced without an explicit new decision.
-- Formal Assessment, standalone Evidence, global undo/redo, thought linking, and graph-first/free-spatial structural editing are retired product concepts.
+- Formal Assessment, standalone Evidence, Map, global undo/redo, thought linking, and graph-first/free-spatial structural editing are retired product concepts.
 - Do not recreate removed concepts under new names merely to preserve old code.
 
 ## Implementation discipline
@@ -46,6 +46,7 @@ When the task is to **operate Catalyst as an LLM user**, treat llms-navigation.m
 ## Reader and source boundary
 - Keep source viewing local and source-centered; do not mutate original PDFs as a side effect of workspace operations.
 - Reader navigation/preferences are not analytical truth.
+- EmbedPDF native annotation is the sole visual PDF markup surface. Do not add a parallel Catalyst marks toolbar, custom mark glyph system, or analytic-mark annotation layer.
 - Do not conflate PDF-local/viewer markup with Catalyst analytical state unless current architecture explicitly does so.
 
 ## Outline and Methods

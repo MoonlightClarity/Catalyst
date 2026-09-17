@@ -9,7 +9,9 @@ Catalyst's dependency policy is stricter than its technical requirements: the pr
 | Dependency | Purpose | License |
 | --- | --- | --- |
 | React / React DOM | UI | MIT |
-| PDF.js (`pdfjs-dist`) | PDF rendering and reader support | Apache-2.0 |
+| EmbedPDF (`@embedpdf/react-pdf-viewer` 2.15.1) | Active PDF reader and native annotation surface | MIT |
+| `docx` | DOCX project export | MIT |
+| `pdfmake` | PDF project export | MIT |
 
 ## Direct development dependencies
 

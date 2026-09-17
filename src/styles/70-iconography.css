@@ -45,13 +45,6 @@
   height: var(--icon-md);
 }
 
-
-.thorium-pdf-toolbar .instrument-glyph,
-.thorium-pdf-search .instrument-glyph {
-  width: 17px;
-  height: 17px;
-}
-
 /* Freeze working-size floor for metadata carried by icons. */
 .picture-node-meta {
   min-width: 23px;

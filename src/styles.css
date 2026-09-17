@@ -1199,53 +1199,6 @@ body.resizing-workspace .workspace-divider::after {
   background: #d7d7d3;
 }
 
-.thorium-pdf-reader {
-  display: flex;
-  min-width: 0;
-  min-height: 0;
-  flex-direction: column;
-  overflow: hidden;
-  background: #2c3136;
-}
-
-.thorium-pdf-toolbar,
-.thorium-pdf-search {
-  display: flex;
-  align-items: center;
-  flex: 0 0 auto;
-  gap: 6px;
-  min-height: 38px;
-  padding: 5px 8px;
-  border-bottom: 1px solid var(--c-border, #3f474e);
-  background: var(--c-surface, #111b24);
-}
-
-.thorium-pdf-toolbar button,
-.thorium-pdf-search button,
-.thorium-pdf-toolbar input,
-.thorium-pdf-search input {
-  min-height: 28px;
-}
-
-.thorium-page-input { width: 58px; }
-.thorium-toolbar-spacer { flex: 1 1 auto; }
-.thorium-toolbar-separator { width: 1px; height: 22px; background: var(--c-border, #3f474e); }
-.thorium-pdf-search input { min-width: 0; flex: 1 1 auto; }
-
-.thorium-pdf-viewport {
-  position: relative;
-  min-width: 0;
-  min-height: 0;
-  flex: 1 1 auto;
-}
-
-.thorium-pdf-container {
-  position: absolute;
-  inset: 0;
-  overflow: auto;
-  background: #2c3136;
-}
-
 .context-header-block {
   min-width: 0;
   flex: 1;
@@ -3073,7 +3026,7 @@ body.resizing-workspace .workspace-divider::after {
 .selection-capture-close { position: absolute; right: 4px; top: 4px; }
 
 /* --------------------------------------------------------------------------
-   Portrayal Lab — pre-alpha.4 human-factors development instrument
+   Portrayal Lab â€” pre-alpha.4 human-factors development instrument
    -------------------------------------------------------------------------- */
 .portrayal-lab {
   min-height: 100vh;
@@ -3326,7 +3279,7 @@ body.resizing-workspace .workspace-divider::after {
 .theme-dark .portrayal-test-instruction { border-color: #47534f; color: #a6b3af; }
 .theme-dark .portrayal-test-instruction.active { color: #c4d4cf; }
 
-/* Bounded analytical desk prototype — disposable interaction study */
+/* Bounded analytical desk prototype â€” disposable interaction study */
 .desk-prototype {
   width: 100vw;
   height: 100vh;
@@ -3957,7 +3910,7 @@ body.resizing-workspace .workspace-divider::after {
   font-size: 10px;
 }
 
-/* Desk prototype v0.2 — reduce universal-card appearance and defer prose. */
+/* Desk prototype v0.2 â€” reduce universal-card appearance and defer prose. */
 .desk-prototype .desk-item-copy > span {
   display: none;
 }
@@ -3987,7 +3940,7 @@ body.resizing-workspace .workspace-divider::after {
   background: rgb(249 248 243 / 0.72);
 }
 
-/* Instrumented desk prototype — research-only observability. */
+/* Instrumented desk prototype â€” research-only observability. */
 .desk-relations {
   position: absolute;
   inset: 0;
@@ -4159,7 +4112,7 @@ body.resizing-workspace .workspace-divider::after {
   transition: left 180ms ease;
 }
 .workspace-unified-research .selection-capture-dock::before {
-  content: "source → analysis";
+  content: "source â†’ analysis";
   position: absolute;
   left: -92px;
   top: 12px;
@@ -4574,7 +4527,7 @@ body.resizing-workspace .workspace-divider::after {
   color: #cbd4d1;
 }
 
-/* 0.6.3 dark structural shell — analysis projection.
+/* 0.6.3 dark structural shell â€” analysis projection.
    Source pages stay paper-like; analytical structure lives on graphite. */
 .context-pane[data-context-mode="graph"] {
   --analysis-field: #101718;
@@ -4835,7 +4788,7 @@ body.resizing-workspace .workspace-divider::after {
   border-color: #607774;
   outline: none;
 }
-/* 0.6.3 analytical SVG iconography — role silhouettes survive semantic zoom. */
+/* 0.6.3 analytical SVG iconography â€” role silhouettes survive semantic zoom. */
 .picture-territory {
   display: flex;
   align-items: center;
@@ -5487,12 +5440,12 @@ body.resizing-workspace .workspace-divider::after {
   white-space: nowrap;
 }
 .inspector-disclosure-summary::after {
-  content: "▸";
+  content: "â–¸";
   flex: 0 0 auto;
   color: var(--c-shell-faint, #83938f);
   font-size: 11px;
 }
-.inspector-disclosure[open] .inspector-disclosure-summary::after { content: "▾"; }
+.inspector-disclosure[open] .inspector-disclosure-summary::after { content: "â–¾"; }
 .inspector-disclosure[open] .inspector-disclosure-summary { margin-bottom: 10px; }
 .inspector-disclosure .inspector-field-grid { margin-top: 0; }
 
@@ -5665,7 +5618,7 @@ body.resizing-workspace .workspace-divider::after {
   box-shadow: 0 0 0 2px rgba(112,170,162,0.16), 0 5px 14px rgba(0,0,0,0.22);
 }
 
-/* UI modernization — navigation and projection tabs. */
+/* UI modernization â€” navigation and projection tabs. */
 .workspace-unified-research .context-tabs {
   min-height: var(--ui-tab);
   display: flex;
@@ -5796,7 +5749,7 @@ body.resizing-workspace .workspace-divider::after {
   outline: 2px solid rgba(132,190,181,0.72);
   outline-offset: 2px;
 }
-/* UI modernization — empty canvas should read as a workspace, not telemetry. */
+/* UI modernization â€” empty canvas should read as a workspace, not telemetry. */
 .working-picture-viewport:has(.picture-empty-state) > .picture-territory {
   display: none;
 }
@@ -7464,261 +7417,6 @@ button.picture-outline-meta-row:hover { background: rgba(112, 170, 162, 0.055); 
   bottom: 24px !important;
 }
 
-/* Thorium PDF reader — Catalyst instrument chrome */
-.thorium-pdf-reader {
-  color: #dce5e2;
-  background: #11191a;
-}
-
-.thorium-pdf-toolbar,
-.thorium-pdf-search {
-  min-height: 36px;
-  gap: 6px;
-  padding: 4px 8px;
-  border-bottom: 1px solid #334547;
-  background: #172122;
-  color: #dce5e2;
-  font-size: 12px;
-  box-shadow: inset 0 -1px 0 rgba(255,255,255,0.02);
-}
-
-.thorium-pdf-search {
-  background: #10191a;
-}
-
-.thorium-pdf-toolbar button,
-.thorium-pdf-search button {
-  min-width: 28px;
-  min-height: 28px;
-  padding: 3px 8px;
-  border: 1px solid #465858;
-  border-radius: 3px;
-  background: #202b2c;
-  color: #dbe4e1;
-  cursor: pointer;
-}
-
-.thorium-pdf-toolbar button:hover:not(:disabled),
-.thorium-pdf-search button:hover:not(:disabled) {
-  border-color: #607774;
-  background: #293637;
-  color: #f0f5f2;
-}
-
-.thorium-pdf-toolbar button:disabled,
-.thorium-pdf-search button:disabled {
-  opacity: 0.38;
-  cursor: default;
-}
-
-.thorium-pdf-toolbar input,
-.thorium-pdf-search input {
-  min-height: 28px;
-  border: 1px solid #425655;
-  border-radius: 3px;
-  background: #0f1819;
-  color: #e4ebe8;
-  padding: 3px 7px;
-}
-
-.thorium-pdf-toolbar input:focus,
-.thorium-pdf-search input:focus {
-  border-color: #4d817c;
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(66, 232, 117, 0.12);
-}
-
-.thorium-page-input {
-  width: 52px;
-  text-align: center;
-  font-variant-numeric: tabular-nums;
-}
-
-.thorium-page-total,
-.thorium-zoom-label {
-  color: #9baba7;
-  font-variant-numeric: tabular-nums;
-}
-
-.thorium-zoom-label {
-  min-width: 44px;
-  text-align: center;
-}
-
-.thorium-toolbar-separator {
-  background: #405252;
-}
-
-.thorium-pdf-container {
-  background: #202729;
-  scrollbar-color: #53615f #11191a;
-}
-
-.thorium-pdf-container .pdfViewer {
-  background: transparent;
-}
-
-.thorium-pdf-toolbar .thorium-theme-toggle {
-  position: relative;
-  min-width: 70px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 6px;
-  padding: 3px 8px 3px 7px;
-  border-color: #71807f;
-  background: #12191a;
-}
-.thorium-theme-toggle::before { content: ""; width: 3px; align-self: stretch; background: #b5c1be; }
-.thorium-theme-toggle .instrument-glyph { width: 17px; height: 17px; }
-.thorium-theme-label { font-size: 10px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; }
-.thorium-theme-toggle[aria-pressed="true"] { border-color: #e4e9e7; background: #e4e9e7; color: #101718; box-shadow: 0 0 0 1px rgba(228,233,231,.18); }
-.thorium-theme-toggle[aria-pressed="true"]::before { background: #101718; }
-
-.thorium-pdf-reader.is-dark-mode .thorium-pdf-container {
-  background: #0d1112;
-}
-
-.thorium-pdf-reader.is-dark-mode .thorium-pdf-container .pdfViewer .page {
-  background: #0b0e0f;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.42);
-}
-
-.thorium-pdf-reader { --pdf-theme-filter: brightness(1); --pdf-reading-filter: contrast(1); }
-.thorium-pdf-reader.is-dark-mode { --pdf-theme-filter: invert(1) hue-rotate(180deg) brightness(0.82) contrast(0.94); }
-.thorium-pdf-reader.is-contrast-soft { --pdf-reading-filter: brightness(0.96) contrast(0.88) saturate(0.92); }
-.thorium-pdf-reader.is-contrast-high { --pdf-reading-filter: brightness(1.01) contrast(1.18); }
-.thorium-pdf-reader .thorium-pdf-container .pdfViewer .page .canvasWrapper > canvas {
-  filter: var(--pdf-theme-filter) var(--pdf-reading-filter);
-}
-
-.thorium-pdf-toolbar .thorium-reader-mode-toggle {
-  min-width: 78px; display: inline-flex; align-items: center; gap: 6px;
-  font-size: 10px; font-weight: 700; letter-spacing: .045em; text-transform: uppercase;
-}
-.thorium-marks-toggle[aria-pressed="false"] { border-style: dashed; color: #83918e; background: #111718; }
-.thorium-marks-toggle[aria-pressed="true"] { border-color: #5e7773; }
-.thorium-contrast-toggle { min-width: 86px; justify-content: flex-start; }
-.thorium-contrast-symbol {
-  display: inline-grid; place-items: center; width: 22px; height: 18px;
-  border: 1px solid currentColor; font: 700 10px/1 Georgia, serif;
-  text-transform: none; letter-spacing: 0;
-}
-.thorium-pdf-reader.is-contrast-high .thorium-contrast-toggle { border-color: #d9e2df; color: #f1f5f3; }
-.thorium-pdf-reader.is-contrast-soft .thorium-contrast-toggle { border-color: #8d8170; color: #d8c9b2; }
-.thorium-pdf-reader.is-marks-hidden .catalyst-pdf-highlight-layer { opacity: 0; visibility: hidden; }
-
-.catalyst-pdf-highlight-layer {
-  position: absolute;
-  inset: 0;
-  z-index: 4;
-  pointer-events: none;
-}
-
-.catalyst-pdf-highlight {
-  position: absolute;
-  border-bottom: 1px solid rgba(174, 132, 34, 0.55);
-  background: rgba(246, 195, 68, 0.22);
-  mix-blend-mode: multiply;
-}
-
-.catalyst-assessment-mark,
-.catalyst-analytic-frame {
-  position: absolute;
-  pointer-events: none;
-}
-
-.catalyst-key-evidence-rail {
-  width: 8px;
-  border-left: 3px solid #d5a82e;
-  color: #d5a82e;
-}
-.catalyst-key-evidence-rail::before,
-.catalyst-key-evidence-rail::after {
-  content: "";
-  position: absolute;
-  left: -3px;
-  width: 8px;
-  border-top: 2px solid currentColor;
-}
-.catalyst-key-evidence-rail::before { top: 0; }
-.catalyst-key-evidence-rail::after { bottom: 0; }
-
-.catalyst-conflict-mark {
-  display: grid;
-  width: 22px;
-  height: 22px;
-  place-items: center;
-  color: #e56b6f;
-  background: rgba(17, 25, 26, 0.9);
-  border: 1px solid #c65a5e;
-  transform: rotate(45deg);
-}
-.catalyst-conflict-mark .instrument-glyph {
-  width: 15px;
-  height: 15px;
-  transform: rotate(-45deg);
-}
-
-.catalyst-confidence-frame {
-  border: 2px dashed #9d82b4;
-  color: #b991d6;
-}
-.catalyst-confidence-badge {
-  position: absolute;
-  top: -11px;
-  right: -11px;
-  display: grid;
-  width: 20px;
-  height: 20px;
-  place-items: center;
-  background: #171f20;
-  border: 1px solid currentColor;
-}
-.catalyst-confidence-badge .instrument-glyph {
-  width: 13px;
-  height: 13px;
-}
-
-.catalyst-information-gap-flag {
-  width: 20px;
-  min-height: 24px;
-  border-left: 2px solid #58a9b3;
-  color: #6ebbc5;
-}
-.catalyst-information-gap-flag .instrument-glyph {
-  position: absolute;
-  top: 0;
-  left: -2px;
-  width: 18px;
-  height: 18px;
-  background: #171f20;
-}
-
-.catalyst-analytic-frame {
-  border: 2px solid #e7e9e8;
-  outline: 1px solid rgba(17, 25, 26, 0.78);
-}
-
-.thorium-pdf-reader {
-  --outline-color: #42e875;
-  --outline-around-color: #172122;
-  --hover-outline-color: #4d817c;
-  --resizer-bg-color: #42e875;
-}
-
-.thorium-pdf-reader .editToolbar {
-  --editor-toolbar-bg-color: #172122;
-  --editor-toolbar-fg-color: #dbe4e1;
-  --editor-toolbar-border-color: #425655;
-  --editor-toolbar-hover-border-color: #607774;
-  --editor-toolbar-hover-bg-color: #293637;
-  --editor-toolbar-hover-fg-color: #f0f5f2;
-  --editor-toolbar-focus-outline-color: #42e875;
-  --editor-toolbar-shadow: 0 4px 14px rgba(4, 8, 9, 0.32);
-  --alt-text-done-color: #42e875;
-}
-
 /* Note inspector vertical placement: center the whole panel in the graph space below its toolbar. */
 .context-pane[data-context-mode="graph"] .working-picture-workspace.has-inspector {
   --note-inspector-toolbar-height: 50px;
@@ -7732,278 +7430,7 @@ button.picture-outline-meta-row:hover { background: rgba(112, 170, 162, 0.055); 
 }
 
 
-/* Full annotation instrument strip: tools, live appearance controls, and export. */
-.reader-header {
-  flex-wrap: wrap;
-  align-content: center;
-}
-
-.annotation-toolbar {
-  order: 20;
-  display: flex;
-  align-items: center;
-  flex: 1 1 100%;
-  min-width: 0;
-  min-height: 38px;
-  gap: 8px;
-  padding-top: 6px;
-  border-top: 1px solid #2e3d3e;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: thin;
-  color: #dbe4e1;
-  font: 600 11px/1.2 var(--font-ui, ui-sans-serif, system-ui, sans-serif);
-}
-
-.annotation-toolbar-tools,
-.annotation-toolbar-analytic,
-.annotation-toolbar-style,
-.annotation-toolbar-send,
-.annotation-toolbar-export {
-  display: inline-flex;
-  align-items: center;
-  flex: 0 0 auto;
-  gap: 4px;
-}
-
-.annotation-toolbar-analytic,
-.annotation-toolbar-style,
-.annotation-toolbar-send,
-.annotation-toolbar-export {
-  padding-left: 8px;
-  border-left: 1px solid #405252;
-}
-
-.annotation-toolbar-label {
-  margin-right: 2px;
-  color: #93a6a1;
-  font-size: 10px;
-  font-weight: 750;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.annotation-tool-button,
-.annotation-analytic-preset,
-.annotation-analytic-next,
-.annotation-analytic-legacy,
-.annotation-analytic-confirm,
-.annotation-analytic-clear,
-.annotation-toolbar-send button,
-.annotation-toolbar-export button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  gap: 5px;
-  padding: 3px 7px;
-  border: 1px solid #425655;
-  border-radius: 3px;
-  background: #202b2c;
-  color: #dbe4e1;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.annotation-tool-button:hover:not(:disabled),
-.annotation-analytic-preset:hover:not(:disabled),
-.annotation-analytic-next:hover:not(:disabled),
-.annotation-analytic-legacy:hover:not(:disabled),
-.annotation-analytic-confirm:hover:not(:disabled),
-.annotation-analytic-clear:hover:not(:disabled),
-.annotation-toolbar-send button:hover:not(:disabled),
-.annotation-toolbar-export button:hover:not(:disabled) {
-  border-color: #607774;
-  background: #293637;
-  color: #f0f5f2;
-}
-
-.annotation-tool-button[data-active="true"] {
-  border-color: #42e875;
-  background: #263334;
-  color: #f2fff5;
-  box-shadow: inset 3px 0 0 #42e875;
-}
-
-.annotation-analytic-preset[data-active="true"] {
-  border-color: #aebbb7;
-  background: #263334;
-  color: #f2f6f4;
-  box-shadow: inset 3px 0 0 #c6cfcc;
-}
-
-.annotation-tool-button:disabled,
-.annotation-analytic-preset:disabled,
-.annotation-analytic-next:disabled,
-.annotation-analytic-legacy:disabled,
-.annotation-analytic-confirm:disabled,
-.annotation-analytic-clear:disabled,
-.annotation-toolbar-send button:disabled,
-.annotation-toolbar-export button:disabled {
-  opacity: 0.38;
-  cursor: default;
-}
-
-.annotation-tool-button .instrument-glyph,
-.annotation-analytic-preset .instrument-glyph,
-.annotation-toolbar-send .instrument-glyph,
-.annotation-toolbar-export .instrument-glyph {
-  width: 15px;
-  height: 15px;
-  flex: 0 0 15px;
-  color: #f2f3f2;
-}
-
-.annotation-analytic-count,
-.annotation-analytic-total {
-  min-width: 16px;
-  padding: 0 4px;
-  border-radius: 999px;
-  background: #111d1e;
-  color: #c7d5d1;
-  font-size: 9px;
-  font-variant-numeric: tabular-nums;
-  line-height: 16px;
-  text-align: center;
-}
-
-.annotation-analytic-next {
-  color: #b9c9c5;
-}
-
-.annotation-analytic-next .instrument-glyph,
-.annotation-analytic-legacy .instrument-glyph {
-  width: 14px;
-  height: 14px;
-}
-
-.annotation-analytic-legacy {
-  border-color: #7e6b46;
-  background: #2b281f;
-  color: #e8d8ad;
-}
-
-.annotation-analytic-legacy:hover:not(:disabled) {
-  border-color: #a48a55;
-  background: #343026;
-  color: #fff0c2;
-}
-
-.annotation-analytic-legacy[data-reviewing="true"] {
-  border-color: #c5a760;
-  box-shadow: inset 0 -2px 0 #c5a760;
-}
-
-.annotation-analytic-confirm {
-  border-color: #4f735f;
-  background: #1d3027;
-  color: #dff4e6;
-}
-
-.annotation-analytic-reclassify {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 28px;
-  padding-left: 6px;
-  border-left: 1px solid #675d43;
-  color: #c9ba92;
-  font-size: 10px;
-  white-space: nowrap;
-}
-
-.annotation-analytic-reclassify select {
-  height: 28px;
-  max-width: 118px;
-  border: 1px solid #675d43;
-  border-radius: 3px;
-  background: #1c2425;
-  color: #e7dfc8;
-  font: inherit;
-  cursor: pointer;
-}
-
-.annotation-analytic-clear {
-  color: #d4c5c3;
-}
-
-.annotation-color-control,
-.annotation-style-range,
-.annotation-style-toggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  min-height: 28px;
-  color: #aebcb8;
-  white-space: nowrap;
-}
-
-.annotation-color-control input[type="color"] {
-  width: 28px;
-  height: 24px;
-  padding: 1px;
-  border: 1px solid #425655;
-  border-radius: 3px;
-  background: #0f1819;
-  cursor: pointer;
-}
-
-.annotation-style-range input[type="range"] {
-  width: 72px;
-  accent-color: #42e875;
-}
-
-.annotation-style-range output {
-  min-width: 28px;
-  color: #e2ebe8;
-  font-variant-numeric: tabular-nums;
-  text-align: right;
-}
-
-.annotation-style-toggle input {
-  accent-color: #42e875;
-}
-
-.annotation-style-hint {
-  max-width: 230px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #7f928d;
-  white-space: nowrap;
-}
-
-.annotation-toolbar-send button:last-child:not(:disabled) {
-  border-color: #4d6f62;
-  background: #1b3029;
-}
-
-.annotation-toolbar-export button {
-  background: #17292a;
-}
-
-.annotation-toolbar-export button:last-child {
-  border-color: #526764;
-}
-
-@media (max-width: 980px) {
-  .annotation-tool-button span,
-  .annotation-analytic-preset .annotation-analytic-label,
-  .annotation-analytic-next > span:not(.annotation-analytic-total),
-  .annotation-analytic-legacy > span:not(.annotation-analytic-total),
-  .annotation-analytic-confirm > span,
-  .annotation-analytic-reclassify > span,
-  .annotation-analytic-clear > span,
-  .annotation-toolbar-send button span,
-  .annotation-toolbar-export button span {
-    display: none;
-  }
-
-  .annotation-toolbar-label {
-    display: none;
-  }
-}
-
-/* SAT catalog display alignment — dense analyst workspace */
+/* SAT catalog display alignment â€” dense analyst workspace */
 .technique-picker {
   width: min(1120px, calc(100vw - 48px));
   max-height: min(90vh, 900px);
@@ -8283,7 +7710,7 @@ button.picture-outline-meta-row:hover { background: rgba(112, 170, 162, 0.055); 
   }
 }
 
-/* SAT catalog interaction hierarchy — search, workflow, constraints, taxonomy. */
+/* SAT catalog interaction hierarchy â€” search, workflow, constraints, taxonomy. */
 .technique-picker-toolbar {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -8531,240 +7958,6 @@ button.picture-outline-meta-row:hover { background: rgba(112, 170, 162, 0.055); 
     margin: 0;
   }
   .technique-filter-group-label { grid-row: auto; }
-}
-
-/* 2026-09-14 reader ergonomics: dedicated left annotation rail + two top rows. */
-.reader-header {
-  flex-wrap: nowrap;
-  min-height: 50px;
-  padding: 7px 10px;
-}
-
-.reader-body {
-  min-width: 0;
-  min-height: 0;
-  flex: 1 1 auto;
-  display: grid;
-  grid-template-columns: 200px minmax(0, 1fr);
-  overflow: hidden;
-  background: #11191a;
-}
-
-.reader-body > .reader-surface {
-  min-width: 0;
-  min-height: 0;
-  height: 100%;
-}
-
-.annotation-toolbar {
-  order: initial;
-  width: 200px;
-  min-width: 200px;
-  min-height: 0;
-  height: 100%;
-  flex: none;
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-  padding: 10px;
-  border-top: 0;
-  border-right: 1px solid #334547;
-  background: #151f20;
-  color: #e5e9e7;
-  overflow-x: hidden;
-  overflow-y: auto;
-  scrollbar-width: thin;
-}
-.annotation-toolbar-tools,
-.annotation-toolbar-analytic,
-.annotation-toolbar-style,
-.annotation-toolbar-send,
-.annotation-toolbar-export {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: stretch;
-  gap: 5px;
-  padding: 0;
-  border-left: 0;
-}
-
-.annotation-toolbar-analytic,
-.annotation-toolbar-style,
-.annotation-toolbar-send,
-.annotation-toolbar-export {
-  padding-top: 9px;
-  border-top: 1px solid #405252;
-}
-
-.annotation-toolbar-label {
-  grid-column: 1 / -1;
-  margin: 0 0 3px;
-  color: #aebbb7;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.annotation-toolbar .annotation-tool-button,
-.annotation-toolbar .annotation-analytic-preset,
-.annotation-toolbar .annotation-analytic-next,
-.annotation-toolbar .annotation-analytic-legacy,
-.annotation-toolbar .annotation-analytic-confirm,
-.annotation-toolbar .annotation-analytic-clear,
-.annotation-toolbar-send button,
-.annotation-toolbar-export button {
-  width: 100%;
-  min-width: 0;
-  min-height: 32px;
-  padding: 3px 5px;
-}
-
-.annotation-toolbar-tools > .annotation-tool-button > span,
-.annotation-toolbar-analytic .annotation-analytic-label {
-  display: inline;
-}
-
-.annotation-analytic-next,
-.annotation-analytic-legacy,
-.annotation-analytic-confirm,
-.annotation-analytic-clear,
-.annotation-analytic-reclassify {
-  grid-column: 1 / -1;
-}
-
-.annotation-toolbar-style > *,
-.annotation-toolbar-style .annotation-style-range,
-.annotation-toolbar-style .annotation-color-control,
-.annotation-toolbar-style .annotation-style-toggle,
-.annotation-toolbar-style .annotation-style-hint {
-  grid-column: 1 / -1;
-  width: 100%;
-}
-
-.annotation-toolbar-style .annotation-style-range {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 4px 6px;
-}
-
-.annotation-toolbar-style .annotation-style-range input {
-  grid-column: 1 / -1;
-  width: 100%;
-}
-
-.annotation-toolbar-style .annotation-color-control {
-  justify-content: space-between;
-}
-/* Toolbar labels remain visible even when the overall workspace is narrow. */
-.annotation-toolbar .annotation-toolbar-label {
-  display: block;
-}
-
-.annotation-toolbar-send,
-.annotation-toolbar-export {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.annotation-toolbar-send button,
-.annotation-toolbar-export button {
-  min-height: 34px;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 9px;
-  line-height: 1.05;
-}
-
-.annotation-toolbar-send .instrument-glyph,
-.annotation-toolbar-export .instrument-glyph {
-  width: 14px;
-  height: 14px;
-}
-
-.annotation-toolbar .annotation-analytic-preset {
-  min-height: 34px;
-}
-
-.annotation-toolbar .annotation-analytic-preset .instrument-glyph {
-  width: 16px;
-  height: 16px;
-}
-/* Compact top annotation surface mirrors the left rail without duplicating state. */
-.annotation-quick-toolbar {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding-left: 8px;
-  border-left: 1px solid #405252;
-}
-.annotation-quick-group {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-.annotation-quick-analyst-group {
-  padding: 2px 3px;
-  border: 1px solid #465857;
-  border-radius: 5px;
-  background: #182324;
-}
-.annotation-quick-divider {
-  width: 1px;
-  height: 22px;
-  background: #405252;
-}
-.annotation-quick-button {
-  width: 28px;
-  height: 28px;
-  display: grid;
-  place-items: center;
-  padding: 0;
-  border: 1px solid #425655;
-  border-radius: 4px;
-  background: #202b2c;
-  color: #cbd7d3;
-  cursor: pointer;
-}
-.annotation-quick-button:hover:not(:disabled) {
-  border-color: #607774;
-  background: #293637;
-  color: #f0f5f2;
-}
-.annotation-quick-button[data-active="true"] {
-  border-color: #42e875;
-  background: #1e382a;
-  color: #f2fff5;
-  box-shadow: inset 0 -2px 0 #42e875;
-}
-.annotation-quick-analytic[data-active="true"] {
-  border-color: #8ca39d;
-  background: #263536;
-  box-shadow: inset 0 -2px 0 #9cb3ad;
-}
-.annotation-quick-button:disabled {
-  opacity: 0.35;
-  cursor: default;
-}
-.annotation-quick-button .instrument-glyph {
-  width: 16px;
-  height: 16px;
-}
-.thorium-pdf-toolbar .instrument-glyph,
-.thorium-pdf-search .instrument-glyph {
-  width: 15px;
-  height: 15px;
-}
-.reader-header .reader-document-name {
-  flex: 1 1 100px;
-}
-@media (max-width: 1120px) {
-  .annotation-quick-toolbar { gap: 3px; padding-left: 5px; }
-  .annotation-quick-group { gap: 2px; }
-  .annotation-quick-button { width: 26px; height: 26px; }
-  .annotation-quick-button .instrument-glyph { width: 15px; height: 15px; }
 }
 
 /* Assessment projection */
@@ -9523,238 +8716,3 @@ button.picture-outline-meta-row:hover { background: rgba(112, 170, 162, 0.055); 
   .assessment-question { grid-template-columns: 24px minmax(0, 1fr); padding: 12px 10px; }
   .assessment-question textarea { grid-column: 1 / -1; }
 }
-
-
-/* Annotation ontology projection: resizable rail, faceted source roles, shape-first readability. */
-.reader-body {
-  grid-template-columns: var(--annotation-rail-width, 200px) 7px minmax(0, 1fr);
-}
-
-.annotation-toolbar {
-  width: 100%;
-  min-width: 0;
-  border-right: 0;
-}
-
-.annotation-rail-resizer {
-  position: relative;
-  min-width: 7px;
-  cursor: col-resize;
-  background: #101819;
-  border-left: 1px solid #2c3b3d;
-  border-right: 1px solid #273638;
-  outline: none;
-}
-.annotation-rail-resizer::after {
-  content: "";
-  position: absolute;
-  top: 50%;
-  left: 2px;
-  width: 2px;
-  height: 46px;
-  transform: translateY(-50%);
-  background: #71817d;
-  opacity: .52;
-}
-.annotation-rail-resizer:hover,
-.annotation-rail-resizer:focus-visible {
-  background: #213032;
-}
-.annotation-rail-resizer:hover::after,
-.annotation-rail-resizer:focus-visible::after { opacity: 1; }
-body.resizing-annotation-rail,
-body.resizing-annotation-rail * { cursor: col-resize !important; user-select: none !important; }
-
-.annotation-toolbar-semantic,
-.annotation-toolbar-legacy {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: stretch;
-  gap: 5px;
-  padding-top: 9px;
-  border-top: 1px solid #405252;
-}
-
-.annotation-semantic-axis-label {
-  margin-top: 1px;
-  padding: 2px 0 1px;
-  color: #d7dedb;
-  font-size: 9px;
-  font-weight: 750;
-  letter-spacing: .055em;
-}
-.annotation-semantic-axis-argument {
-  margin-top: 5px;
-  padding-top: 7px;
-  border-top: 1px dotted #536361;
-}
-
-.annotation-semantic-preset {
-  width: 100%;
-  min-width: 0;
-  min-height: 36px;
-  display: grid;
-  grid-template-columns: 22px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 7px;
-  border: 1px solid #65716e;
-  border-radius: 2px;
-  background: #f0f1ed;
-  color: #202927;
-  text-align: left;
-  cursor: pointer;
-}
-.annotation-semantic-preset:hover:not(:disabled) {
-  background: #ffffff;
-  border-color: #263431;
-}
-.annotation-semantic-preset[data-active="true"] {
-  background: #ffffff;
-  border-color: #101817;
-  box-shadow: inset 4px 0 0 #101817;
-}
-.annotation-semantic-preset:disabled { opacity: .38; cursor: default; }
-.annotation-semantic-preset .instrument-glyph {
-  width: 20px;
-  height: 20px;
-  stroke-width: 1.8;
-}
-.annotation-semantic-label {
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: #202927;
-  font-size: 10px;
-  font-weight: 720;
-  white-space: nowrap;
-}
-.annotation-semantic-count {
-  min-width: 18px;
-  padding: 1px 4px;
-  border: 1px solid #98a19e;
-  border-radius: 999px;
-  color: #3d4946;
-  background: #fff;
-  font: 700 9px/14px ui-monospace, SFMono-Regular, Consolas, monospace;
-  text-align: center;
-}
-
-/* Shape and edge treatment carries meaning; color is only a secondary cue. */
-.annotation-semantic-preset[data-mark="observation-report"] { border-radius: 12px 2px 2px 12px; }
-.annotation-semantic-preset[data-mark="assumption"] { border-bottom-width: 4px; }
-.annotation-semantic-preset[data-mark="hypothesis"] { box-shadow: inset -3px 0 0 #707c78, inset -6px 0 0 #f0f1ed; }
-.annotation-semantic-preset[data-mark="judgment"] { border-width: 2px; }
-.annotation-semantic-preset[data-mark="reason"] { border-left-width: 4px; }
-.annotation-semantic-preset[data-mark="conclusion"] { border-right-width: 5px; }
-.annotation-semantic-preset[data-mark="caveat"] { border-style: dashed; }
-.annotation-semantic-preset[data-mark="objection"] { border-top-width: 3px; border-bottom-width: 3px; }
-
-.annotation-quick-source-semantics {
-  padding: 2px 4px;
-  border: 1px solid #586765;
-  border-radius: 3px;
-  background: #e8ebe7;
-}
-.annotation-quick-semantic {
-  background: #f7f8f5;
-  color: #1d2926;
-  border-color: #737f7b;
-}
-.annotation-quick-semantic:hover:not(:disabled) { background: #fff; color: #111918; border-color: #1d2926; }
-.annotation-quick-semantic[data-active="true"] { background: #fff; color: #111918; border-color: #111918; box-shadow: inset 0 -3px 0 #111918; }
-.annotation-quick-semantic[data-mark="observation-report"] { border-radius: 50%; }
-.annotation-quick-semantic[data-mark="assumption"] { border-radius: 0; border-bottom-width: 3px; }
-.annotation-quick-semantic[data-mark="hypothesis"] { border-radius: 0 8px 8px 0; }
-.annotation-quick-semantic[data-mark="judgment"] { border-radius: 0; outline: 1px solid #737f7b; outline-offset: -4px; }
-
-.annotation-toolbar[data-compact="true"] {
-  padding: 8px 6px;
-  gap: 8px;
-}
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-tools {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-tools .annotation-toolbar-label,
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-semantic .annotation-toolbar-label,
-.annotation-toolbar[data-compact="true"] .annotation-semantic-axis-label {
-  grid-column: 1 / -1;
-}
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-tools .annotation-tool-button {
-  min-height: 36px;
-  padding: 4px;
-}
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-tools .annotation-button-label { display: none; }
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-tools .instrument-glyph { width: 19px; height: 19px; }
-.annotation-toolbar[data-compact="true"] .annotation-semantic-preset {
-  min-height: 46px;
-  grid-template-columns: 1fr auto;
-  grid-template-rows: 22px auto;
-  gap: 1px 3px;
-  padding: 4px 4px 3px;
-  text-align: center;
-}
-.annotation-toolbar[data-compact="true"] .annotation-semantic-preset .instrument-glyph {
-  grid-column: 1 / -1;
-  justify-self: center;
-  width: 19px;
-  height: 19px;
-}
-.annotation-toolbar[data-compact="true"] .annotation-semantic-label {
-  font-size: 8px;
-  line-height: 1.05;
-  white-space: normal;
-  text-align: center;
-}
-.annotation-toolbar[data-compact="true"] .annotation-semantic-count {
-  min-width: 14px;
-  padding: 0 2px;
-  font-size: 8px;
-  line-height: 12px;
-}
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-send,
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-export {
-  grid-template-columns: 1fr;
-}
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-send button,
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-export button {
-  min-height: 38px;
-}
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-style .annotation-style-range {
-  grid-template-columns: 1fr;
-}
-.annotation-toolbar[data-compact="true"] .annotation-toolbar-style .annotation-style-range output { display: none; }
-
-.catalyst-source-semantic-mark {
-  position: absolute;
-  z-index: 2;
-  display: grid;
-  width: 22px;
-  height: 22px;
-  place-items: center;
-  box-sizing: border-box;
-  background: #f8faf7;
-  color: #17211f;
-  border: 2px solid currentColor;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, .28);
-  pointer-events: none;
-}
-.catalyst-source-semantic-mark .instrument-glyph { width: 16px; height: 16px; }
-.catalyst-source-semantic-mark[data-axis="argument"] { background: #171f20; color: #f3f5f2; }
-.catalyst-source-semantic-mark[data-mark="observation-report"] { border-radius: 50%; }
-.catalyst-source-semantic-mark[data-mark="assumption"] { border-width: 1px 1px 5px; }
-.catalyst-source-semantic-mark[data-mark="hypothesis"] {
-  clip-path: polygon(0 20%, 70% 20%, 100% 50%, 70% 80%, 0 80%);
-  border-radius: 0;
-}
-.catalyst-source-semantic-mark[data-mark="judgment"] {
-  transform: rotate(45deg) scale(.82);
-}
-.catalyst-source-semantic-mark[data-mark="judgment"] .instrument-glyph { transform: rotate(-45deg) scale(1.16); }
-.catalyst-source-semantic-mark[data-mark="reason"] {
-  clip-path: polygon(0 15%, 72% 15%, 100% 50%, 72% 85%, 0 85%);
-}
-.catalyst-source-semantic-mark[data-mark="conclusion"] { border-right-width: 6px; }
-.catalyst-source-semantic-mark[data-mark="caveat"] { border-style: dashed; border-top: 0; }
-.catalyst-source-semantic-mark[data-mark="objection"] { border-left: 0; border-right: 0; border-width: 3px 0; }

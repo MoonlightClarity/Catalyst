@@ -1,7 +1,7 @@
 {
   "name": "catalyst",
   "private": true,
-  "version": "1.0.2",
+  "version": "1.0.3",
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
@@ -18,8 +18,8 @@
     "release:verify": "node scripts/verify-user-release.mjs"
   },
   "dependencies": {
+    "@embedpdf/react-pdf-viewer": "^2.15.1",
     "docx": "^9.7.1",
-    "pdfjs-dist": "^6.3.289",
     "pdfmake": "^0.3.11",
     "react": "19.2.8",
     "react-dom": "19.2.8"

@@ -1,13 +1,10 @@
 import type {
-  Annotation,
   PendingSelection,
   SelectionAnchor,
   ViewerMarkup,
 } from "../domain/types";
 import type { PdfSource } from "../platform/pdfFiles";
-import { subscribeToInitialAnnotationLoad } from "./annotationLoad";
 import {
-  isCatalystEvidenceViewerAnnotation,
   viewerMarkupFromTransferItem,
   viewerMarkupToTransferItem,
 } from "./viewerMarkups";
@@ -15,23 +12,6 @@ import {
 export type RegistryLike = {
   getPlugin: (name: string) => { provides: () => any } | undefined;
 };
-
-type RectLike = {
-  origin: { x: number; y: number };
-  size: { width: number; height: number };
-};
-
-type TrackedViewerHighlight = {
-  pageIndex: number;
-};
-
-// Catalyst owns highlight persistence. the viewer adapter is only the rendering surface.
-// Track only annotations imported by Catalyst so reconciliation never touches
-// annotations that already exist in the source PDF itself.
-const trackedViewerHighlights = new Map<
-  string,
-  Map<string, TrackedViewerHighlight>
->();
 
 function normalizeFormattedSelection(value: unknown): SelectionAnchor[] {
   if (!Array.isArray(value)) return [];
@@ -41,75 +21,6 @@ function normalizeFormattedSelection(value: unknown): SelectionAnchor[] {
     rect: item?.rect ?? null,
     textLines: item?.textLines ?? null,
   }));
-}
-
-function normalizeRect(value: unknown): RectLike | null {
-  const item = value as any;
-  const x = Number(item?.origin?.x);
-  const y = Number(item?.origin?.y);
-  const width = Number(item?.size?.width);
-  const height = Number(item?.size?.height);
-
-  if (![x, y, width, height].every(Number.isFinite)) return null;
-  if (width <= 0 || height <= 0) return null;
-
-  return {
-    origin: { x, y },
-    size: { width, height },
-  };
-}
-
-function segmentRectsForAnchor(anchor: SelectionAnchor): RectLike[] {
-  const boundingRect = normalizeRect(anchor.rect);
-  const rawLines = Array.isArray(anchor.textLines) ? anchor.textLines : [];
-
-  const lineRects = rawLines
-    .map((line: any) => normalizeRect(line?.rect ?? line))
-    .filter((rect): rect is RectLike => Boolean(rect));
-
-  if (lineRects.length > 0) return lineRects;
-  return boundingRect ? [boundingRect] : [];
-}
-
-function fnv1a32(input: string, seed: number): number {
-  let hash = seed >>> 0;
-  for (let index = 0; index < input.length; index += 1) {
-    hash ^= input.charCodeAt(index);
-    hash = Math.imul(hash, 0x01000193) >>> 0;
-  }
-  return hash >>> 0;
-}
-
-/**
- * the viewer adapter keeps an annotation ID inside the in-memory PDF. It accepts UUID v4
- * IDs, so derive a stable UUID-shaped ID from Catalyst's logical annotation ID
- * and the page-anchor index. Stable IDs let Catalyst remove/reconcile its own
- * rendering without storing viewer-specific identifiers in the domain model.
- */
-export function viewerHighlightId(
-  catalystAnnotationId: string,
-  anchorIndex: number,
-): string {
-  const input = `${catalystAnnotationId}:${anchorIndex}`;
-  const words = [
-    fnv1a32(input, 0x811c9dc5),
-    fnv1a32(input, 0x9e3779b9),
-    fnv1a32(input, 0x85ebca6b),
-    fnv1a32(input, 0xc2b2ae35),
-  ];
-
-  const hex = words
-    .map((word) => word.toString(16).padStart(8, "0"))
-    .join("")
-    .split("");
-
-  // UUID v4 version + RFC 4122 variant bits.
-  hex[12] = "4";
-  const variantNibble = (Number.parseInt(hex[16] ?? "0", 16) & 0x3) | 0x8;
-  hex[16] = variantNibble.toString(16);
-
-  const value = hex.join("");
-  return `${value.slice(0, 8)}-${value.slice(8, 12)}-${value.slice(12, 16)}-${value.slice(16, 20)}-${value.slice(20, 32)}`;
 }
 
 function annotationScope(
@@ -268,7 +179,7 @@ export function subscribeToDocumentViewerMarkupPersistence(
 
     const annotation = event?.annotation;
     const annotationId = viewerAnnotationId(annotation);
-    if (!annotationId || isCatalystEvidenceViewerAnnotation(annotation)) return;
+    if (!annotationId) return;
 
     if (event.type === "create") {
       // Remember the ID even if the viewer adapter first reports an uncommitted create;
@@ -316,136 +227,6 @@ export function subscribeToDocumentViewerMarkupPersistence(
   void restore();
 
   return typeof unsubscribe === "function" ? unsubscribe : () => {};
-}
-
-/**
- * Subscribe to the viewer adapter's definitive initial-annotation-load event for one
- * document. The plugin can load the PDF's native annotations after the
- * document-manager reports the document as open; imports performed before
- * this event may be overwritten by that initial load.
- *
- * Catalyst therefore keeps its durable annotation data outside the PDF and
- * replays it after `loaded`. The immediate reconciliation in App still covers
- * documents whose annotation load completed before this listener was attached.
- */
-export function subscribeToDocumentAnnotationLoad(
-  registry: RegistryLike,
-  documentId: string,
-  onLoaded: () => void,
-): () => void {
-  const scope = annotationScope(registry, documentId);
-  return subscribeToInitialAnnotationLoad(scope, onLoaded);
-}
-
-function viewerTransferItems(annotation: Annotation) {
-  return annotation.anchors.flatMap((anchor, anchorIndex) => {
-    const rect = normalizeRect(anchor.rect);
-    const segmentRects = segmentRectsForAnchor(anchor);
-    if (!rect || segmentRects.length === 0) return [];
-
-    return [
-      {
-        viewerId: viewerHighlightId(annotation.id, anchorIndex),
-        pageIndex: anchor.pageIndex,
-        transferItem: {
-          annotation: {
-            id: viewerHighlightId(annotation.id, anchorIndex),
-            type: 9,
-            pageIndex: anchor.pageIndex,
-            rect,
-            segmentRects,
-            color: "#F2D76B",
-            opacity: 0.38,
-            flags: ["readOnly"],
-            contents: annotation.quote,
-            custom: {
-              catalystManaged: true,
-              catalystAnnotationId: annotation.id,
-              catalystAnchorIndex: anchorIndex,
-              catalystAnalyticPurpose: annotation.analyticPurpose ?? null,
-              catalystVisual: annotation.visual ?? null,
-            },
-          },
-        },
-      },
-    ];
-  });
-}
-
-/**
- * Reconcile Catalyst highlight records into an open the viewer adapter document.
- *
- * Only logical annotations with kind="highlight" are rendered. Excerpts stay
- * evidence-only. The source PDF is never written: imported viewer annotations
- * live in the in-memory document and are reconstructed from Catalyst state the
- * next time the PDF opens.
- */
-export function reconcileDocumentOverlays(
-  registry: RegistryLike,
-  documentId: string,
-  annotations: Annotation[],
-): { imported: number; removed: number } {
-  const scope = annotationScope(registry, documentId);
-  if (!scope?.importAnnotations || !scope?.deleteAnnotation) {
-    return { imported: 0, removed: 0 };
-  }
-
-  let tracked = trackedViewerHighlights.get(documentId);
-  if (!tracked) {
-    tracked = new Map<string, TrackedViewerHighlight>();
-    trackedViewerHighlights.set(documentId, tracked);
-  }
-
-  const desired = new Map<
-    string,
-    { pageIndex: number; transferItem: any }
-  >();
-
-  for (const annotation of annotations) {
-    if (annotation.documentId !== documentId) continue;
-    for (const item of viewerTransferItems(annotation)) {
-      desired.set(item.viewerId, {
-        pageIndex: item.pageIndex,
-        transferItem: item.transferItem,
-      });
-    }
-  }
-
-  let removed = 0;
-  for (const [viewerId, existing] of [...tracked.entries()]) {
-    if (desired.has(viewerId)) continue;
-    try {
-      scope.deleteAnnotation(existing.pageIndex, viewerId);
-      removed += 1;
-    } catch (error) {
-      console.warn("Could not remove Catalyst highlight from viewer", error);
-    } finally {
-      tracked.delete(viewerId);
-    }
-  }
-
-  const imports: any[] = [];
-  const importedItems: Array<[string, TrackedViewerHighlight]> = [];
-
-  for (const [viewerId, item] of desired) {
-    if (tracked.has(viewerId)) continue;
-    imports.push(item.transferItem);
-    importedItems.push([viewerId, { pageIndex: item.pageIndex }]);
-  }
-
-  if (imports.length > 0) {
-    scope.importAnnotations(imports);
-    for (const [viewerId, metadata] of importedItems) {
-      tracked.set(viewerId, metadata);
-    }
-  }
-
-  return { imported: imports.length, removed };
-}
-
-/** Clear only Catalyst's local bookkeeping when the viewer adapter closes a document. */
-export function forgetDocumentHighlightTracking(documentId: string): void {
-  trackedViewerHighlights.delete(documentId);
 }
 
 export async function readSelection(
@@ -502,10 +283,13 @@ export async function openPdfSource(
     autoActivate: true,
   });
 
-  if (typeof result?.toPromise === "function") {
-    await result.toPromise();
+  const loadTask = result?.task ?? result;
+  if (typeof loadTask?.toPromise === "function") {
+    await loadTask.toPromise();
+  } else if (typeof loadTask?.wait === "function") {
+    await new Promise<void>((resolve, reject) => loadTask.wait(resolve, reject));
   } else {
-    await result;
+    await loadTask;
   }
 
   return source.documentId;

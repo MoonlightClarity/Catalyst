@@ -6,15 +6,15 @@ For implementation authority, read `docs/CURRENT_ARCHITECTURE.md` first. Older a
 
 ## Product state
 
-Catalyst is a local-first analytical workspace with a public 1.0.2 release. The supported product boundary is deliberately narrower than the 0.6.x experiments:
+Catalyst is a local-first analytical workspace. Version 1.0.3 is the current source/release line; 1.0.2 is the previous release. The supported product boundary is deliberately narrower than the 0.6.x experiments:
 
-- **Reader** — local PDF reading, navigation, source selection, and annotation/markup.
-- **Outline** — authoritative structural authoring for thoughts/notes.
-- **Generated Map** — portrayal of Outline-authored structure, not a second structural editor.
+- **Reader** — local PDF reading, navigation, source selection, and EmbedPDF-native annotation/markup.
+- **Outline** — authoritative structural authoring with inline notes.
+- **Export** — complete Outline + Methods handoff as PDF, DOCX, or RTF.
 - **Methods / Techniques** — independent ordered structured-analysis work.
 - **Sessions/files** — canonical Catalyst XML workspace state with source PDFs kept separate.
 
-Formal Assessment, the standalone Evidence workspace, Catalyst-wide undo/redo, thought-link authoring, graph-first/free-spatial structural editing, and the legacy Techniques UI are outside the current product surface under ADR 0027.
+Formal Assessment, the standalone Evidence workspace, Map, Catalyst-wide undo/redo, thought-link authoring, graph-first/free-spatial structural editing, and the legacy Techniques UI are outside the current product surface under ADR 0027.
 
 ## Runtime and persistence
 
@@ -27,24 +27,24 @@ The former Tauri/SQLite shell is archived under `legacy/tauri-shell` and is not 
 
 The Reader header separates **New**, **Load**, **Save**, **Export**, and **Open**. New unloads the current session without deleting saved session files or original PDFs. Export produces the complete authored Outline + Methods analysis as PDF, DOCX, or RTF; Save/Load remain workspace persistence operations.
 
-Viewer back/forward history is ephemeral session navigation. The Reader separately keeps a per-document last-page resume preference in browser local storage. Ordinary viewer markups and Catalyst-managed source annotations remain distinct persistence concepts even when both can appear on the same PDF surface.
+Viewer back/forward history is ephemeral session navigation. The Reader separately keeps a per-document last-page resume preference in browser local storage. EmbedPDF-native annotations are the only visual PDF markup layer; Catalyst persists those viewer annotations with the workspace without maintaining a second annotation UI.
 
-## Outline, Map, and Methods state
+## Outline and Methods state
 
-The analysis shell defaults to Outline. Outline owns parent/child hierarchy and sibling order and supports structural keyboard editing. Map View is a generated portrayal rather than an output/export surface; structural editing remains in Outline.
+The analysis shell defaults to Outline. Outline owns parent/child hierarchy and sibling order and supports structural keyboard editing. Map is no longer an active product surface.
 
 The user-facing tab is currently labeled **Methods** while the implementation and working surface use Techniques terminology. Technique runs form an ordered sequence; selecting one opens focused Name/Subtask/Analysis editing. The picker supports catalog techniques and genuinely blank/custom insertion. Authored Method names, step names, and analyst responses participate in the unified whole-analysis export; catalog summaries and instructional prompts do not.
 
 ## Known convergence debt
 
-Historical implementation names/state remain, including the internal `graph` context key, `WorkingPictureWorkspace`, `noteLinks`, legacy graph/map reducer state, note-keyed Map occurrences, and historically named tests/prototypes. These are cleanup targets only where current behavior no longer depends on them.
+Historical implementation names/state remain, including the internal `graph` context key, Working Picture / Map naming and reducer state, and historically named tests/prototypes. These are cleanup targets only where current behavior no longer depends on them; they are not active product surfaces.
 
 The previously documented `isLegacyAssessmentRun` compatibility shim is no longer present. Current source contains “assessment” only as legitimate analytical/technique vocabulary, not as a formal Assessment product surface.
 
-The command palette still exposes Portrayal Lab as a development/prototype action and should be reviewed in a future cleanup pass. The package version is `1.0.2`.
+The command palette still exposes Portrayal Lab as a development/prototype action and should be reviewed in a future cleanup pass. The package version is `1.0.3`.
 
 ## Validation state
 
-For package version `1.0.2`, package/lockfile consistency, the focused project-export test, production Vite build, npm license audit, and desktop release-staging verification pass. The aggregate historical test chain currently retains a known viewer-markup CSS assertion against retired annotation-toolbar selectors; it is unrelated to the unified export path. The production build still reports a non-failing large-chunk warning.
+For package version `1.0.3`, package/lockfile consistency, the focused native-EmbedPDF annotation persistence test, project-export test, production Vite build, npm license audit, and desktop release-staging verification pass. `npm run test:css` remains red because its legacy frozen-header contract for `src/styles.css` no longer matches the live stylesheet. The production build still reports non-failing EmbedPDF `crypto` externalization and large-chunk warnings.
 
 The research/source-handoff contract, Markdown relative-link audit, visual-language test, viewer-markup persistence test, and npm license audit pass in the current tree. See `docs/release-readiness.md` for the exact revalidation record.

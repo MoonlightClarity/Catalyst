@@ -40,10 +40,6 @@ export function base64ToArrayBuffer(base64: string): ArrayBuffer {
   return bytes.buffer;
 }
 
-export function isCatalystEvidenceViewerAnnotation(annotation: unknown): boolean {
-  return Boolean((annotation as any)?.custom?.catalystManaged);
-}
-
 export function viewerMarkupFromTransferItem(
   documentId: string,
   pageIndex: number,
@@ -53,7 +49,7 @@ export function viewerMarkupFromTransferItem(
 ): ViewerMarkup | null {
   const annotation = transferItem?.annotation;
   const id = String(annotation?.id ?? "").trim();
-  if (!id || isCatalystEvidenceViewerAnnotation(annotation)) return null;
+  if (!id) return null;
 
   const normalizedPageIndex = Number(annotation?.pageIndex ?? pageIndex);
   if (!Number.isFinite(normalizedPageIndex) || normalizedPageIndex < 0) return null;

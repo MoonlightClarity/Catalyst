@@ -186,7 +186,8 @@ width: 26px;
 
 .technique-run-body input,
 .technique-run-body textarea {
-min-height: 76px;
+  min-height: 76px;
+  color: var(--c-shell-text, #e9f0f5);
   resize: vertical;
   line-height: 1.45;
 }
@@ -336,7 +337,7 @@ width: min(600px, calc(100% - 12px));
   grid-template-rows: auto auto auto minmax(0, 1fr) auto;
   overflow: hidden;
   border: 1px solid var(--c-shell-line-strong, #435568);
-  border-radius: 5px;
+  border-radius: 4px;
   background: var(--c-shell-field, #0d1723);
   color: var(--c-shell-text, #e9f0f5);
   box-shadow: 0 16px 40px rgb(0 0 0 / 0.30);
@@ -708,7 +709,7 @@ width: 100%;
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
   border: 1px solid var(--c-shell-line-strong, #435568);
-  border-radius: 5px;
+  border-radius: 4px;
   background: var(--c-shell-field, #0d1723);
   color: var(--c-shell-text, #e9f0f5);
   box-shadow: 0 16px 40px rgb(0 0 0 / 0.30);
@@ -780,4 +781,51 @@ width: 100%;
   color: var(--c-shell-muted, #91a0aa);
   font-size: 10.5px;
   line-height: 1.35;
+}
+
+/* Methods affordances: compact first-add control + explicit LLM catalog status. */
+.technique-workspace-surface.is-list .technique-list-empty {
+  min-height: 38px;
+  justify-content: flex-start;
+  padding: 5px 10px;
+}
+.technique-empty-add {
+  width: 28px;
+  min-width: 28px;
+  height: 28px;
+  min-height: 28px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid rgba(126, 148, 157, 0.34);
+  border-radius: 4px;
+  background: transparent;
+  color: var(--c-shell-muted, #91a0aa);
+  cursor: pointer;
+}
+.technique-empty-add:hover,
+.technique-empty-add:focus-visible {
+  border-color: #6faaa0;
+  background: rgba(112, 170, 160, 0.10);
+  color: var(--c-shell-text, #e9f0f5);
+  outline: none;
+}
+.technique-empty-add .instrument-glyph {
+  width: 14px;
+  height: 14px;
+  stroke-width: 2;
+}
+.technique-catalog-header {
+  min-height: 44px;
+}
+.technique-catalog-heading {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+.technique-catalog-heading p {
+  margin: 0;
+  color: var(--c-shell-muted, #91a0aa);
+  font-size: 10.5px;
+  line-height: 1.25;
 }

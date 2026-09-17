@@ -1,6 +1,15 @@
-> **Working-tree status (2026-09-15):** `0.6.3-alpha.3` is the last coherent release/checkpoint represented by the historical notes below. The current source tree is materially ahead of that release and is in late-alpha convergence on the web/XML runtime. Current product/runtime authority is `docs/CURRENT_ARCHITECTURE.md`; current beta/release hardening is governed by `docs/research/BETA_PRODUCTION_READINESS_GATE_2026-09-14.md`.
+# Catalyst 1.0.3 â€” EmbedPDF reader convergence
 
-# Catalyst 0.6.3-alpha.3 — Working Picture renderer
+- Replaced the direct Thorium/PDF.js reader path with EmbedPDF 2.15.1 as the active PDF surface.
+- Removed Catalyst's parallel custom marks/analytic-mark layer and retired annotation-rail infrastructure. EmbedPDF native annotation tools are now the sole visual PDF annotation surface.
+- Preserved workspace persistence for annotations created through EmbedPDF's native toolbar without mutating the original source PDF as a side effect of Catalyst workspace persistence.
+- Fixed a stale two-column reader-body rule that reserved space for the removed annotation rail and compressed the PDF viewer into a narrow strip in packaged builds.
+- Reduced obsolete reader/annotation CSS and updated reader, dependency, architecture, and licensing documentation to match the active runtime.
+- Production build, native EmbedPDF annotation persistence, Methods catalog, project export, and Electron release staging pass. The separate legacy CSS-freeze contract remains unresolved and is documented in `docs/release-readiness.md`.
+
+---
+
+# Catalyst 0.6.3-alpha.3 â€” Working Picture renderer
 
 Alpha.3 is the recognition/navigation correction prompted by native review of alpha.2. The previous Map implementation was structurally better than the coordinate graph but still required the analyst to read and pilot a text-first diagram. This release replaces the mounted renderer rather than styling that failure.
 
@@ -36,7 +45,7 @@ Alpha.3 is the recognition/navigation correction prompted by native review of al
 
 ---
 
-# Catalyst 0.6.3-alpha.2 — Analytical Map renderer
+# Catalyst 0.6.3-alpha.2 â€” Analytical Map renderer
 
 Alpha.2 is a model correction rather than a cosmetic pass. Native review of alpha.1 showed that a coordinate-plane graph remained generic even after visual-language work. This release replaces that primary interaction metaphor with the first Catalyst Mapping Model implementation.
 
@@ -62,7 +71,7 @@ Alpha.2 is a model correction rather than a cosmetic pass. Native review of alph
 
 ## Identity
 
-- Replaced the document-shaped application icon with a standalone convergence/assessment/divergence mark designed to remain legible at 16–32 px.
+- Replaced the document-shaped application icon with a standalone convergence/assessment/divergence mark designed to remain legible at 16â€“32 px.
 - The icon deliberately avoids document, shield, eye, globe, and generic security-app imagery; the central diamond represents the analytic judgment point between inputs and outputs.
 - Root `app-icon.svg` is the vector source, `app-icon.png` is the 1024 px packaging master, and the matching web/native assets live under `public/` and `src-tauri/icons/`.
 - Tauri bundle icon paths are declared explicitly in `src-tauri/tauri.conf.json` rather than relying only on conventional filenames.
@@ -76,7 +85,7 @@ Alpha.2 is a model correction rather than a cosmetic pass. Native review of alph
 
 ---
 
-# Catalyst 0.6.3-alpha.1 — Visual & analytical language foundation
+# Catalyst 0.6.3-alpha.1 â€” Visual & analytical language foundation
 
 This milestone implements the first coherent slice of `docs/visual-analytical-language-v0.1.md`. It intentionally changes portrayal and interaction without migrating the 0.6.x ontology or SQLite schema.
 
@@ -113,7 +122,7 @@ This milestone implements the first coherent slice of `docs/visual-analytical-la
 
 ---
 
-# Catalyst 0.6.2-alpha.2 — Evidence clustering, quiet UI, and release integrity
+# Catalyst 0.6.2-alpha.2 â€” Evidence clustering, quiet UI, and release integrity
 
 This milestone keeps the 0.6.1 analytical-foundation model intact while adding two directly testable cognitive-load controls: evidence clusters reduce visual saturation in annotated sources, and persistent interface copy is reduced so the shell stops competing with the analyst's material.
 
@@ -159,7 +168,7 @@ The regression suite now has ten stages, adding evidence-tag/cluster coverage to
 
 ---
 
-# Catalyst 0.6.1-alpha.1 — Architecture alpha
+# Catalyst 0.6.1-alpha.1 â€” Architecture alpha
 
 This milestone turns the deeper research conclusions into a reversible, testable product slice. It changes the domain semantics and cognitive-load model while intentionally keeping the current graph renderer and existing SQLite schema stable.
 
@@ -221,13 +230,13 @@ Obsolete validation-hotfix/repair helpers from the 0.6 handoff are removed by th
 
 The alpha adds:
 
-- `docs/README.md` — documentation inventory and pre-1.0 requirements;
+- `docs/README.md` â€” documentation inventory and pre-1.0 requirements;
 - `docs/domain-model.md`;
 - `docs/capabilities.md`;
 - `docs/assurance.md`;
-- ADR 0010 — progressive capability model;
-- ADR 0011 — analytical-semantics compatibility layer;
-- ADR 0012 — first-class relationships.
+- ADR 0010 â€” progressive capability model;
+- ADR 0011 â€” analytical-semantics compatibility layer;
+- ADR 0012 â€” first-class relationships.
 
 The project policy is now explicit: undocumented architectural behavior is unfinished.
 
@@ -241,7 +250,7 @@ The native acceptance goal for this milestone is not feature completeness. It is
 
 ---
 
-# Catalyst 0.6.0 — Graph workspace foundation
+# Catalyst 0.6.0 â€” Graph workspace foundation
 
 Catalyst's analytical context has been rewritten around the graph itself. The previous one-hop note mind map was a useful prototype, but keeping it inside a note editor preserved the wrong product structure. In 0.6, notes are graph nodes and the selected note is edited in an inspector without replacing the map.
 
@@ -310,7 +319,7 @@ The native acceptance pass should emphasize spatial persistence, graph stability
 
 ---
 
-# Catalyst 0.5.1 — Pane-scoped navigation
+# Catalyst 0.5.1 â€” Pane-scoped navigation
 
 Stage 6.1 corrects the Stage 6 navigation model after runtime testing showed that one composite Back/Forward stack was not aligned with Catalyst's two independent work surfaces.
 
@@ -342,7 +351,7 @@ Navigation remains bounded, session-only application state. No database migratio
 
 ---
 
-# Catalyst 0.5.0 — Research navigation history
+# Catalyst 0.5.0 â€” Research navigation history
 
 Stage 6 adds browser-like Back/Forward navigation across the two-pane research workspace.
 
@@ -385,13 +394,13 @@ No third-party dependency was added.
 
 ---
 
-# Catalyst 0.4.0 — Note connections and backlinks
+# Catalyst 0.4.0 â€” Note connections and backlinks
 
 Stage 5 added first-class directional note links and backlinks, persisted through SQLite migration `0004_note_links.sql`, with Trash/Restore and permanent-delete lifecycle rules.
 
 ---
 
-# Catalyst 0.3.6 — TypeScript 7 build repair
+# Catalyst 0.3.6 â€” TypeScript 7 build repair
 
 The 0.3.6 repair added CSS side-effect typing, corrected the repository-kind discriminant, aligned the local Tauri SQL adapter with `Database.close()`'s boolean result, and fixed the Vite-config TypeScript project settings.
 
@@ -401,7 +410,7 @@ The 0.3.6 repair added CSS side-effect typing, corrected the repository-kind dis
 - Added `upgrade_06.ps1` to finalize an extracted 0.6 overlay by removing only the known obsolete note-era components (`NoteEditor`, `NotesList`, and the prototype `NoteMindMap`) and then running full validation unless `-SkipTests` is supplied.
 - Upgrade finalization does not touch `src-tauri`.
 
-## Post-alpha.2 design checkpoint — Working Picture foundation (not yet released code)
+## Post-alpha.2 design checkpoint â€” Working Picture foundation (not yet released code)
 
 Native alpha.2 review rejected the text-first Map renderer as fundamentally difficult to navigate. Follow-on intelligence-focused research established a recognition-first Working Picture architecture rather than another incremental graph/map styling pass.
 

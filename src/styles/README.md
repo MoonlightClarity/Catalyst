@@ -10,7 +10,7 @@ Current production CSS belongs in this directory and is loaded through `index.cs
 4. `20-notes.css` - notes, source excerpts, provenance, and selection capture.
 5. `30-analysis-outline.css` - Working Picture, graph inspector, outline authoring, and map ontology.
 6. `40-techniques.css` - structured analytic technique catalog, runs, and workflow UI.
-7. `50-reader.css` - PDF reader, Thorium chrome, text-note geometry, and reader ergonomics.
+7. `50-reader.css` - Catalyst Reader shell/session chrome around the embedded EmbedPDF surface; EmbedPDF owns the visual PDF annotation UI and no Catalyst annotation rail is maintained.
 8. `70-iconography.css` - final glyph sizing, stroke treatment, and working-size icon legibility.
 
 Readability takes priority over palette fidelity or maximum density. Normal reading text must not be reduced to microtype to preserve a theme.

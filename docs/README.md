@@ -10,7 +10,7 @@ Use this order for implementation and release decisions:
 2. `CURRENT_ARCHITECTURE.md` — mounted product/runtime source of truth;
 3. `release-readiness.md` — current post-1.0 hardening gate;
 4. root `CURRENT_STATE.md`, `DECISION_LOG.md`, and `NEXT_STEPS.md`;
-5. frozen Outline/Map/annotation ontology documents;
+5. frozen Outline/annotation ontology documents; the Map ontology is retained as historical design record only;
 6. current implementation contracts such as `outline-authoring-system.md` and `techniques-workspace.md`;
 7. historical alpha, research, acceptance, Working Picture, graph-first, and Tauri/SQLite material.
 
@@ -33,7 +33,7 @@ Historical documents remain evidence of why decisions were made. They do not res
 | Unified analysis export | `adr/0029-restore-unified-analysis-export.md` | **Accepted current output boundary; supersedes ADR 0028 only for whole Outline + Methods document export** |
 | Assessment removal | `adr/0026-remove-assessment-product-scope.md` | **Accepted product-scope decision** |
 | Outline semantics | `outline-ontology-v0.1.md` | **Frozen conceptual structural contract** |
-| Map semantics | `map-ontology-v0.1.md` | **Frozen generated-projection contract** |
+| Map semantics | `map-ontology-v0.1.md` | Historical frozen projection contract; Map is retired from the active product |
 | Source/annotation semantics | `annotation-semantic-ontology-v0.1.md` | **Frozen conceptual boundary; UI projection may evolve** |
 | Outline interaction | `outline-authoring-system.md` | **Current mounted interaction contract** |
 | Methods / Techniques | `techniques-workspace.md` | **Current mounted Techniques contract** |

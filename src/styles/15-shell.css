@@ -61,7 +61,6 @@
   border-right: 1px solid var(--c-shell-line);
 }
 
-.workspace-unified-research .thorium-pdf-reader .thorium-pdf-toolbar,
 .workspace-unified-research .context-tabs {
   box-sizing: border-box;
   min-height: var(--c-shell-subnav-height);
@@ -143,13 +142,6 @@
 /* Keep the reader control row level with the workspace tab row. */
 .workspace-unified-research { --c-shell-subnav-height: 54px; }
 
-/* Full-window Map View owns the viewport completely.
-   Keep the PDF mounted so reader state survives, but suppress its editor layer;
-   PDF.js free-text editors can otherwise composite above a fixed map overlay. */
-.workspace:has(.working-picture-workspace.view-map) > .pdf-pane {
-  visibility: hidden;
-  pointer-events: none;
-}
 
 /* Keep the two workspace tabs identical in normal Catalyst mode. */
 .workspace:not(.workspace-unified-research) .context-pane[data-context-mode="graph"] .context-tabs,

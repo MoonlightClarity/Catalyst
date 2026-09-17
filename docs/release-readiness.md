@@ -1,6 +1,6 @@
 # Catalyst release readiness
 
-Status: **published 1.0 baseline and current maintenance contract — 2026-09-16**
+Status: **published 1.0 baseline and current maintenance contract — 2026-09-17**
 
 ## Position
 
@@ -12,10 +12,11 @@ The supported product path is:
 Reader / source work
     -> Outline-authored structure and notes
     -> optional ordered Methods
-    -> briefing/report work outside Catalyst
+    -> Export as PDF / DOCX / RTF
+    -> downstream briefing/report work
 ```
 
-The mounted UI exposes Reader, Outline, and Methods. Map, Evidence, Assessments, Thoughts as a separate product concept, global undo/redo, and derived-output export are not current product surfaces and should not be inferred from historical documentation or legacy code names.
+The mounted UI exposes Reader, Outline, Methods, and whole-analysis document export. Map, Evidence, Assessments, Thoughts as a separate product concept, and global undo/redo are not current product surfaces and should not be inferred from historical documentation or legacy code names.
 
 ## Current 1.0 acceptance contract
 
@@ -27,7 +28,7 @@ The current product should preserve all of the following:
 - source identity checks that prevent silently reconnecting a saved workspace to the wrong PDF;
 - Outline hierarchy, numbering, sibling order, inline notes, and focused keyboard operations across save/reload;
 - optional Methods with ordered/hierarchical runs, editable method names and subtasks, catalog filtering, and blank custom insertion;
-- Reader zoom, page navigation, day/night mode, fullscreen gating, and Ctrl/Cmd+F document search;
+- EmbedPDF-native page navigation, zoom, search, fullscreen behavior, and annotation tools;
 - predictable destructive actions and recovery behavior;
 - documentation and maintenance scripts that describe the runtime actually mounted;
 - a coherent visual system across reader chrome, Outline, and Methods.
@@ -36,11 +37,11 @@ The current code still contains historical internal names such as `graph` and so
 
 ## Release validation baseline
 
-For package version `1.0.2`, package/lockfile consistency, the focused project-export test, production Vite build, npm license audit, and desktop release-staging verification pass. The aggregate historical test chain currently retains a known viewer-markup CSS assertion against retired annotation-toolbar selectors; it is unrelated to the unified export path.
+For package version `1.0.3`, package/lockfile consistency, the focused native-EmbedPDF annotation persistence test, project-export test, production Vite build, npm license audit, and desktop release-staging verification pass. `npm run test:css` is still red because `scripts/test-css-architecture.mjs` expects the legacy `styles.css` frozen-header contract, while the live stylesheet no longer satisfies that historical freeze assertion.
 
 The XML repository tests intentionally exercise malformed canonical XML and log a rollback-path parse diagnostic before reporting the migration test as passed. That diagnostic is expected test coverage, not a release failure.
 
-The production Vite build currently emits a non-failing large-chunk warning. Treat that as a performance/packaging follow-up rather than a correctness failure.
+The production Vite build currently emits non-failing EmbedPDF `crypto` externalization and large-chunk warnings. Treat those as dependency/performance follow-ups rather than correctness failures.
 
 The portable Windows staging path is additionally validated by:
 
@@ -72,7 +73,7 @@ powershell -ExecutionPolicy Bypass -File .\test.ps1 -Full
 
 Documentation-only work should at minimum validate referenced paths and commands, run `node scripts/test-research-handoff.mjs`, and run `git diff --check` on edited files.
 
-A green gate is point-in-time evidence. Revalidate after implementation changes instead of treating version `1.0.2` or a previous successful run as proof of the current tree.
+A green gate is point-in-time evidence. Revalidate after implementation changes instead of treating version `1.0.3` or a previous successful run as proof of the current tree.
 
 ## Release provenance
 

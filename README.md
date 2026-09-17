@@ -42,9 +42,9 @@ Catalyst treats the **Outline as the primary analytical structure**. There is no
 
 ### PDF reader
 
-Catalyst opens local PDF documents in an integrated PDF.js-based reader. The reader provides the source-viewing controls needed for normal document work while keeping the surrounding Catalyst interface minimal.
+Catalyst opens local PDF documents through EmbedPDF (`@embedpdf/react-pdf-viewer`). EmbedPDF owns the reader and native PDF annotation tools; Catalyst does not maintain a parallel marks toolbar or custom annotation layer.
 
-Catalyst does not alter the original PDF. Source documents remain separate from Catalyst session files.
+Catalyst does not alter the original PDF as a side effect of workspace persistence. Source documents remain separate from Catalyst session files, while annotations created through the native EmbedPDF tools can be preserved with the Catalyst workspace.
 
 ### Outline
 
@@ -77,7 +77,7 @@ Catalyst's active application is intentionally small:
 - React
 - TypeScript
 - Vite
-- `pdfjs-dist`
+- EmbedPDF (`@embedpdf/react-pdf-viewer`)
 - XML-backed Catalyst session persistence
 
 The active application is browser-based and local. Legacy experiments and retired implementation material are not part of the runtime.
