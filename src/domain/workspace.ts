@@ -62,6 +62,8 @@ export const initialWorkspaceState: WorkspaceState = {
   capabilities: { ...DEFAULT_CAPABILITY_STATE, overrides: {} },
   noteSemantics: {},
   relationships: {},
+  methodRelationships: {},
+  crossRelationships: {},
   annotationRoles: {},
 };
 
@@ -114,7 +116,7 @@ export type WorkspaceAction =
   | {
       type: "relationship/updated";
       id: string;
-      patch: Partial<Pick<Relationship, "type" | "directed" | "label">>;
+      patch: Partial<Pick<Relationship, "fromId" | "toId" | "type" | "directed" | "label">>;
     }
   | { type: "relationship/deleted"; id: string }
   | { type: "relationship/disconnected"; noteId: string; targetNoteId: string }
@@ -127,6 +129,27 @@ export type WorkspaceAction =
   | { type: "note-link/created"; link: NoteLink }
   | { type: "note-link/deleted"; fromNoteId: string; toNoteId: string }
   | { type: "note-link/disconnected"; noteId: string; targetNoteId: string }
+  | { type: "method-relationship/created"; relationship: Relationship }
+  | {
+      type: "method-relationship/updated";
+      id: string;
+      patch: Partial<Pick<Relationship, "fromId" | "toId" | "type" | "directed" | "label">>;
+    }
+  | { type: "method-relationship/deleted"; id: string }
+  | { type: "cross-relationship/created"; relationship: Relationship }
+  | {
+      type: "cross-relationship/updated";
+      id: string;
+      patch: Partial<Pick<Relationship, "fromId" | "toId" | "type" | "directed" | "label">>;
+    }
+  | { type: "cross-relationship/deleted"; id: string }
+  | {
+      type: "relationship/retargeted";
+      scope: "outline" | "method" | "cross";
+      id: string;
+      fromId: string;
+      toId: string;
+    }
   | { type: "technique-run/created"; run: TechniqueRun; afterRunId?: string | null }
   | {
       type: "technique-run/definition-updated";
@@ -191,6 +214,31 @@ function withOutlineItem(
       items: { ...state.outline.items, [placementId]: { ...item, ...patch } },
     }),
   };
+}
+
+function relationshipScopeForEndpoints(
+  state: WorkspaceState,
+  fromId: string,
+  toId: string,
+): "outline" | "method" | "cross" | null {
+  if (fromId === toId) return null;
+  const fromIsNote = Boolean(state.notes[fromId]);
+  const toIsNote = Boolean(state.notes[toId]);
+  const fromIsMethod = Boolean(state.techniqueRuns[fromId]);
+  const toIsMethod = Boolean(state.techniqueRuns[toId]);
+  if (fromIsNote && toIsNote) return "outline";
+  if (fromIsMethod && toIsMethod) return "method";
+  if ((fromIsNote && toIsMethod) || (fromIsMethod && toIsNote)) return "cross";
+  return null;
+}
+
+function relationshipsForScope(
+  state: WorkspaceState,
+  scope: "outline" | "method" | "cross",
+): Record<string, Relationship> {
+  if (scope === "outline") return state.relationships;
+  if (scope === "method") return state.methodRelationships;
+  return state.crossRelationships;
 }
 
 export function workspaceReducer(
@@ -405,6 +453,12 @@ export function workspaceReducer(
             relationship.fromId !== action.id && relationship.toId !== action.id,
         ),
       );
+      const crossRelationships = Object.fromEntries(
+        Object.entries(state.crossRelationships).filter(
+          ([, relationship]) =>
+            relationship.fromId !== action.id && relationship.toId !== action.id,
+        ),
+      );
 
       return {
         ...state,
@@ -415,6 +469,7 @@ export function workspaceReducer(
         ),
         noteSemantics,
         relationships,
+        crossRelationships,
         activeNoteId: state.activeNoteId === action.id ? null : state.activeNoteId,
         graphView: { ...state.graphView, positions },
         outline: removeItemPlacements(state.outline, new Set([action.id])),
@@ -585,7 +640,9 @@ export function workspaceReducer(
       const pair = relationshipPairKey(relationship.fromId, relationship.toId);
       if (
         Object.values(state.relationships).some(
-          (item) => relationshipPairKey(item.fromId, item.toId) === pair,
+          (item) =>
+            relationshipPairKey(item.fromId, item.toId) === pair &&
+            item.type === relationship.type,
         )
       ) return state;
 
@@ -626,6 +683,9 @@ export function workspaceReducer(
     case "relationship/updated": {
       const existing = state.relationships[action.id];
       if (!existing) return state;
+      const fromId = action.patch.fromId ?? existing.fromId;
+      const toId = action.patch.toId ?? existing.toId;
+      if (fromId === toId || !state.notes[fromId] || !state.notes[toId]) return state;
       const type = action.patch.type ?? existing.type;
       const directed = action.patch.directed ??
         (action.patch.type && action.patch.type !== existing.type
@@ -637,22 +697,54 @@ export function workspaceReducer(
       const next: Relationship = {
         ...existing,
         ...action.patch,
+        fromId,
+        toId,
         type,
         directed,
         label,
         updatedAt: new Date().toISOString(),
       };
+      const oldPair = relationshipPairKey(existing.fromId, existing.toId);
+      const nextPair = relationshipPairKey(fromId, toId);
       if (
+        Object.values(state.relationships).some(
+          (item) =>
+            item.id !== existing.id &&
+            relationshipPairKey(item.fromId, item.toId) === nextPair &&
+            item.type === next.type,
+        )
+      ) return state;
+      if (
+        next.fromId === existing.fromId &&
+        next.toId === existing.toId &&
         next.type === existing.type &&
         next.directed === existing.directed &&
         next.label === existing.label
       ) return state;
+      const relationships = {
+        ...state.relationships,
+        [existing.id]: next,
+      };
+      const affectedPairs = new Set([oldPair, nextPair]);
+      const noteLinks = state.noteLinks.filter(
+        (link) => !affectedPairs.has(relationshipPairKey(link.fromNoteId, link.toNoteId)),
+      );
+      for (const pair of affectedPairs) {
+        const representative = Object.values(relationships).find(
+          (relationship) => relationshipPairKey(relationship.fromId, relationship.toId) === pair,
+        );
+        if (representative) {
+          noteLinks.push({
+            fromNoteId: representative.fromId,
+            toNoteId: representative.toId,
+            createdAt: representative.createdAt,
+          });
+        }
+      }
       return {
         ...state,
-        relationships: {
-          ...state.relationships,
-          [existing.id]: next,
-        },
+        relationships,
+        noteLinks,
       };
     }
 
@@ -662,12 +754,17 @@ export function workspaceReducer(
       const relationships = { ...state.relationships };
       delete relationships[action.id];
       const pair = relationshipPairKey(existing.fromId, existing.toId);
+      const pairStillRepresented = Object.values(relationships).some(
+        (relationship) => relationshipPairKey(relationship.fromId, relationship.toId) === pair,
+      );
       return {
         ...state,
         relationships,
-        noteLinks: state.noteLinks.filter(
-          (link) => relationshipPairKey(link.fromNoteId, link.toNoteId) !== pair,
-        ),
+        noteLinks: pairStillRepresented
+          ? state.noteLinks
+          : state.noteLinks.filter(
+              (link) => relationshipPairKey(link.fromNoteId, link.toNoteId) !== pair,
+            ),
       };
     }
 
@@ -836,6 +933,229 @@ export function workspaceReducer(
         targetNoteId: action.targetNoteId,
       });
 
+    case "method-relationship/created": {
+      const relationship = action.relationship;
+      if (relationship.fromId === relationship.toId) return state;
+      if (!state.techniqueRuns[relationship.fromId] || !state.techniqueRuns[relationship.toId]) return state;
+      const pair = relationshipPairKey(relationship.fromId, relationship.toId);
+      if (
+        Object.values(state.methodRelationships).some(
+          (item) => relationshipPairKey(item.fromId, item.toId) === pair && item.type === relationship.type,
+        )
+      ) return state;
+      const now = new Date().toISOString();
+      const normalized: Relationship = {
+        ...relationship,
+        directed: relationship.directed ?? defaultRelationshipDirected(relationship.type),
+        label: relationship.label?.trim() || null,
+        updatedAt: relationship.updatedAt || now,
+      };
+      return {
+        ...state,
+        methodRelationships: {
+          ...state.methodRelationships,
+          [normalized.id]: normalized,
+        },
+      };
+    }
+
+    case "method-relationship/updated": {
+      const existing = state.methodRelationships[action.id];
+      if (!existing) return state;
+      const fromId = action.patch.fromId ?? existing.fromId;
+      const toId = action.patch.toId ?? existing.toId;
+      if (fromId === toId || !state.techniqueRuns[fromId] || !state.techniqueRuns[toId]) return state;
+      const type = action.patch.type ?? existing.type;
+      const pair = relationshipPairKey(fromId, toId);
+      if (
+        Object.values(state.methodRelationships).some(
+          (item) =>
+            item.id !== existing.id &&
+            relationshipPairKey(item.fromId, item.toId) === pair &&
+            item.type === type,
+        )
+      ) return state;
+      const directed = action.patch.directed ??
+        (action.patch.type && action.patch.type !== existing.type
+          ? defaultRelationshipDirected(type)
+          : existing.directed);
+      const label = action.patch.label === undefined
+        ? existing.label
+        : action.patch.label?.trim() || null;
+      const next: Relationship = {
+        ...existing,
+        ...action.patch,
+        fromId,
+        toId,
+        type,
+        directed,
+        label,
+        updatedAt: new Date().toISOString(),
+      };
+      if (
+        next.fromId === existing.fromId &&
+        next.toId === existing.toId &&
+        next.type === existing.type &&
+        next.directed === existing.directed &&
+        next.label === existing.label
+      ) return state;
+      return {
+        ...state,
+        methodRelationships: {
+          ...state.methodRelationships,
+          [existing.id]: next,
+        },
+      };
+    }
+
+    case "method-relationship/deleted": {
+      if (!state.methodRelationships[action.id]) return state;
+      const methodRelationships = { ...state.methodRelationships };
+      delete methodRelationships[action.id];
+      return { ...state, methodRelationships };
+    }
+
+    case "cross-relationship/created": {
+      const relationship = action.relationship;
+      if (relationshipScopeForEndpoints(state, relationship.fromId, relationship.toId) !== "cross") return state;
+      const pair = relationshipPairKey(relationship.fromId, relationship.toId);
+      if (
+        Object.values(state.crossRelationships).some(
+          (item) => relationshipPairKey(item.fromId, item.toId) === pair && item.type === relationship.type,
+        )
+      ) return state;
+      const now = new Date().toISOString();
+      const normalized: Relationship = {
+        ...relationship,
+        directed: relationship.directed ?? defaultRelationshipDirected(relationship.type),
+        label: relationship.label?.trim() || null,
+        updatedAt: relationship.updatedAt || now,
+      };
+      return {
+        ...state,
+        crossRelationships: {
+          ...state.crossRelationships,
+          [normalized.id]: normalized,
+        },
+      };
+    }
+
+    case "cross-relationship/updated": {
+      const existing = state.crossRelationships[action.id];
+      if (!existing) return state;
+      const fromId = action.patch.fromId ?? existing.fromId;
+      const toId = action.patch.toId ?? existing.toId;
+      if (relationshipScopeForEndpoints(state, fromId, toId) !== "cross") return state;
+      const type = action.patch.type ?? existing.type;
+      const pair = relationshipPairKey(fromId, toId);
+      if (
+        Object.values(state.crossRelationships).some(
+          (item) =>
+            item.id !== existing.id &&
+            relationshipPairKey(item.fromId, item.toId) === pair &&
+            item.type === type,
+        )
+      ) return state;
+      const directed = action.patch.directed ??
+        (action.patch.type && action.patch.type !== existing.type
+          ? defaultRelationshipDirected(type)
+          : existing.directed);
+      const label = action.patch.label === undefined
+        ? existing.label
+        : action.patch.label?.trim() || null;
+      const next: Relationship = {
+        ...existing,
+        ...action.patch,
+        fromId,
+        toId,
+        type,
+        directed,
+        label,
+        updatedAt: new Date().toISOString(),
+      };
+      if (
+        next.fromId === existing.fromId &&
+        next.toId === existing.toId &&
+        next.type === existing.type &&
+        next.directed === existing.directed &&
+        next.label === existing.label
+      ) return state;
+      return {
+        ...state,
+        crossRelationships: {
+          ...state.crossRelationships,
+          [existing.id]: next,
+        },
+      };
+    }
+
+    case "cross-relationship/deleted": {
+      if (!state.crossRelationships[action.id]) return state;
+      const crossRelationships = { ...state.crossRelationships };
+      delete crossRelationships[action.id];
+      return { ...state, crossRelationships };
+    }
+
+    case "relationship/retargeted": {
+      const sourceRelationships = relationshipsForScope(state, action.scope);
+      const existing = sourceRelationships[action.id];
+      if (!existing) return state;
+      const destinationScope = relationshipScopeForEndpoints(state, action.fromId, action.toId);
+      if (!destinationScope) return state;
+      const destinationRelationships = relationshipsForScope(state, destinationScope);
+      const pair = relationshipPairKey(action.fromId, action.toId);
+      if (
+        Object.values(destinationRelationships).some(
+          (item) =>
+            item.id !== existing.id &&
+            relationshipPairKey(item.fromId, item.toId) === pair &&
+            item.type === existing.type,
+        )
+      ) return state;
+
+      if (destinationScope === action.scope) {
+        if (action.scope === "outline") {
+          return workspaceReducer(state, {
+            type: "relationship/updated",
+            id: action.id,
+            patch: { fromId: action.fromId, toId: action.toId },
+          });
+        }
+        if (action.scope === "method") {
+          return workspaceReducer(state, {
+            type: "method-relationship/updated",
+            id: action.id,
+            patch: { fromId: action.fromId, toId: action.toId },
+          });
+        }
+        return workspaceReducer(state, {
+          type: "cross-relationship/updated",
+          id: action.id,
+          patch: { fromId: action.fromId, toId: action.toId },
+        });
+      }
+
+      const deleteAction: WorkspaceAction = action.scope === "outline"
+        ? { type: "relationship/deleted", id: action.id }
+        : action.scope === "method"
+          ? { type: "method-relationship/deleted", id: action.id }
+          : { type: "cross-relationship/deleted", id: action.id };
+      const withoutExisting = workspaceReducer(state, deleteAction);
+      const moved: Relationship = {
+        ...existing,
+        fromId: action.fromId,
+        toId: action.toId,
+        updatedAt: new Date().toISOString(),
+      };
+      if (destinationScope === "outline") {
+        return workspaceReducer(withoutExisting, { type: "relationship/created", relationship: moved });
+      }
+      if (destinationScope === "method") {
+        return workspaceReducer(withoutExisting, { type: "method-relationship/created", relationship: moved });
+      }
+      return workspaceReducer(withoutExisting, { type: "cross-relationship/created", relationship: moved });
+    }
+
     case "technique-run/created": {
       const requestedParentId = action.run.parentRunId ?? null;
       const parentRunId = requestedParentId && state.techniqueRuns[requestedParentId]
@@ -986,9 +1306,21 @@ export function workspaceReducer(
       promoted.forEach((child) => {
         techniqueRuns[child.id] = child;
       });
+      const methodRelationships = Object.fromEntries(
+        Object.entries(state.methodRelationships).filter(
+          ([, relationship]) => relationship.fromId !== run.id && relationship.toId !== run.id,
+        ),
+      );
+      const crossRelationships = Object.fromEntries(
+        Object.entries(state.crossRelationships).filter(
+          ([, relationship]) => relationship.fromId !== run.id && relationship.toId !== run.id,
+        ),
+      );
       return {
         ...state,
         techniqueRuns: reindexTechniqueSiblings(techniqueRuns, parentRunId, ordered),
+        methodRelationships,
+        crossRelationships,
       };
     }
 

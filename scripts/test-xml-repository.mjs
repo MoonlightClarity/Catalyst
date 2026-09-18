@@ -76,6 +76,79 @@ try {
   assert.ok(storage.getItem("catalyst.xml.workspace.v1")?.startsWith("<?xml"));
   assert.ok(storage.getItem("catalyst.browser.workspace.v1"));
 
+  const methodCreatedAt = "2026-09-17T18:55:00.000Z";
+  const methodDefinition = (id, name) => ({
+    id: `${id}-definition`,
+    name,
+    summary: "",
+    category: "other",
+    builtIn: false,
+    version: 1,
+    steps: [],
+    createdAt: methodCreatedAt,
+    updatedAt: methodCreatedAt,
+  });
+  const methodA = {
+    id: "method-a",
+    parentRunId: null,
+    sequenceIndex: 0,
+    definitionId: "method-a-definition",
+    definitionVersion: 1,
+    definitionSnapshot: methodDefinition("method-a", "Method A"),
+    responses: {},
+    createdAt: methodCreatedAt,
+    updatedAt: methodCreatedAt,
+  };
+  const methodB = {
+    id: "method-b",
+    parentRunId: null,
+    sequenceIndex: 1,
+    definitionId: "method-b-definition",
+    definitionVersion: 1,
+    definitionSnapshot: methodDefinition("method-b", "Method B"),
+    responses: {},
+    createdAt: methodCreatedAt,
+    updatedAt: methodCreatedAt,
+  };
+  const methodRelationship = {
+    id: "method-relationship-1",
+    fromId: methodA.id,
+    toId: methodB.id,
+    type: "supports",
+    directed: true,
+    label: null,
+    createdAt: methodCreatedAt,
+    updatedAt: methodCreatedAt,
+  };
+  const crossRelationship = {
+    id: "cross-relationship-1",
+    fromId: "note-1",
+    toId: methodA.id,
+    type: "about",
+    directed: true,
+    label: null,
+    createdAt: methodCreatedAt,
+    updatedAt: methodCreatedAt,
+  };
+  const withMethodRelationship = {
+    ...loaded,
+    techniqueRuns: { [methodA.id]: methodA, [methodB.id]: methodB },
+    methodRelationships: { [methodRelationship.id]: methodRelationship },
+    crossRelationships: { [crossRelationship.id]: crossRelationship },
+  };
+  await repository.sync(loaded, withMethodRelationship);
+  const reloadedWithMethodRelationship = await repository.loadWorkspace();
+  assert.equal(
+    reloadedWithMethodRelationship.methodRelationships[methodRelationship.id]?.type,
+    "supports",
+    "method relationships must survive Catalyst's internal XML repository restart round trip",
+  );
+  assert.equal(
+    reloadedWithMethodRelationship.crossRelationships[crossRelationship.id]?.toId,
+    methodA.id,
+    "Outline-to-method relationships must survive Catalyst's internal XML repository restart round trip",
+  );
+
   const danglingStorage = new MemoryStorage();
   global.window.localStorage = danglingStorage;
   danglingStorage.setItem("catalyst.browser.workspace.v1", JSON.stringify({

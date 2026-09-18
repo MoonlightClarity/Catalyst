@@ -10,7 +10,9 @@ import { EmbedPdfReader } from "./viewer/EmbedPdfReader";
 import {
   annotationFromSelection,
   canReconnectDocumentSource,
-  reusableAnnotationForSelection,  newNote,
+  reusableAnnotationForSelection,
+  newNote,
+  newRelationship,
 } from "./domain/workspace";
 import { effectiveCapabilities } from "./domain/capabilities";
 import { newOutlineReference } from "./domain/outline";
@@ -22,6 +24,8 @@ import {
 import type {
   DocumentRecord,
   PendingSelection,
+  RelationshipScope,
+  RelationshipType,
   TechniqueDefinition,
   WorkspaceState,
 } from "./domain/types";
@@ -903,18 +907,18 @@ export function App({
       setGoToError("Methods are not enabled in this workspace");
       return;
     }
-    if (surface === "outline" && suffix && suffix !== "note") {
-      setGoToError("Outline addresses support an optional 'note' target");
+    if (surface === "outline" && suffix && suffix !== "relations") {
+      setGoToError("Outline addresses support an optional 'relations' target");
       return;
     }
-    if (surface === "methods" && suffix === "note") {
+    if (surface === "methods" && suffix === "relations") {
       setGoToError("Method addresses support 'form' or 'step N'");
       return;
     }
 
     const stepMatch = suffix.match(/^step\s+(\d+)$/);
     const target = surface === "outline"
-      ? (suffix === "note" ? "note" : "row")
+      ? (suffix === "relations" ? "relations" : "row")
       : (suffix === "form" ? "form" : stepMatch ? "step" : "row");
     const step = stepMatch ? Number(stepMatch[1]) : undefined;
 
@@ -1627,10 +1631,6 @@ export function App({
             onRenameNote={(noteId, title) =>
               dispatch({ type: "note/updated", id: noteId, patch: { title } })
             }
-            onUpdateNoteBody={(noteId, body) =>
-              dispatch({ type: "note/updated", id: noteId, patch: { body } })
-            }
-            onCommitNote={() => void flush()}
             onRenameAnalysis={(title) => dispatch({ type: "analysis/title-updated", title })}
             onDeleteNote={deleteNote}
             onSetCollapsed={(placementId, collapsed) =>
@@ -1647,6 +1647,38 @@ export function App({
             onIndentOutlineItem={(placementId) => {
               dispatch({ type: "outline/item-indented", placementId });
               setStatus("Branch indented");
+            }}
+            onCreateRelationship={(scope: RelationshipScope, fromId, toId, type: RelationshipType) => {
+              const relationship = newRelationship(fromId, toId, type);
+              if (scope === "outline") dispatch({ type: "relationship/created", relationship });
+              else if (scope === "method") dispatch({ type: "method-relationship/created", relationship });
+              else dispatch({ type: "cross-relationship/created", relationship });
+              setStatus("Relationship added");
+            }}
+            onUpdateRelationship={(scope: RelationshipScope, id, type: RelationshipType) => {
+              if (scope === "outline") dispatch({ type: "relationship/updated", id, patch: { type } });
+              else if (scope === "method") dispatch({ type: "method-relationship/updated", id, patch: { type } });
+              else dispatch({ type: "cross-relationship/updated", id, patch: { type } });
+              setStatus("Relationship updated");
+            }}
+            onRetargetRelationship={(scope: RelationshipScope, id, fromId, toId) => {
+              dispatch({ type: "relationship/retargeted", scope, id, fromId, toId });
+              setStatus("Relationship target updated");
+            }}
+            onDeleteRelationship={(scope: RelationshipScope, id) => {
+              if (scope === "outline") dispatch({ type: "relationship/deleted", id });
+              else if (scope === "method") dispatch({ type: "method-relationship/deleted", id });
+              else dispatch({ type: "cross-relationship/deleted", id });
+              setStatus("Relationship removed");
+            }}
+            onOpenMethod={(address) => {
+              setContextMode("techniques");
+              setActivePane("context");
+              window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
+                window.dispatchEvent(new CustomEvent("catalyst:navigate-method-address", {
+                  detail: { address, target: "form" },
+                }));
+              }));
             }}
           />
         ) : (
@@ -1666,6 +1698,29 @@ export function App({
             onIndentRun={(runId) => dispatch({ type: "technique-run/indented", id: runId })}
             onOutdentRun={(runId) => dispatch({ type: "technique-run/outdented", id: runId })}
             onDeleteRun={(runId) => dispatch({ type: "technique-run/deleted", id: runId })}
+            onCreateRelationship={(scope: RelationshipScope, fromId, toId, type: RelationshipType) => {
+              const relationship = newRelationship(fromId, toId, type);
+              if (scope === "outline") dispatch({ type: "relationship/created", relationship });
+              else if (scope === "method") dispatch({ type: "method-relationship/created", relationship });
+              else dispatch({ type: "cross-relationship/created", relationship });
+              setStatus("Relationship added");
+            }}
+            onUpdateRelationship={(scope: RelationshipScope, id, type: RelationshipType) => {
+              if (scope === "outline") dispatch({ type: "relationship/updated", id, patch: { type } });
+              else if (scope === "method") dispatch({ type: "method-relationship/updated", id, patch: { type } });
+              else dispatch({ type: "cross-relationship/updated", id, patch: { type } });
+              setStatus("Relationship updated");
+            }}
+            onRetargetRelationship={(scope: RelationshipScope, id, fromId, toId) => {
+              dispatch({ type: "relationship/retargeted", scope, id, fromId, toId });
+              setStatus("Relationship target updated");
+            }}
+            onDeleteRelationship={(scope: RelationshipScope, id) => {
+              if (scope === "outline") dispatch({ type: "relationship/deleted", id });
+              else if (scope === "method") dispatch({ type: "method-relationship/deleted", id });
+              else dispatch({ type: "cross-relationship/deleted", id });
+              setStatus("Relationship removed");
+            }}
           />
         )}
       </aside>

@@ -1,3 +1,14 @@
+# Catalyst 1.1.0 — relational Map and cross-surface relationships
+
+- Restored Map as a read-only relational portrayal instead of reviving the retired free-spatial structural editor.
+- Added multiple typed relationships within Outline and within Methods, plus explicit Outline↔Method relationships.
+- Relationship type and target can be edited after creation; adding one relationship does not consume or replace the add affordance.
+- Persisted Method and cross-surface relationship maps through Catalyst XML hydration/reload alongside existing Outline relationships.
+- Map nodes include both Outline and Method entities and can navigate back to their authored surface; hierarchy/order provide stable addressing while explicit relationships provide the visible connections.
+- Added focused relational-view coverage and wired it into the normal test chain.
+
+---
+
 # Catalyst 1.0.3 â€” EmbedPDF reader convergence
 
 - Replaced the direct Thorium/PDF.js reader path with EmbedPDF 2.15.1 as the active PDF surface.

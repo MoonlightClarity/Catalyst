@@ -1,24 +1,24 @@
 # Catalyst release readiness
 
-Status: **published 1.0 baseline and current maintenance contract — 2026-09-17**
+Status: **published 1.0 baseline and 1.1 source contract — 2026-09-17**
 
 ## Position
 
-Catalyst 1.0 is a deliberately narrow local analytical workspace. Current maintenance should favor coherence, persistence reliability, and usability over restoring retired alpha-era surfaces.
+Catalyst 1.1 remains a deliberately narrow local analytical workspace, but restores a focused relational Map because explicit relationships now have a stable persistence and interaction model. Maintenance should still favor coherence, persistence reliability, and usability over reviving unrelated retired alpha-era surfaces.
 
 The supported product path is:
 
 ```text
 Reader / source work
-    -> Outline-authored structure and notes
-    -> optional ordered Methods
-    -> Export as PDF / DOCX / RTF
+    -> Outline-authored structure and notes + optional ordered Methods
+    -> explicit typed relationships within/across those surfaces
+    -> read-only relational Map and/or Export as PDF / DOCX / RTF
     -> downstream briefing/report work
 ```
 
-The mounted UI exposes Reader, Outline, Methods, and whole-analysis document export. Map, Evidence, Assessments, Thoughts as a separate product concept, and global undo/redo are not current product surfaces and should not be inferred from historical documentation or legacy code names.
+The mounted UI exposes Reader, Outline, Methods, explicit relationship authoring, a read-only relational Map, and whole-analysis document export. Evidence, Assessments, Thoughts as a separate product concept, global undo/redo, and free-spatial Map structural editing are not current product surfaces and should not be inferred from historical documentation or legacy code names.
 
-## Current 1.0 acceptance contract
+## Current 1.1 acceptance contract
 
 The current product should preserve all of the following:
 
@@ -28,6 +28,8 @@ The current product should preserve all of the following:
 - source identity checks that prevent silently reconnecting a saved workspace to the wrong PDF;
 - Outline hierarchy, numbering, sibling order, inline notes, and focused keyboard operations across save/reload;
 - optional Methods with ordered/hierarchical runs, editable method names and subtasks, catalog filtering, and blank custom insertion;
+- multiple explicit typed relationships within Outline, within Methods, and across Outline/Methods, preserved through workspace persistence;
+- a read-only Map that portrays current entities/relationships without becoming an independent structural editor;
 - EmbedPDF-native page navigation, zoom, search, fullscreen behavior, and annotation tools;
 - predictable destructive actions and recovery behavior;
 - documentation and maintenance scripts that describe the runtime actually mounted;
@@ -37,7 +39,7 @@ The current code still contains historical internal names such as `graph` and so
 
 ## Release validation baseline
 
-For package version `1.0.3`, package/lockfile consistency, the focused native-EmbedPDF annotation persistence test, project-export test, production Vite build, npm license audit, and desktop release-staging verification pass. `npm run test:css` is still red because `scripts/test-css-architecture.mjs` expects the legacy `styles.css` frozen-header contract, while the live stylesheet no longer satisfies that historical freeze assertion.
+For package version `1.1.0`, the relationship model, relational Map, XML repository persistence path, package/lockfile consistency, and production Vite build are revalidated for this source update. `npm run test:css` remains a known legacy contract failure because `scripts/test-css-architecture.mjs` expects the old `styles.css` frozen-header contract, while the live stylesheet no longer satisfies that historical freeze assertion.
 
 The XML repository tests intentionally exercise malformed canonical XML and log a rollback-path parse diagnostic before reporting the migration test as passed. That diagnostic is expected test coverage, not a release failure.
 
@@ -56,7 +58,7 @@ powershell -ExecutionPolicy Bypass -File .\scripts\package-portable-release.ps1
 ```
 
 The helper packages through a temporary output directory to avoid the Windows directory-rename failure previously observed inside the project release folder.
-## Maintenance priorities after 1.0
+## Maintenance priorities after 1.1
 
 Near-term work should be evaluated against user-visible reliability rather than feature count. Appropriate follow-up areas include accessibility, large-workspace performance, backup/restore confidence, source-reconnection edge cases, packaging reproducibility, and reduction of stale historical terminology in current-facing files.
 
@@ -73,7 +75,7 @@ powershell -ExecutionPolicy Bypass -File .\test.ps1 -Full
 
 Documentation-only work should at minimum validate referenced paths and commands, run `node scripts/test-research-handoff.mjs`, and run `git diff --check` on edited files.
 
-A green gate is point-in-time evidence. Revalidate after implementation changes instead of treating version `1.0.3` or a previous successful run as proof of the current tree.
+A green gate is point-in-time evidence. Revalidate after implementation changes instead of treating version `1.1.0` or a previous successful run as proof of the current tree.
 
 ## Release provenance
 

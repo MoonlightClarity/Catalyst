@@ -138,6 +138,8 @@ export type Relationship = {
   updatedAt: string;
 };
 
+export type RelationshipScope = "outline" | "method" | "cross";
+
 
 
 export type GraphPoint = {
@@ -289,5 +291,7 @@ export type WorkspaceState = {
   capabilities: CapabilityState;
   noteSemantics: Record<string, NoteSemantics>;
   relationships: Record<string, Relationship>;
+  methodRelationships: Record<string, Relationship>;
+  crossRelationships: Record<string, Relationship>;
   annotationRoles: Record<string, AnnotationRole[]>;
 };

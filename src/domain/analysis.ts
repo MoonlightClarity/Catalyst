@@ -110,7 +110,7 @@ export function relationshipPairKey(fromId: string, toId: string): string {
 
 export function sanitizeRelationship(
   value: unknown,
-  notes: Record<string, Note>,
+  entities: Record<string, unknown>,
 ): Relationship | null {
   if (!value || typeof value !== "object") return null;
   const candidate = value as Partial<Relationship>;
@@ -119,8 +119,8 @@ export function sanitizeRelationship(
     typeof candidate.fromId !== "string" ||
     typeof candidate.toId !== "string" ||
     candidate.fromId === candidate.toId ||
-    !notes[candidate.fromId] ||
-    !notes[candidate.toId]
+    !entities[candidate.fromId] ||
+    !entities[candidate.toId]
   ) return null;
 
   const type = isRelationshipType(candidate.type) ? candidate.type : "related-to";
@@ -184,20 +184,45 @@ export function relationshipsFromLegacyLinks(
   );
 }
 
+export function sanitizeRelationshipMap(
+  value: unknown,
+  entities: Record<string, unknown>,
+): Record<string, Relationship> {
+  const candidate = value && typeof value === "object"
+    ? value as Record<string, unknown>
+    : {};
+  return Object.fromEntries(
+    Object.values(candidate)
+      .map((relationship) => sanitizeRelationship(relationship, entities))
+      .filter((relationship): relationship is Relationship => Boolean(relationship))
+      .map((relationship) => [relationship.id, relationship]),
+  );
+}
+
+export function sanitizeCrossRelationshipMap(
+  value: unknown,
+  notes: Record<string, unknown>,
+  methods: Record<string, unknown>,
+): Record<string, Relationship> {
+  const entities = { ...notes, ...methods };
+  const sanitized = sanitizeRelationshipMap(value, entities);
+  return Object.fromEntries(
+    Object.entries(sanitized).filter(([, relationship]) => {
+      const fromIsNote = Boolean(notes[relationship.fromId]);
+      const toIsNote = Boolean(notes[relationship.toId]);
+      const fromIsMethod = Boolean(methods[relationship.fromId]);
+      const toIsMethod = Boolean(methods[relationship.toId]);
+      return (fromIsNote && toIsMethod) || (fromIsMethod && toIsNote);
+    }),
+  );
+}
+
 export function hydrateRelationships(
   value: unknown,
   notes: Record<string, Note>,
   legacyLinks: NoteLink[],
 ): Record<string, Relationship> {
-  const candidate = value && typeof value === "object"
-    ? value as Record<string, unknown>
-    : {};
-  const sanitized = Object.fromEntries(
-    Object.values(candidate)
-      .map((relationship) => sanitizeRelationship(relationship, notes))
-      .filter((relationship): relationship is Relationship => Boolean(relationship))
-      .map((relationship) => [relationship.id, relationship]),
-  );
+  const sanitized = sanitizeRelationshipMap(value, notes);
 
   if (legacyLinks.length === 0) return sanitized;
 

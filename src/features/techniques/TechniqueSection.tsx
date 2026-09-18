@@ -1,9 +1,14 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import type {
+  Relationship,
+  RelationshipScope,
+  RelationshipType,
   TechniqueDefinition,
   TechniqueRun,
   TechniqueStepDefinition,
 } from "../../domain/types";
+import { RELATIONSHIP_TYPE_LABELS, RELATIONSHIP_TYPES } from "../../domain/analysis";
+import { relationshipTargetLabel, type WorkspaceRelationshipTarget } from "../../domain/relationshipTargets";
 import { InstrumentGlyph } from "../../ui/CatalystSymbols";
 
 type BuilderStep = Pick<
@@ -322,6 +327,13 @@ export function TechniqueSection({
   onIndentRun,
   onOutdentRun,
   onDeleteRun,
+  relationships,
+  crossRelationships,
+  relationshipTargets,
+  onCreateRelationship,
+  onUpdateRelationship,
+  onRetargetRelationship,
+  onDeleteRelationship,
 }: {
   definitions: TechniqueDefinition[];
   runs: TechniqueRun[];
@@ -340,10 +352,19 @@ export function TechniqueSection({
   onIndentRun: (runId: string) => void;
   onOutdentRun: (runId: string) => void;
   onDeleteRun: (runId: string) => void;
+  relationships: Record<string, Relationship>;
+  crossRelationships: Record<string, Relationship>;
+  relationshipTargets: WorkspaceRelationshipTarget[];
+  onCreateRelationship: (scope: RelationshipScope, fromId: string, toId: string, type: RelationshipType) => void;
+  onUpdateRelationship: (scope: RelationshipScope, id: string, type: RelationshipType) => void;
+  onRetargetRelationship: (scope: RelationshipScope, id: string, fromId: string, toId: string) => void;
+  onDeleteRelationship: (scope: RelationshipScope, id: string) => void;
 }) {
   const [pickerOpen, setPickerOpen] = useState(false);
   const [catalogOpen, setCatalogOpen] = useState(false);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
+  const [relationRunId, setRelationRunId] = useState<string | null>(null);
+  const [editingRelationshipId, setEditingRelationshipId] = useState<string | null>(null);
   const [collapsedRunIds, setCollapsedRunIds] = useState<Set<string>>(() => new Set());
   const [addContext, setAddContext] = useState<{
     parentRunId: string | null;
@@ -405,6 +426,14 @@ export function TechniqueSection({
   const selectedRunAddress = selectedRun
     ? treeRows.find((row) => row.run.id === selectedRun.id)?.outlineNumber ?? ""
     : "";
+
+  useEffect(() => {
+    setEditingRelationshipId(null);
+  }, [relationRunId]);
+
+  useEffect(() => {
+    if (relationRunId && !runs.some((run) => run.id === relationRunId)) setRelationRunId(null);
+  }, [relationRunId, runs]);
 
   const focusRun = (runId: string, deferred = false) => {
     const apply = () => listRef.current
@@ -624,6 +653,7 @@ export function TechniqueSection({
                     className="technique-list-title"
                     type="button"
                     data-technique-run-id={run.id}
+                    onClick={() => setRelationRunId(run.id)}
                     onKeyDown={(event) => {
                       if (event.key === "Home") {
                         event.preventDefault(); if (treeRows[0]) focusRun(treeRows[0].run.id);
@@ -684,6 +714,176 @@ export function TechniqueSection({
                   >
                     <InstrumentGlyph name="rename" />
                   </button>
+
+                  {relationRunId === run.id && (() => {
+                    const scopedRelationships: Array<{ scope: RelationshipScope; relationship: Relationship }> = [
+                      ...Object.values(relationships)
+                        .filter((relationship) => relationship.fromId === run.id || relationship.toId === run.id)
+                        .map((relationship) => ({ scope: "method" as const, relationship })),
+                      ...Object.values(crossRelationships)
+                        .filter((relationship) => relationship.fromId === run.id || relationship.toId === run.id)
+                        .map((relationship) => ({ scope: "cross" as const, relationship })),
+                    ];
+                    const preferredTargetIds = [
+                      ...new Set([
+                        ...scopedRelationships.map(({ relationship }) =>
+                          relationship.fromId === run.id ? relationship.toId : relationship.fromId,
+                        ),
+                        ...relationshipTargets.map((target) => target.id),
+                      ]),
+                    ].filter((targetId) => targetId !== run.id);
+                    let nextRelationship: {
+                      scope: RelationshipScope;
+                      type: RelationshipType;
+                      targetId: string;
+                    } | null = null;
+                    for (const targetId of preferredTargetIds) {
+                      const target = relationshipTargets.find((candidate) => candidate.id === targetId);
+                      if (!target) continue;
+                      const scope: RelationshipScope = target.kind === "outline" ? "cross" : "method";
+                      const type = RELATIONSHIP_TYPES.find((candidateType) =>
+                        !scopedRelationships.some(({ scope: itemScope, relationship }) => {
+                          if (itemScope !== scope || relationship.type !== candidateType) return false;
+                          const counterpartId = relationship.fromId === run.id
+                            ? relationship.toId
+                            : relationship.fromId;
+                          return counterpartId === targetId;
+                        }),
+                      );
+                      if (type) {
+                        nextRelationship = { scope, type, targetId };
+                        break;
+                      }
+                    }
+                    return (
+                      <div
+                        className="picture-outline-relations technique-relations"
+                        data-catalyst-address={`M ${outlineNumber} relations`}
+                        onKeyDown={(event) => event.stopPropagation()}
+                        aria-label={`Relationships for ${definition.name || "Untitled method"}`}
+                      >
+                        {scopedRelationships.length > 0 && (
+                          <div className="picture-outline-relation-list">
+                            {scopedRelationships.map(({ scope, relationship }) => {
+                              const outgoing = relationship.fromId === run.id;
+                              const otherId = outgoing ? relationship.toId : relationship.fromId;
+                              const target = relationshipTargets.find((candidate) => candidate.id === otherId);
+                              if (!target) return null;
+                              const targetTitle = target.title;
+                              const targetLabel = relationshipTargetLabel(target);
+                              const editableTargets = relationshipTargets.filter((candidate) => {
+                                if (candidate.id === run.id) return false;
+                                const candidateScope: RelationshipScope = candidate.kind === "outline" ? "cross" : "method";
+                                return !scopedRelationships.some(({ scope: otherScope, relationship: otherRelationship }) => {
+                                  if (
+                                    otherRelationship.id === relationship.id ||
+                                    otherScope !== candidateScope ||
+                                    otherRelationship.type !== relationship.type
+                                  ) return false;
+                                  const counterpartId = otherRelationship.fromId === run.id
+                                    ? otherRelationship.toId
+                                    : otherRelationship.fromId;
+                                  return counterpartId === candidate.id;
+                                });
+                              });
+                              const editingTarget = editingRelationshipId === relationship.id;
+                              return (
+                                <div key={`${scope}:${relationship.id}`} className="picture-outline-relation-row">
+                                  <select
+                                    value={relationship.type}
+                                    onChange={(event) => onUpdateRelationship(
+                                      scope,
+                                      relationship.id,
+                                      event.currentTarget.value as RelationshipType,
+                                    )}
+                                    aria-label={`Relationship type with ${targetTitle}`}
+                                  >
+                                    {RELATIONSHIP_TYPES.map((type) => (
+                                      <option key={type} value={type}>{RELATIONSHIP_TYPE_LABELS[type]}</option>
+                                    ))}
+                                  </select>
+                                  {editingTarget ? (
+                                    <select
+                                      className="picture-outline-relation-target-edit"
+                                      value={otherId}
+                                      onChange={(event) => {
+                                        const nextOtherId = event.currentTarget.value;
+                                        if (!nextOtherId || nextOtherId === otherId) {
+                                          setEditingRelationshipId(null);
+                                          return;
+                                        }
+                                        onRetargetRelationship(
+                                          scope,
+                                          relationship.id,
+                                          outgoing ? run.id : nextOtherId,
+                                          outgoing ? nextOtherId : run.id,
+                                        );
+                                        setEditingRelationshipId(null);
+                                      }}
+                                      onBlur={() => setEditingRelationshipId(null)}
+                                      autoFocus
+                                      aria-label={`Change target for ${RELATIONSHIP_TYPE_LABELS[relationship.type]}`}
+                                    >
+                                      {editableTargets.map((candidate) => (
+                                        <option key={`${candidate.kind}:${candidate.id}`} value={candidate.id}>
+                                          {relationshipTargetLabel(candidate)}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  ) : (
+                                    <input
+                                      type="text"
+                                      className="picture-outline-relation-target"
+                                      readOnly
+                                      value={targetLabel}
+                                      onClick={() => setEditingRelationshipId(relationship.id)}
+                                      onKeyDown={(event) => {
+                                        if (event.key === "Enter" || event.key === " ") {
+                                          event.preventDefault();
+                                          setEditingRelationshipId(relationship.id);
+                                        }
+                                      }}
+                                      title={`Change target: ${targetLabel}`}
+                                      aria-label={`Change relationship target from ${targetLabel}`}
+                                    />
+                                  )}
+                                  <button
+                                    type="button"
+                                    className="picture-outline-relation-delete"
+                                    onClick={() => onDeleteRelationship(scope, relationship.id)}
+                                    title="Remove relationship"
+                                    aria-label={`Remove relationship with ${targetTitle}`}
+                                  >
+                                    <InstrumentGlyph name="delete" />
+                                  </button>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        <div className="picture-outline-relation-actions">
+                          <button
+                            type="button"
+                            className="picture-outline-relation-toggle"
+                            onClick={() => {
+                              if (!nextRelationship) return;
+                              onCreateRelationship(
+                                nextRelationship.scope,
+                                run.id,
+                                nextRelationship.targetId,
+                                nextRelationship.type,
+                              );
+                            }}
+                            disabled={!nextRelationship}
+                            title="Add relationship"
+                            aria-label="Add relationship"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })()}
 
                 </li>
               );

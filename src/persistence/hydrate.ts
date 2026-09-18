@@ -1,5 +1,5 @@
 import { hydrateAnnotationRoles } from "../domain/annotationRoles";
-import { hydrateRelationships, sanitizeNoteSemanticsMap } from "../domain/analysis";
+import { hydrateRelationships, sanitizeCrossRelationshipMap, sanitizeNoteSemanticsMap, sanitizeRelationshipMap } from "../domain/analysis";
 import { sanitizeCapabilityState } from "../domain/capabilities";
 import { sanitizeGraphView } from "../domain/graphView";
 import { sanitizeAnalysisRoot, sanitizeOutline, sanitizeOutlineSession } from "../domain/outline";
@@ -87,6 +87,8 @@ export function hydrateWorkspaceState(parsed: WorkspaceState): WorkspaceState {
     activeNoteId: resolvedActiveNoteId,
     noteSemantics: sanitizeNoteSemanticsMap(parsed.noteSemantics, base.notes),
     relationships: hydrateRelationships(parsed.relationships, base.notes, base.noteLinks),
+    methodRelationships: sanitizeRelationshipMap(parsed.methodRelationships, base.techniqueRuns),
+    crossRelationships: sanitizeCrossRelationshipMap(parsed.crossRelationships, base.notes, base.techniqueRuns),
     annotationRoles: hydrateAnnotationRoles(parsed.annotationRoles, base.annotations),
   };
 }

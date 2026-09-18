@@ -16,7 +16,7 @@ This file summarizes only decisions that still govern the mounted product. Detai
 
 - Outline is the authoritative structural authoring surface.
 - Parent/child hierarchy and sibling order carry structural placement, not implicit analytical meaning.
-- Generated Map portrays Outline-authored structure deterministically and cannot become a second structural editor.
+- The Map is a read-only relational portrayal of current Outline/Methods entities and explicit relationships; hierarchy/order provide stable addressing, not implicit analytical edges, and the Map cannot become a second structural editor.
 - Semantic relationships do not manufacture Outline hierarchy.
 - Map viewport/geometry/focus and Outline fold/focus state are presentation/session concerns rather than analytical truth.
 

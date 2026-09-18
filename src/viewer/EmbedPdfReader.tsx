@@ -46,6 +46,56 @@ export const EmbedPdfReader = forwardRef<any, EmbedPdfReaderProps>(
 
     const handleReady = (registry: PluginRegistry) => {
       (window as any).__catalystEmbedPdfRegistry = registry;
+
+      const registryApi = registry as any;
+      const commands = registryApi.getPlugin?.("commands")?.provides?.() as any;
+      const ui = registryApi.getPlugin?.("ui")?.provides?.() as any;
+      if (commands && ui) {
+        const marksCommandId = "catalyst:marks";
+        commands.unregisterCommand?.(marksCommandId);
+        commands.registerCommand({
+          id: marksCommandId,
+          label: "Mark",
+          categories: ["mode", "mode-shapes", "annotation", "annotation-shape"],
+          action: ({ documentId }: { documentId: string }) => {
+            commands.execute("mode:shapes", documentId, "api");
+          },
+          active: ({ documentId }: { documentId: string }) =>
+            Boolean(commands.resolve("mode:shapes", documentId)?.active),
+          disabled: ({ documentId }: { documentId: string }) =>
+            Boolean(commands.resolve("mode:shapes", documentId)?.disabled),
+        });
+
+        const schema = ui.getSchema?.();
+        const mainToolbar = schema?.toolbars?.["main-toolbar"];
+        if (mainToolbar) {
+          const items = structuredClone(mainToolbar.items);
+          const modeTabs = items.find((item: any) => item.id === "mode-tabs");
+          if (modeTabs?.tabs) {
+            const shapesTab = modeTabs.tabs.find((tab: any) => tab.id === "shapes-mode");
+            if (shapesTab) {
+              shapesTab.commandId = marksCommandId;
+              shapesTab.variant = "text";
+            }
+
+            const overflowTab = modeTabs.tabs.find((tab: any) => tab.id === "overflow-tabs-button");
+            if (overflowTab) {
+              overflowTab.commandId = marksCommandId;
+              overflowTab.variant = "text";
+            }
+          }
+
+          ui.mergeSchema({
+            toolbars: {
+              "main-toolbar": {
+                ...mainToolbar,
+                items,
+              },
+            },
+          });
+        }
+      }
+
       onReady?.(registry as unknown as RegistryLike);
     };
 

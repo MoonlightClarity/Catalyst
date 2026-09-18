@@ -15,9 +15,9 @@
 
 ## Current status
 
-Catalyst is in 1.0 maintenance/convergence. The current source/release target is `1.0.3`; older alpha research remains historical context.
+Catalyst is in 1.1 convergence/stabilization. The current source target is `1.1.0`; older alpha research remains historical context.
 
-The active product path is **Reader/source work -> Outline-authored structure + inline notes -> optional ordered Methods -> whole-analysis Export**. Catalyst XML is the active workspace persistence boundary. Map, formal Assessment, the standalone Evidence workspace, global application undo/redo, thought-linking as a primary workflow, the legacy graph-first editor, and the legacy Techniques screen are retired product surfaces under the current architecture contract.
+The active product path is **Reader/source work -> Outline-authored structure + inline notes + optional ordered Methods -> explicit typed relationships -> read-only Map and/or whole-analysis Export**. Catalyst XML is the active workspace persistence boundary. Formal Assessment, the standalone Evidence workspace, global application undo/redo, thought-linking as a primary workflow, free-spatial Map structural editing, and the legacy Techniques screen remain retired product surfaces under the current architecture contract.
 
 ## Supersession rule
 

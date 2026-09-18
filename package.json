@@ -1,7 +1,7 @@
 {
   "name": "catalyst",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.1.0",
   "license": "Apache-2.0",
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "licenses": "node scripts/check-licenses.mjs",
-    "test": "node scripts/test-compiler.mjs && node scripts/test-domain.mjs && node scripts/test-technique-catalog.mjs && node scripts/test-analysis-model.mjs && node scripts/test-graph.mjs && node scripts/test-outline.mjs && node scripts/test-project-export.mjs && node scripts/test-xml-persistence.mjs && node scripts/test-xml-repository.mjs && node scripts/test-xml-runtime-cutover.mjs && node scripts/test-workspace-files.mjs && node scripts/test-sync-queue.mjs && node scripts/test-recovery-journal.mjs && node scripts/test-reset-saved-state.mjs && node scripts/test-viewer-markups.mjs && node scripts/test-viewer-selection-restore.mjs && node scripts/test-navigation-history.mjs && node scripts/test-visual-language.mjs && node scripts/test-iconography.mjs && node scripts/test-css-architecture.mjs && node scripts/test-dev-watch.mjs && node scripts/test-research-handoff.mjs",
+    "test": "node scripts/test-compiler.mjs && node scripts/test-domain.mjs && node scripts/test-technique-catalog.mjs && node scripts/test-analysis-model.mjs && node scripts/test-relational-view.mjs && node scripts/test-graph.mjs && node scripts/test-outline.mjs && node scripts/test-project-export.mjs && node scripts/test-xml-persistence.mjs && node scripts/test-xml-repository.mjs && node scripts/test-xml-runtime-cutover.mjs && node scripts/test-workspace-files.mjs && node scripts/test-sync-queue.mjs && node scripts/test-recovery-journal.mjs && node scripts/test-reset-saved-state.mjs && node scripts/test-viewer-markups.mjs && node scripts/test-viewer-selection-restore.mjs && node scripts/test-navigation-history.mjs && node scripts/test-visual-language.mjs && node scripts/test-iconography.mjs && node scripts/test-css-architecture.mjs && node scripts/test-dev-watch.mjs && node scripts/test-research-handoff.mjs",
     "check": "npm run lockfile:check && npm run test && npm run build && npm run licenses",
     "icons:audit": "node scripts/generate-iconography-map.mjs",
     "test:css": "node scripts/test-css-architecture.mjs",

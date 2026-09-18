@@ -2,11 +2,11 @@
 
 Status: **source-of-truth snapshot — 2026-09-17**
 
-This document describes the mounted product after the September 14–17 simplification and convergence work. Newer accepted ADRs may supersede it; older alpha acceptance, Working Picture, Map, Evidence, Assessment, graph-first, and Tauri/SQLite material is historical unless explicitly reaffirmed here.
+This document describes the mounted product after the September 14–17 simplification and convergence work and the 1.1 restoration of a focused relational Map. Newer accepted ADRs may supersede it; older alpha acceptance, Working Picture/free-spatial Map, Evidence, Assessment, graph-first, and Tauri/SQLite material is historical unless explicitly reaffirmed here.
 
 ## Product boundary
 
-Catalyst is a local-first analytical workspace. Its active core is source reading/annotation, Outline-controlled structure with inline notes, ordered Methods / Techniques, portable XML sessions, and whole-analysis document export.
+Catalyst is a local-first analytical workspace. Its active core is source reading/annotation, Outline-controlled structure with inline notes, ordered Methods / Techniques, explicit typed relationships, a read-only relational Map, portable XML sessions, and whole-analysis document export.
 
 Catalyst does **not** own formal Assessment, report, or briefing authoring. Those are downstream products. ADR 0026 removes Assessment specifically; ADR 0027 freezes the broader late-alpha product surface for beta convergence.
 
@@ -40,7 +40,7 @@ Save/Load remain workspace persistence operations; Export is a downstream docume
 
 The **Outline authors structure**. Parent/child placement and sibling order are authored there. The analysis shell defaults to Outline, which supports structural create/rename/reorder/indent/outdent/fold/trash behavior, inline notes, and keyboard navigation.
 
-Map is no longer an active product surface. Historical Map/Working Picture code and ontology documents remain only as implementation/history context where still referenced; they must not be treated as part of the current user workflow.
+The Map is an active read-only relational portrayal. It visualizes Outline and Methods entities plus explicit within-surface and cross-surface relationships. Outline hierarchy and Methods ordering supply stable addresses/order only; the Map does not author hierarchy, create implicit analytical meaning from hierarchy, or become a second structural editor.
 
 ## Methods / Techniques ownership
 
@@ -52,21 +52,21 @@ The picker supports catalog definitions and genuinely blank/custom insertion. Th
 
 ## Removed or superseded product concepts
 
-The following are not current required product surfaces: formal Assessment; the standalone Evidence workspace/tab; Map; Catalyst-wide undo/redo; thought/note-linking as a primary authoring workflow; graph-first/free-spatial structural editing; the legacy Techniques screen; and Tauri/SQLite as active runtime/persistence authority.
+The following are not current required product surfaces: formal Assessment; the standalone Evidence workspace/tab; Catalyst-wide undo/redo; thought/note-linking as a primary authoring workflow; graph-first/free-spatial Map structural editing; the legacy Techniques screen; and Tauri/SQLite as active runtime/persistence authority.
 
 Evidence/source concepts and the ordinary analytical word “assessment” remain valid where analytically appropriate. Product-surface removal is not a vocabulary ban.
 
 ## Known convergence debt
 
-Internal names and compatibility state still lag the simplified product. `src/App.tsx` still uses the `graph` context key, and historical Working Picture / Map state and naming remain in parts of the implementation. Treat those as cleanup debt, not as active product surfaces, and audit current invariants before removing them.
+Internal names and compatibility state still lag the simplified product. `src/App.tsx` still uses the `graph` context key, and historical Working Picture / free-spatial Map state and naming remain in parts of the implementation. The active 1.1 Map is the relational view backed by current relationship state; older Map machinery is cleanup debt where current behavior no longer depends on it.
 
 The previously documented `isLegacyAssessmentRun` shim is no longer present in `src/domain/workspace.ts`. No formal Assessment product compatibility logic was found in the current source; remaining Assessment-named techniques/prompts are legitimate catalog vocabulary.
 
-The command palette still exposes **Open Portrayal Lab** as a development/prototype action. Review that exposure before a future cleanup pass. Package version is `1.0.3`.
+The command palette still exposes **Open Portrayal Lab** as a development/prototype action. Review that exposure before a future cleanup pass. Package version is `1.1.0`.
 
 ## Release-readiness status
 
-For package version `1.0.3`, package/lockfile consistency, the focused native-EmbedPDF annotation persistence test, project-export test, production Vite build, npm license audit, and desktop release-staging verification pass. `npm run test:css` is still red because its legacy frozen-header contract for `src/styles.css` no longer matches the live stylesheet; this is separate from the retired Catalyst marks layer. The build still emits non-failing EmbedPDF `crypto` externalization and large-chunk warnings. See `release-readiness.md` for the exact current revalidation record.
+For package version `1.1.0`, focused relational-view/model/XML persistence tests and the production Vite build are revalidated for the restored Map/relationship work. `npm run test:css` remains a known legacy contract failure because its frozen-header expectation for `src/styles.css` no longer matches the live stylesheet. The build still emits non-failing EmbedPDF `crypto` externalization and large-chunk warnings. See `release-readiness.md` for the exact current revalidation record.
 
 Current beta criteria and hardening priorities are maintained in `release-readiness.md` and `roadmap.md`. For meaningful implementation changes, run appropriate focused coverage plus `npm run check` / `test.ps1`; documentation-only changes should at minimum validate paths, commands, authority links, and the repository documentation/research handoff contract.
 

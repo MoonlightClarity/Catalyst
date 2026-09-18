@@ -1,10 +1,10 @@
 # Catalyst dependency audit
 
 Audit date: 2026-09-17
-Project version: `1.0.3`
+Project version: `1.1.0`
 Scope: active npm manifest/lockfile, installed dependency tree, source/test/config usage, registry freshness, security advisories, package signatures, licenses, and removed-dependency regression checks.
 
-This document records the dependency state of the current 1.0.3 source tree and is maintained alongside manifest, lockfile, licensing, and release-readiness changes.
+This document records the dependency state of the current 1.1.0 source tree and is maintained alongside manifest, lockfile, licensing, and release-readiness changes.
 
 ## Executive result
 
@@ -48,7 +48,7 @@ The installed React typings are 19.3.0 because the manifest uses caret ranges wh
 
 ## Security and supply-chain checks
 
-- The 1.0.3 release validation reruns package/lockfile consistency, production build, and the repository license gate against the installed tree.
+- The 1.1.0 release validation reruns package/lockfile consistency, production build, and the repository license gate against the installed tree.
 - `npm run licenses` scanned 152 installed npm package versions and found no GPL, LGPL, or AGPL requirements.
 - Vulnerability/signature checks remain separate npm registry checks and should be rerun when dependency versions change rather than copied forward from an older dependency graph.
 
@@ -93,7 +93,7 @@ Version-range policy is mixed: React/ReactDOM, TypeScript, Vite, and the Vite Re
 
 ## Audit conclusion
 
-Dependency health is **good** for the current `1.0.3` tree. There is no license, missing-package, removed-framework-regression, or obvious unused-direct-dependency problem requiring immediate remediation. The dependency surface is substantially simpler than earlier Catalyst architectures.
+Dependency health is **good** for the current `1.1.0` tree. There is no license, missing-package, removed-framework-regression, or obvious unused-direct-dependency problem requiring immediate remediation. The dependency surface is substantially simpler than earlier Catalyst architectures.
 
 For continued release hardening, the one dependency-policy item worth formalizing is the supported Node/npm toolchain. Available React and Vite minor upgrades should be evaluated as controlled compatibility work rather than folded into unrelated cleanup.
 

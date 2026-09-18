@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent as ReactKeyboardEvent } from "react";
-import type { OutlineItem, WorkspaceState } from "../../domain/types";
+import type { OutlineItem, Relationship, RelationshipScope, RelationshipType, WorkspaceState } from "../../domain/types";
+import { RELATIONSHIP_TYPE_LABELS, RELATIONSHIP_TYPES } from "../../domain/analysis";
 import { outlineItemsForParent, outlineReferenceItemsForItem } from "../../domain/outline";
+import { allRelationshipTargets, relationshipTargetLabel } from "../../domain/relationshipTargets";
 import { nearestVisiblePlacementForNote, outlineFallbackAfterRemoval, outlineRows, outlineShouldHandleRowShortcut } from "./outlineModel";
 import { noteDisplayTitle } from "../../shared/display";
 import { InstrumentGlyph } from "../../ui/CatalystSymbols";
@@ -32,8 +34,6 @@ export function AnalysisOutlineView({
   onCommitEdit,
   onCancelEdit,
   onSelectNote,
-  onUpdateNoteBody,
-  onCommitNote,
   onDeleteNote,
   onRenameAnalysis,
   onCreateOutlineItem,
@@ -41,6 +41,11 @@ export function AnalysisOutlineView({
   onReorderOutlineItem,
   onOutdentOutlineItem,
   onIndentOutlineItem,
+  onCreateRelationship,
+  onUpdateRelationship,
+  onRetargetRelationship,
+  onDeleteRelationship,
+  onOpenRelationalView,
 }: {
   state: WorkspaceState;
   editingNoteId: string | null;
@@ -50,8 +55,6 @@ export function AnalysisOutlineView({
   onCommitEdit: (noteId: string) => void;
   onCancelEdit: (noteId: string) => void;
   onSelectNote: (noteId: string) => void;
-  onUpdateNoteBody: (noteId: string, body: string) => void;
-  onCommitNote: () => void;
   onDeleteNote: (noteId: string) => void;
   onRenameAnalysis: (name: string) => void;
   onCreateOutlineItem: (parentPlacementId: string | null) => string;
@@ -59,6 +62,11 @@ export function AnalysisOutlineView({
   onReorderOutlineItem: (placementId: string, targetPlacementId: string, placement: "before" | "after") => void;
   onOutdentOutlineItem: (placementId: string) => void;
   onIndentOutlineItem: (placementId: string) => void;
+  onCreateRelationship: (scope: RelationshipScope, fromId: string, toId: string, type: RelationshipType) => void;
+  onUpdateRelationship: (scope: RelationshipScope, id: string, type: RelationshipType) => void;
+  onRetargetRelationship: (scope: RelationshipScope, id: string, fromId: string, toId: string) => void;
+  onDeleteRelationship: (scope: RelationshipScope, id: string) => void;
+  onOpenRelationalView: () => void;
 }) {
   const rows = useMemo(() => outlineRows(state), [state]);
   const outlineNumberByPlacementId = useMemo(() => {
@@ -76,13 +84,19 @@ export function AnalysisOutlineView({
     return labels;
   }, [state.outline]);
   const rowIndex = useMemo(() => new Map(rows.map((row, index) => [row.placementId, index])), [rows]);
+  const relationTargets = useMemo(() => allRelationshipTargets(state), [state]);
   const collapsedPlacementIds = useMemo(() => new Set(state.outlineSession.collapsedItemIds), [state.outlineSession.collapsedItemIds]);
   const [masterCollapsed, setMasterCollapsed] = useState(false);
   const [editingMaster, setEditingMaster] = useState(false);
   const [masterEditTitle, setMasterEditTitle] = useState("");
   const masterHandledBlurRef = useRef(false);
   const noteHandledBlurRef = useRef<string | null>(null);
+  const [editingRelationshipId, setEditingRelationshipId] = useState<string | null>(null);
   const masterTitle = state.analysisRoot.title.trim() || "Title";
+
+  useEffect(() => {
+    setEditingRelationshipId(null);
+  }, [state.activeNoteId]);
 
   const beginMasterEdit = () => {
     setMasterEditTitle(masterTitle);
@@ -351,7 +365,7 @@ export function AnalysisOutlineView({
 
   useEffect(() => {
     const onAddressNavigation = (event: Event) => {
-      const detail = (event as CustomEvent<{ address?: string; target?: "row" | "note" }>).detail;
+      const detail = (event as CustomEvent<{ address?: string; target?: "row" | "relations" }>).detail;
       const address = String(detail?.address ?? "").trim();
       const target = detail?.target ?? "row";
       if (!/^\d+(?:\.\d+)*$/.test(address)) return;
@@ -388,17 +402,17 @@ export function AnalysisOutlineView({
       for (const ancestorId of ancestors) onSetCollapsed(ancestorId, false);
       onSelectNote(noteId);
       window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-        if (target === "note") {
+        if (target === "relations") {
           const escaped = typeof CSS !== "undefined" && typeof CSS.escape === "function"
             ? CSS.escape(targetPlacementId!)
             : targetPlacementId!.replace(/["\\]/g, "\\$&");
           const row = viewRef.current?.querySelector<HTMLElement>(`[data-outline-placement-id="${escaped}"]`);
-          row?.querySelector<HTMLTextAreaElement>("[data-catalyst-note-body]")?.focus({ preventScroll: true });
+          row?.querySelector<HTMLSelectElement>(".picture-outline-relations select")?.focus({ preventScroll: true });
         } else {
           focusRowElement(targetPlacementId!, true);
         }
       }));
-      window.dispatchEvent(new CustomEvent("catalyst:navigation-result", { detail: { success: true, address: `O ${address}${target === "note" ? " note" : ""}` } }));
+      window.dispatchEvent(new CustomEvent("catalyst:navigation-result", { detail: { success: true, address: `O ${address}${target === "relations" ? " relations" : ""}` } }));
     };
     window.addEventListener("catalyst:navigate-outline-address", onAddressNavigation);
     return () => window.removeEventListener("catalyst:navigate-outline-address", onAddressNavigation);
@@ -454,6 +468,15 @@ export function AnalysisOutlineView({
               <strong>{masterTitle}</strong>
             </button>
           )}
+          <button
+            type="button"
+            className="picture-outline-relational-button"
+            onClick={onOpenRelationalView}
+            title="Open relational view"
+            aria-label="Open relational view"
+          >
+            <InstrumentGlyph name="relation" />
+          </button>
         </div>
 
         {!masterCollapsed && rows.map((row) => {
@@ -542,18 +565,175 @@ export function AnalysisOutlineView({
                     <span className="picture-outline-label">{noteDisplayTitle(note)}</span>
                   </button>
                 )}
-                {active && !editing && (
-                  <textarea
-                    className="picture-outline-note-editor"
-                    data-catalyst-note-body="true"
-                    data-catalyst-address={`O ${outlineNumber} note`}
-                    value={note.body}
-                    onChange={(event) => onUpdateNoteBody(row.noteId, event.target.value)}
-                    onBlur={onCommitNote}
-                    onKeyDown={(event) => event.stopPropagation()}
-                    aria-label={`Notes for ${noteDisplayTitle(note)}`}
-                  />
-                )}
+                {active && !editing && (() => {
+                  const scopedRelationships: Array<{ scope: RelationshipScope; relationship: Relationship }> = [
+                    ...Object.values(state.relationships)
+                      .filter((relationship) => relationship.fromId === row.noteId || relationship.toId === row.noteId)
+                      .map((relationship) => ({ scope: "outline" as const, relationship })),
+                    ...Object.values(state.crossRelationships)
+                      .filter((relationship) => relationship.fromId === row.noteId || relationship.toId === row.noteId)
+                      .map((relationship) => ({ scope: "cross" as const, relationship })),
+                  ];
+                  const preferredTargetIds = [
+                    ...new Set([
+                      ...scopedRelationships.map(({ relationship }) =>
+                        relationship.fromId === row.noteId ? relationship.toId : relationship.fromId,
+                      ),
+                      ...relationTargets.map((target) => target.id),
+                    ]),
+                  ].filter((targetId) => targetId !== row.noteId);
+                  let nextRelationship: {
+                    scope: RelationshipScope;
+                    type: RelationshipType;
+                    targetId: string;
+                  } | null = null;
+                  for (const targetId of preferredTargetIds) {
+                    const target = relationTargets.find((candidate) => candidate.id === targetId);
+                    if (!target) continue;
+                    const scope: RelationshipScope = target.kind === "method" ? "cross" : "outline";
+                    const type = RELATIONSHIP_TYPES.find((candidateType) =>
+                      !scopedRelationships.some(({ scope: itemScope, relationship }) => {
+                        if (itemScope !== scope || relationship.type !== candidateType) return false;
+                        const counterpartId = relationship.fromId === row.noteId
+                          ? relationship.toId
+                          : relationship.fromId;
+                        return counterpartId === targetId;
+                      }),
+                    );
+                    if (type) {
+                      nextRelationship = { scope, type, targetId };
+                      break;
+                    }
+                  }
+                  return (
+                    <div
+                      className="picture-outline-relations"
+                      data-catalyst-address={`O ${outlineNumber} relations`}
+                      onKeyDown={(event) => event.stopPropagation()}
+                      aria-label={`Relationships for ${noteDisplayTitle(note)}`}
+                    >
+                      {scopedRelationships.length > 0 && (
+                        <div className="picture-outline-relation-list">
+                          {scopedRelationships.map(({ scope, relationship }) => {
+                            const outgoing = relationship.fromId === row.noteId;
+                            const otherId = outgoing ? relationship.toId : relationship.fromId;
+                            const target = relationTargets.find((candidate) => candidate.id === otherId);
+                            if (!target) return null;
+                            const targetTitle = target.title;
+                            const targetLabel = relationshipTargetLabel(target);
+                            const editableTargets = relationTargets.filter((candidate) => {
+                              if (candidate.id === row.noteId) return false;
+                              const candidateScope: RelationshipScope = candidate.kind === "method" ? "cross" : "outline";
+                              return !scopedRelationships.some(({ scope: otherScope, relationship: otherRelationship }) => {
+                                if (
+                                  otherRelationship.id === relationship.id ||
+                                  otherScope !== candidateScope ||
+                                  otherRelationship.type !== relationship.type
+                                ) return false;
+                                const counterpartId = otherRelationship.fromId === row.noteId
+                                  ? otherRelationship.toId
+                                  : otherRelationship.fromId;
+                                return counterpartId === candidate.id;
+                              });
+                            });
+                            const editingTarget = editingRelationshipId === relationship.id;
+                            return (
+                              <div key={`${scope}:${relationship.id}`} className="picture-outline-relation-row">
+                                <select
+                                  value={relationship.type}
+                                  onChange={(event) => onUpdateRelationship(
+                                    scope,
+                                    relationship.id,
+                                    event.currentTarget.value as RelationshipType,
+                                  )}
+                                  aria-label={`Relationship type with ${targetTitle}`}
+                                >
+                                  {RELATIONSHIP_TYPES.map((type) => (
+                                    <option key={type} value={type}>{RELATIONSHIP_TYPE_LABELS[type]}</option>
+                                  ))}
+                                </select>
+                                {editingTarget ? (
+                                  <select
+                                    className="picture-outline-relation-target-edit"
+                                    value={otherId}
+                                    onChange={(event) => {
+                                      const nextOtherId = event.currentTarget.value;
+                                      if (!nextOtherId || nextOtherId === otherId) {
+                                        setEditingRelationshipId(null);
+                                        return;
+                                      }
+                                      onRetargetRelationship(
+                                        scope,
+                                        relationship.id,
+                                        outgoing ? row.noteId : nextOtherId,
+                                        outgoing ? nextOtherId : row.noteId,
+                                      );
+                                      setEditingRelationshipId(null);
+                                    }}
+                                    onBlur={() => setEditingRelationshipId(null)}
+                                    autoFocus
+                                    aria-label={`Change target for ${RELATIONSHIP_TYPE_LABELS[relationship.type]}`}
+                                  >
+                                    {editableTargets.map((candidate) => (
+                                      <option key={`${candidate.kind}:${candidate.id}`} value={candidate.id}>
+                                        {relationshipTargetLabel(candidate)}
+                                      </option>
+                                    ))}
+                                  </select>
+                                ) : (
+                                  <input
+                                    type="text"
+                                    className="picture-outline-relation-target"
+                                    readOnly
+                                    value={targetLabel}
+                                    onClick={() => setEditingRelationshipId(relationship.id)}
+                                    onKeyDown={(event) => {
+                                      if (event.key === "Enter" || event.key === " ") {
+                                        event.preventDefault();
+                                        setEditingRelationshipId(relationship.id);
+                                      }
+                                    }}
+                                    title={`Change target: ${targetLabel}`}
+                                    aria-label={`Change relationship target from ${targetLabel}`}
+                                  />
+                                )}
+                                <button
+                                  type="button"
+                                  className="picture-outline-relation-delete"
+                                  onClick={() => onDeleteRelationship(scope, relationship.id)}
+                                  title="Remove relationship"
+                                  aria-label={`Remove relationship with ${targetTitle}`}
+                                >
+                                  <InstrumentGlyph name="delete" />
+                                </button>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                      <div className="picture-outline-relation-actions">
+                        <button
+                          type="button"
+                          className="picture-outline-relation-toggle"
+                          onClick={() => {
+                            if (!nextRelationship) return;
+                            onCreateRelationship(
+                              nextRelationship.scope,
+                              row.noteId,
+                              nextRelationship.targetId,
+                              nextRelationship.type,
+                            );
+                          }}
+                          disabled={!nextRelationship}
+                          title="Add relationship"
+                          aria-label="Add relationship"
+                        >
+                          +
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
           );
         })}
