@@ -12,5 +12,23 @@ if (Test-Path $archive) {
   Remove-Item $archive -Force
 }
 
-Compress-Archive -Path (Join-Path $source '*') -DestinationPath $archive -CompressionLevel Optimal
+Add-Type -AssemblyName System.IO.Compression
+Add-Type -AssemblyName System.IO.Compression.FileSystem
+
+$zip = [System.IO.Compression.ZipFile]::Open($archive, [System.IO.Compression.ZipArchiveMode]::Create)
+try {
+  Get-ChildItem -Path $source -Recurse -File | ForEach-Object {
+    $relativePath = $_.FullName.Substring($source.Length + 1).Replace('\', '/')
+    [System.IO.Compression.ZipFileExtensions]::CreateEntryFromFile(
+      $zip,
+      $_.FullName,
+      $relativePath,
+      [System.IO.Compression.CompressionLevel]::Optimal
+    ) | Out-Null
+  }
+}
+finally {
+  $zip.Dispose()
+}
+
 Write-Output ("Firefox reviewer source archive: " + $archive)
