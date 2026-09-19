@@ -12,6 +12,7 @@ import {
   type PDFViewerRef,
   type PluginRegistry,
 } from "@embedpdf/react-pdf-viewer";
+import pdfiumWasmUrl from "@embedpdf/pdfium/pdfium.wasm?url";
 import type { RegistryLike } from "./viewerBridge";
 
 type EmbedPdfReaderProps = {
@@ -125,6 +126,18 @@ export const EmbedPdfReader = forwardRef<any, EmbedPdfReaderProps>(
                 ref={viewerRef}
                 onReady={handleReady}
                 config={{
+                  worker: false,
+                  wasmUrl: pdfiumWasmUrl,
+                  fontFallback: null,
+                  fonts: {
+                    ui: null,
+                    signature: null,
+                  },
+                  stamp: {
+                    libraries: [],
+                    manifests: [],
+                    defaultLibrary: false,
+                  },
                   documentManager: {
                     initialDocuments: [],
                     maxDocuments: 8,

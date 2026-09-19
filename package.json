@@ -15,7 +15,13 @@
     "test:css": "node scripts/test-css-architecture.mjs",
     "check:full": "npm run lockfile:check && npm run test && npm run build && npm run licenses -- --full",
     "lockfile:check": "node scripts/check-package-lock.mjs",
-    "release:verify": "node scripts/verify-user-release.mjs"
+    "release:verify": "node scripts/verify-user-release.mjs",
+    "firefox:stage": "npm run build && node scripts/stage-firefox-release.mjs",
+    "firefox:lint": "npm run firefox:stage && npx --yes web-ext@10.6.0 lint --source-dir release/firefox",
+    "firefox:package": "npm run firefox:lint && npx --yes web-ext@10.6.0 build --source-dir release/firefox --artifacts-dir release --overwrite-dest",
+    "firefox:source": "node scripts/stage-firefox-source.mjs && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/package-firefox-source.ps1",
+    "firefox:verify": "node scripts/verify-firefox-release.mjs",
+    "firefox:release": "npm run firefox:package && npm run firefox:source && npm run firefox:verify"
   },
   "dependencies": {
     "@embedpdf/react-pdf-viewer": "^2.15.1",
