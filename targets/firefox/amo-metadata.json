@@ -9,7 +9,7 @@
     "license": "Apache-2.0",
     "approval_notes": "Catalyst is a local-first Firefox desktop extension with no browsing or host permissions and no data collection or transmission. The Firefox package is a thin wrapper around the same production Vite build used for ordinary web hosting. A reproducible source archive is uploaded with this submission; see MOZILLA_REVIEWER_BUILD.md in that archive for build instructions, third-party source links, validator-warning explanations, and Firefox ESR 140.16 compatibility verification.",
     "release_notes": {
-      "en-US": "Initial Firefox distribution release target for Catalyst 1.1.0."
+      "en-US": "Initial Firefox distribution release target for Catalyst 1.1.1."
     }
   }
 }

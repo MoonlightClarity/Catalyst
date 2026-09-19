@@ -1,6 +1,6 @@
 # Firefox validator notes
 
-Current validation baseline for Catalyst 1.1.0:
+Current validation baseline for Catalyst 1.1.1:
 
 - errors: 0
 - notices: 0
